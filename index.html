@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nova Habitat Holdings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Prata&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="home">
+  <div class="site-shell">
+    <nav class="main-nav">
+      <a class="brand-lockup" href="index.html">
+        <span class="brand-mark" id="brandMarkText">NH</span>
+        <img class="brand-logo-image hidden" id="brandLogoImage" alt="Logo cong ty">
+        <div>
+          <p class="eyebrow" id="brandEyebrow">Apartment Investment Platform</p>
+          <h1 id="companyName">Nova Habitat Holdings</h1>
+        </div>
+      </a>
+      <div class="nav-links">
+        <a href="#gioi-thieu" id="navAboutLabel">Gioi Thieu</a>
+        <a href="rooms.html" id="navRoomsLabel">Tim Phong</a>
+        <a href="admin-login.html" id="navAdminLabel">Admin</a>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <section class="hero-grid home-hero-grid">
+        <div class="hero-copy">
+          <p class="section-kicker" id="heroKicker">Van hanh can ho cho thue</p>
+          <h2 id="heroHeadline">Nen tang gioi thieu danh muc tai san den nha dau tu.</h2>
+          <p id="heroDescription">
+            Chung toi van hanh he thong can ho cho thue va toa nha tai cac khu vuc trung tam,
+            tap trung vao cong suat lap day, hieu suat tai san va trai nghiem khach thue.
+          </p>
+          <div class="hero-actions">
+            <a class="primary-button" href="rooms.html" id="heroPrimaryButton">Tim phong ngay</a>
+            <a class="secondary-button" href="#toa-nha" id="heroSecondaryButton">Xem toa nha dang van hanh</a>
+          </div>
+        </div>
+
+        <div class="hero-showcase">
+          <div class="hero-image-card">
+            <img id="heroBuildingImage" alt="Anh hero toa nha">
+          </div>
+          <div class="hero-badge-card">
+            <span>Danh muc dang van hanh</span>
+            <strong id="heroBadgeText">Toa nha, phong cho thue, hieu suat van hanh, kha nang mo rong.</strong>
+          </div>
+        </div>
+
+        <div class="hero-panel">
+          <div class="metric-card">
+            <span>Tong toa nha</span>
+            <strong id="buildingCount">00</strong>
+          </div>
+          <div class="metric-card">
+            <span>Tong phong</span>
+            <strong id="roomCount">00</strong>
+          </div>
+          <div class="metric-card accent">
+            <span>Phong dang trong</span>
+            <strong id="vacantCount">00</strong>
+          </div>
+        </div>
+      </section>
+    </header>
+
+    <main>
+      <section id="gioi-thieu" class="content-section split-layout">
+        <div class="section-heading">
+          <p class="section-kicker" id="companySectionKicker">Gioi thieu ve cong ty</p>
+          <h2 id="companySectionTitle">Doanh nghiep van hanh can ho cho thue huong den nha dau tu</h2>
+          <p id="companyStory"></p>
+        </div>
+        <div class="info-card">
+          <div class="info-row">
+            <span>Linh vuc</span>
+            <strong id="companyIndustry"></strong>
+          </div>
+          <div class="info-row">
+            <span>Dia chi</span>
+            <strong id="companyAddress"></strong>
+          </div>
+          <div class="info-row">
+            <span>Email</span>
+            <strong id="companyEmail"></strong>
+          </div>
+          <div class="info-row">
+            <span>Dien thoai</span>
+            <strong id="companyPhone"></strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <div class="section-header">
+          <div>
+            <p class="section-kicker" id="portfolioSectionKicker">Nhung gi cong ty dang van hanh</p>
+            <h2 id="portfolioSectionTitle">Danh muc va quy mo hien tai</h2>
+          </div>
+        </div>
+        <div class="stats-grid" id="investorStats"></div>
+      </section>
+
+      <section class="content-section">
+        <div class="section-header">
+          <div>
+            <p class="section-kicker" id="resultsSectionKicker">Ket qua dat duoc</p>
+            <h2 id="resultsSectionTitle">Chi so hieu qua va thanh tuu van hanh</h2>
+          </div>
+        </div>
+        <div class="results-grid" id="resultsGrid"></div>
+      </section>
+
+      <section id="toa-nha" class="content-section">
+        <div class="section-header">
+          <div>
+            <p class="section-kicker" id="buildingsSectionKicker">Toa nha dang van hanh</p>
+            <h2 id="buildingsSectionTitle">Chon toa nha de xem chi tiet o trang rieng</h2>
+          </div>
+        </div>
+        <div class="building-list-grid" id="homeBuildingGrid"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="floating-contact" id="floatingContact">
+    <button class="floating-toggle" id="contactToggle" type="button">Lien he</button>
+    <div class="floating-card hidden" id="contactCard">
+      <h3 id="contactTitle">Thong tin lien he</h3>
+      <a id="contactPhoneLink" href="#">SDT</a>
+      <a id="contactZaloLink" href="#" target="_blank" rel="noreferrer">Zalo</a>
+      <a id="contactFacebookLink" href="#" target="_blank" rel="noreferrer">Facebook</a>
+    </div>
+  </div>
+
+  <template id="statCardTemplate">
+    <article class="stat-card">
+      <p class="stat-label"></p>
+      <strong class="stat-value"></strong>
+      <span class="stat-note"></span>
+    </article>
+  </template>
+
+  <script src="shared-data.js"></script>
+  <script src="public-app.js"></script>
+</body>
+</html>

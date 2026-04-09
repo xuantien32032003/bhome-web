@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Prata&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="admin-dashboard">
+  <div class="site-shell">
+    <nav class="main-nav">
+      <a class="brand-lockup" href="admin-dashboard.html">
+        <span class="brand-mark" id="brandMarkText">NH</span>
+        <img class="brand-logo-image hidden" id="brandLogoImage" alt="Logo cong ty">
+        <div>
+          <p class="eyebrow" id="brandEyebrow">Admin Workspace</p>
+          <h1 id="adminCompanyName">Nova Habitat Holdings</h1>
+        </div>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" target="_blank" rel="noreferrer">Xem public site</a>
+        <button class="ghost-button button-inline" id="logoutButton" type="button">Dang xuat</button>
+      </div>
+    </nav>
+
+    <main>
+      <section class="content-section">
+        <div class="section-header">
+          <div>
+            <p class="section-kicker">Noi dung website</p>
+            <h2>Chinh sua moi chu tren giao dien</h2>
+          </div>
+        </div>
+        <form id="contentForm" class="form-grid">
+          <label>Dong chu tren cung<input name="brandEyebrow" required></label>
+          <label>Menu - Gioi thieu<input name="navAbout" required></label>
+          <label>Menu - Tim phong<input name="navRooms" required></label>
+          <label>Menu - Admin<input name="navAdmin" required></label>
+          <label>Hero - Kicker<input name="heroKicker" required></label>
+          <label>Hero - Nut chinh<input name="heroPrimaryButton" required></label>
+          <label>Hero - Nut phu<input name="heroSecondaryButton" required></label>
+          <label>Section cong ty - Kicker<input name="companySectionKicker" required></label>
+          <label>Section cong ty - Tieu de<input name="companySectionTitle" required></label>
+          <label>Section portfolio - Kicker<input name="portfolioSectionKicker" required></label>
+          <label>Section portfolio - Tieu de<input name="portfolioSectionTitle" required></label>
+          <label>Section ket qua - Kicker<input name="resultsSectionKicker" required></label>
+          <label>Section ket qua - Tieu de<input name="resultsSectionTitle" required></label>
+          <label>Section toa nha - Kicker<input name="buildingsSectionKicker" required></label>
+          <label>Section toa nha - Tieu de<input name="buildingsSectionTitle" required></label>
+          <label>Chi tiet toa nha - Kicker<input name="detailPageKicker" required></label>
+          <label>Chi tiet - Kicker phong<input name="detailRoomsSectionKicker" required></label>
+          <label>Chi tiet - Tieu de phong<input name="detailRoomsSectionTitle" required></label>
+          <label>Chi tiet - Nut tim phong<input name="detailRoomsButton" required></label>
+          <label>Tim phong - Kicker<input name="roomsPageKicker" required></label>
+          <label>Tim phong - Tieu de<input name="roomsPageTitle" required></label>
+          <label>Tim phong - Mo ta<textarea name="roomsPageDescription" rows="3" required></textarea></label>
+          <label>Lien he - Nut noi<input name="contactToggle" required></label>
+          <label>Lien he - Tieu de<input name="contactTitle" required></label>
+          <label>Lien he - Nhan SDT<input name="contactPhoneLabel" required></label>
+          <label>Lien he - Nhan Zalo<input name="contactZaloLabel" required></label>
+          <label>Lien he - Nhan Facebook<input name="contactFacebookLabel" required></label>
+          <label>Admin login - Tieu de<input name="adminLoginTitle" required></label>
+          <label>Admin login - Mo ta<textarea name="adminLoginDescription" rows="3" required></textarea></label>
+          <label>Admin login - Nut dang nhap<input name="adminLoginButton" required></label>
+          <div class="form-actions">
+            <button class="primary-button button-inline" type="submit">Luu noi dung website</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="content-section">
+        <div class="section-header">
+          <div>
+            <p class="section-kicker">Cong ty</p>
+            <h2>Cap nhat thong tin gioi thieu va lien he</h2>
+          </div>
+        </div>
+        <form id="companyForm" class="form-grid">
+          <label>Ten cong ty<input name="name" required></label>
+          <label>Logo cong ty (URL hoac duong dan anh)<input name="logo"></label>
+          <label>Tai logo tu may<input name="logoFile" type="file" accept="image/*"></label>
+          <label>Title hero<input name="headline" required></label>
+          <label>Mo ta hero<textarea name="description" rows="3" required></textarea></label>
+          <label>Cau chuyen cong ty<textarea name="story" rows="4" required></textarea></label>
+          <label>Anh hero<input name="heroImage" required></label>
+          <label>Tai anh hero tu may<input name="heroImageFile" type="file" accept="image/*"></label>
+          <label>Linh vuc<input name="industry" required></label>
+          <label>Dia chi<input name="address" required></label>
+          <label>Email<input name="email" type="email" required></label>
+          <label>So dien thoai<input name="phone" required></label>
+          <label>Zalo link<input name="zalo" required></label>
+          <label>Facebook link<input name="facebook" required></label>
+          <div class="form-actions">
+            <button class="primary-button button-inline" type="submit">Luu thong tin cong ty</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="content-section">
+        <div class="section-header">
+          <div>
+            <p class="section-kicker">Ket qua</p>
+            <h2>Cap nhat nhung gi dang van hanh va ket qua dat duoc</h2>
+          </div>
+        </div>
+        <form id="statsForm" class="form-grid">
+          <label>Chi so 1 - Ten<input name="statLabel1" required></label>
+          <label>Chi so 1 - Gia tri<input name="statValue1" required></label>
+          <label>Chi so 1 - Ghi chu<input name="statNote1" required></label>
+          <label>Chi so 2 - Ten<input name="statLabel2" required></label>
+          <label>Chi so 2 - Gia tri<input name="statValue2" required></label>
+          <label>Chi so 2 - Ghi chu<input name="statNote2" required></label>
+          <label>Chi so 3 - Ten<input name="statLabel3" required></label>
+          <label>Chi so 3 - Gia tri<input name="statValue3" required></label>
+          <label>Chi so 3 - Ghi chu<input name="statNote3" required></label>
+          <label>Chi so 4 - Ten<input name="statLabel4" required></label>
+          <label>Chi so 4 - Gia tri<input name="statValue4" required></label>
+          <label>Chi so 4 - Ghi chu<input name="statNote4" required></label>
+          <div class="form-actions">
+            <button class="primary-button button-inline" type="submit">Luu chi so</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="content-section">
+        <div class="section-header">
+          <div>
+            <p class="section-kicker">Toa nha</p>
+            <h2>Quan ly toa nha dang van hanh</h2>
+          </div>
+        </div>
+        <form id="buildingForm" class="form-grid">
+          <input type="hidden" name="id">
+          <label>Ten toa nha<input name="name" required></label>
+          <label>Khu vuc<input name="region" required></label>
+          <label>Dia chi<input name="address" required></label>
+          <label>Anh chinh<input name="image" required></label>
+          <label>Tai anh chinh tu may<input name="imageFile" type="file" accept="image/*"></label>
+          <label>Bo anh (tach bang dau phay)<textarea name="gallery" rows="3" required></textarea></label>
+          <label>Tai bo anh tu may<input name="galleryFiles" type="file" accept="image/*" multiple></label>
+          <label>So tang<input name="floors" type="number" min="1" required></label>
+          <label>Ty le lap day<input name="occupancy" type="number" min="0" max="100" required></label>
+          <label>Gia trung binh<input name="averageRent" required></label>
+          <label>Diem nhan dau tu<input name="investmentHighlight" required></label>
+          <label>Mo ta chi tiet<textarea name="description" rows="4" required></textarea></label>
+          <div class="form-actions">
+            <button class="secondary-button button-inline" type="button" id="buildingResetButton">Tao moi</button>
+            <button class="primary-button button-inline" type="submit">Luu toa nha</button>
+          </div>
+        </form>
+        <div class="table-wrap admin-table-spacing">
+          <table>
+            <thead>
+              <tr>
+                <th>Anh</th>
+                <th>Toa nha</th>
+                <th>Khu vuc</th>
+                <th>So phong</th>
+                <th>Lap day</th>
+                <th>Thao tac</th>
+              </tr>
+            </thead>
+            <tbody id="buildingTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <div class="section-header">
+          <div>
+            <p class="section-kicker">Phong</p>
+            <h2>Quan ly danh muc phong</h2>
+          </div>
+        </div>
+        <form id="roomForm" class="form-grid">
+          <input type="hidden" name="id">
+          <label>Ten phong<input name="name" required></label>
+          <label>Toa nha<select name="buildingId" required></select></label>
+          <label>Khu vuc<input name="region" required></label>
+          <label>Anh phong<input name="image" required></label>
+          <label>Tai anh phong tu may<input name="imageFile" type="file" accept="image/*"></label>
+          <label>Loai phong<input name="type" required></label>
+          <label>Gia thue<input name="rent" required></label>
+          <label>Trang thai
+            <select name="status" required>
+              <option value="available">Dang trong</option>
+              <option value="occupied">Da co khach</option>
+              <option value="upcoming">Sap trong</option>
+            </select>
+          </label>
+          <label>Ngay trong<input name="availableFrom" type="date" required></label>
+          <label>Dien tich<input name="area" required></label>
+          <label>Tien ich<textarea name="amenities" rows="3" required></textarea></label>
+          <div class="form-actions">
+            <button class="secondary-button button-inline" type="button" id="roomResetButton">Tao moi</button>
+            <button class="primary-button button-inline" type="submit">Luu phong</button>
+          </div>
+        </form>
+        <div class="admin-room-grid admin-table-spacing" id="adminRoomGrid"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="shared-data.js"></script>
+  <script src="admin-app.js"></script>
+</body>
+</html>

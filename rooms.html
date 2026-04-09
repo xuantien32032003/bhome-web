@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tim phong</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Prata&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="rooms">
+  <div class="site-shell">
+    <nav class="main-nav">
+      <a class="brand-lockup" href="index.html">
+        <span class="brand-mark" id="brandMarkText">NH</span>
+        <img class="brand-logo-image hidden" id="brandLogoImage" alt="Logo cong ty">
+        <div>
+          <p class="eyebrow" id="brandEyebrow">Apartment Investment Platform</p>
+          <h1 id="companyName">Nova Habitat Holdings</h1>
+        </div>
+      </a>
+      <div class="nav-links">
+        <a href="index.html#gioi-thieu" id="navAboutLabel">Gioi Thieu</a>
+        <a href="rooms.html" id="navRoomsLabel">Tim Phong</a>
+        <a href="admin-login.html" id="navAdminLabel">Admin</a>
+      </div>
+    </nav>
+
+    <main>
+      <section class="content-section detail-page-hero">
+        <p class="section-kicker" id="roomsPageKicker">Tim phong</p>
+        <h2 id="roomsPageTitle">Chon phong theo toa nha va khu vuc</h2>
+        <p id="roomsPageDescription">Danh muc duoc cap nhat tu he thong quan tri, hien thi trang thai trong phong va ngay trong.</p>
+      </section>
+
+      <section class="content-section">
+        <div class="filter-toolbar">
+          <select id="regionFilter"></select>
+          <select id="buildingFilter"></select>
+          <select id="statusFilter"></select>
+        </div>
+        <div class="room-grid" id="roomsPageGrid"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="floating-contact" id="floatingContact">
+    <button class="floating-toggle" id="contactToggle" type="button">Lien he</button>
+    <div class="floating-card hidden" id="contactCard">
+      <h3 id="contactTitle">Thong tin lien he</h3>
+      <a id="contactPhoneLink" href="#">SDT</a>
+      <a id="contactZaloLink" href="#" target="_blank" rel="noreferrer">Zalo</a>
+      <a id="contactFacebookLink" href="#" target="_blank" rel="noreferrer">Facebook</a>
+    </div>
+  </div>
+
+  <script src="shared-data.js"></script>
+  <script src="public-app.js"></script>
+</body>
+</html>

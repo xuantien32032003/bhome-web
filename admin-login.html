@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Prata&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="admin-login">
+  <div class="site-shell narrow-shell">
+    <nav class="main-nav">
+      <a class="brand-lockup" href="index.html">
+        <span class="brand-mark" id="brandMarkText">NH</span>
+        <img class="brand-logo-image hidden" id="brandLogoImage" alt="Logo cong ty">
+        <div>
+          <p class="eyebrow" id="brandEyebrow">Apartment Investment Platform</p>
+          <h1>Admin Login</h1>
+        </div>
+      </a>
+      <div class="nav-links">
+        <a href="index.html">Trang chu</a>
+        <a href="rooms.html" id="navRoomsLabel">Tim Phong</a>
+      </div>
+    </nav>
+
+    <main>
+      <section class="content-section login-card">
+        <p class="section-kicker">Khu quan tri rieng</p>
+        <h2 id="adminLoginTitle">Dang nhap admin</h2>
+        <p class="muted-copy" id="adminLoginDescription">Dang nhap de vao trang quan tri he thong.</p>
+        <form id="adminLoginForm" class="form-grid single-column-form">
+          <label>Email admin<input name="email" type="email" required></label>
+          <label>Mat khau<input name="password" type="password" required></label>
+          <p class="login-hint" id="loginHint">Tai khoan mac dinh: `admin@nova.vn` / `123456`</p>
+          <div class="form-actions">
+            <button class="primary-button button-inline" type="submit" id="adminLoginButton">Dang nhap</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="shared-data.js"></script>
+  <script src="admin-app.js"></script>
+</body>
+</html>
