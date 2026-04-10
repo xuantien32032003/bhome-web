@@ -413,6 +413,35 @@ textarea { resize: vertical; }
   justify-content: center;
 }
 
+.carousel-controls-footer {
+  margin-top: 24px;
+}
+
+.carousel-button {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(13, 92, 99, 0.12), rgba(199, 134, 66, 0.18));
+  border: 1px solid rgba(13, 92, 99, 0.14);
+  color: var(--primary-dark);
+  box-shadow: var(--shadow-soft);
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.carousel-button:hover {
+  background: linear-gradient(135deg, rgba(13, 92, 99, 0.18), rgba(199, 134, 66, 0.24));
+}
+
+.carousel-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .carousel-status {
   min-width: 68px;
   text-align: center;
@@ -708,6 +737,12 @@ td {
   .pagination-bar {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .carousel-button {
+    width: 40px;
+    height: 40px;
+    font-size: 1.45rem;
   }
 
   .pagination-numbers {
