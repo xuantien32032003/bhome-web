@@ -5,8 +5,10 @@
     buildingDetailLink,
     formatDate,
     getBuildingById,
+    getRoomById,
     getRoomsByBuilding,
     loadState,
+    roomDetailLink,
     safeImage,
     statusLabel,
   } = window.NovaData;
@@ -23,6 +25,7 @@
     if (page === "home") renderHome(state);
     if (page === "building-detail") renderBuildingDetailPage(state);
     if (page === "rooms") renderRoomsPage(state);
+    if (page === "room-detail") renderRoomDetailPage(state);
   }
 
   function setupCommon(state) {
@@ -35,6 +38,7 @@
     const toggle = document.getElementById("contactToggle");
     const card = document.getElementById("contactCard");
     if (toggle && card) toggle.addEventListener("click", () => card.classList.toggle("hidden"));
+    setupMobileMenu();
 
     const phoneLink = document.getElementById("contactPhoneLink");
     const zaloLink = document.getElementById("contactZaloLink");
@@ -74,7 +78,6 @@
     const statTemplate = document.getElementById("statCardTemplate");
     const statGrid = document.getElementById("investorStats");
     statGrid.innerHTML = "";
-
     state.investorStats.forEach((stat) => {
       const fragment = statTemplate.content.cloneNode(true);
       fragment.querySelector(".stat-label").textContent = stat.label;
@@ -108,9 +111,7 @@
     function renderPage() {
       buildingGrid.innerHTML = "";
       const start = (currentPage - 1) * BUILDINGS_PER_PAGE;
-      const currentItems = state.buildings.slice(start, start + BUILDINGS_PER_PAGE);
-
-      currentItems.forEach((building) => {
+      state.buildings.slice(start, start + BUILDINGS_PER_PAGE).forEach((building) => {
         const roomCount = getRoomsByBuilding(state, building.id).length;
         const card = document.createElement("article");
         card.className = "building-overview-card";
@@ -169,16 +170,18 @@
     document.title = `${building.name} | Chi tiết tòa nhà`;
     document.getElementById("detailPageTitle").textContent = building.name;
     document.getElementById("detailPageSummary").textContent = building.description;
-    document.getElementById("detailMainImage").src = safeImage(building.image, FALLBACK_BUILDING_IMAGE);
 
-    const thumbGrid = document.getElementById("detailThumbGrid");
-    thumbGrid.innerHTML = "";
-    (building.gallery && building.gallery.length ? building.gallery : [building.image]).forEach((image) => {
-      const img = document.createElement("img");
-      img.src = safeImage(image, FALLBACK_BUILDING_IMAGE);
-      img.alt = building.name;
-      thumbGrid.appendChild(img);
-    });
+    const gallery = building.gallery && building.gallery.length ? building.gallery : [building.image];
+    setupImageGallery(
+      gallery,
+      "detailMainImage",
+      "detailPrevImage",
+      "detailNextImage",
+      "detailImageStatus",
+      "detailImageDots",
+      FALLBACK_BUILDING_IMAGE,
+      building.name
+    );
 
     const rooms = getRoomsByBuilding(state, building.id);
     document.getElementById("detailContentGrid").innerHTML = `
@@ -264,7 +267,6 @@
 
     function renderPagination(totalPages) {
       numbers.innerHTML = "";
-
       for (let pageNumber = 1; pageNumber <= totalPages; pageNumber += 1) {
         const button = document.createElement("button");
         button.type = "button";
@@ -276,7 +278,6 @@
         });
         numbers.appendChild(button);
       }
-
       prevButton.disabled = currentPage === 1;
       nextButton.disabled = currentPage === totalPages;
     }
@@ -305,6 +306,141 @@
     }
   }
 
+  function renderRoomDetailPage(state) {
+    const params = new URLSearchParams(window.location.search);
+    const room = getRoomById(state, params.get("id"));
+
+    if (!room) {
+      document.getElementById("roomDetailTitle").textContent = "Không tìm thấy phòng";
+      document.getElementById("roomDetailSummary").textContent = "Phòng không tồn tại hoặc đã bị xóa.";
+      document.getElementById("roomDetailContent").innerHTML =
+        '<div class="empty-state-card">Không có nội dung để hiển thị.</div>';
+      return;
+    }
+
+    const building = getBuildingById(state, room.buildingId);
+    document.title = `${room.name} | Chi tiết phòng`;
+    document.getElementById("roomDetailTitle").textContent = room.name;
+    document.getElementById("roomDetailSummary").textContent =
+      `${building ? building.name : "Không xác định"} | ${room.type} | ${statusLabel(room.status)}`;
+
+    setupImageGallery(
+      [room.image],
+      "roomDetailImage",
+      "roomPrevImage",
+      "roomNextImage",
+      "roomImageStatus",
+      "roomImageDots",
+      FALLBACK_ROOM_IMAGE,
+      room.name
+    );
+
+    document.getElementById("roomDetailContent").innerHTML = `
+      <article class="detail-info-card">
+        <h3>Thông tin cơ bản</h3>
+        <ul class="detail-list">
+          <li><span>Tòa nhà</span><strong>${building ? building.name : "Không xác định"}</strong></li>
+          <li><span>Khu vực</span><strong>${room.region}</strong></li>
+          <li><span>Loại phòng</span><strong>${room.type}</strong></li>
+          <li><span>Trạng thái</span><strong>${statusLabel(room.status)}</strong></li>
+        </ul>
+      </article>
+      <article class="detail-info-card">
+        <h3>Thông tin cho thuê</h3>
+        <ul class="detail-list">
+          <li><span>Giá thuê</span><strong>${room.rent}</strong></li>
+          <li><span>Ngày trống</span><strong>${formatDate(room.availableFrom)}</strong></li>
+          <li><span>Diện tích</span><strong>${room.area}</strong></li>
+          <li><span>Tiện ích</span><strong>${room.amenities}</strong></li>
+        </ul>
+      </article>
+    `;
+  }
+
+  function setupImageGallery(images, imageId, prevId, nextId, statusId, dotsId, fallback, altText) {
+    const safeImages = (images && images.length ? images : [fallback]).map((item) => safeImage(item, fallback));
+    const imageElement = document.getElementById(imageId);
+    const prevButton = document.getElementById(prevId);
+    const nextButton = document.getElementById(nextId);
+    const status = document.getElementById(statusId);
+    const dots = document.getElementById(dotsId);
+    let currentIndex = 0;
+
+    if (dots) {
+      dots.innerHTML = "";
+      safeImages.forEach((_, index) => {
+        const dot = document.createElement("button");
+        dot.type = "button";
+        dot.className = "gallery-dot";
+        dot.setAttribute("aria-label", `Chuyển đến ảnh ${index + 1}`);
+        dot.addEventListener("click", () => {
+          currentIndex = index;
+          renderImage();
+        });
+        dots.appendChild(dot);
+      });
+    }
+
+    function renderImage() {
+      imageElement.src = safeImages[currentIndex];
+      imageElement.alt = altText;
+      if (status) status.textContent = `${currentIndex + 1} / ${safeImages.length}`;
+      if (prevButton) prevButton.disabled = currentIndex === 0;
+      if (nextButton) nextButton.disabled = currentIndex === safeImages.length - 1;
+      if (dots) {
+        Array.from(dots.children).forEach((dot, index) => {
+          dot.classList.toggle("active", index === currentIndex);
+        });
+      }
+    }
+
+    if (prevButton) {
+      prevButton.onclick = () => {
+        if (currentIndex > 0) {
+          currentIndex -= 1;
+          renderImage();
+        }
+      };
+    }
+
+    if (nextButton) {
+      nextButton.onclick = () => {
+        if (currentIndex < safeImages.length - 1) {
+          currentIndex += 1;
+          renderImage();
+        }
+      };
+    }
+
+    renderImage();
+  }
+
+  function setupMobileMenu() {
+    const button = document.getElementById("mobileMenuToggle");
+    const nav = document.getElementById("primaryNav");
+    if (!button || !nav) return;
+
+    const closeMenu = () => {
+      nav.classList.remove("nav-links-open");
+      button.classList.remove("is-open");
+      button.setAttribute("aria-expanded", "false");
+    };
+
+    button.addEventListener("click", () => {
+      const isOpen = nav.classList.toggle("nav-links-open");
+      button.classList.toggle("is-open", isOpen);
+      button.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    nav.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", closeMenu);
+    });
+
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 720) closeMenu();
+    });
+  }
+
   function fillSelect(select, values) {
     select.innerHTML = values.map((value) => `<option value="${value}">${value}</option>`).join("");
   }
@@ -327,9 +463,8 @@
         <div><strong>Khu vực:</strong> ${room.region}</div>
         <div><strong>Giá thuê:</strong> ${room.rent}</div>
         <div><strong>Ngày trống:</strong> ${formatDate(room.availableFrom)}</div>
-        <div><strong>Diện tích:</strong> ${room.area}</div>
-        <div><strong>Tiện ích:</strong> ${room.amenities}</div>
       </div>
+      <a class="secondary-button button-inline room-detail-button" href="${roomDetailLink(room.id)}">Xem chi tiết</a>
     `;
     return card;
   }
@@ -372,7 +507,6 @@
     const brandEyebrow = document.getElementById("brandEyebrow");
 
     if (brandEyebrow) brandEyebrow.textContent = content.brandEyebrow;
-
     if (!brandMarkText || !brandLogoImage) return;
 
     if (company.logo && String(company.logo).trim()) {

@@ -52,15 +52,23 @@
       return;
     }
 
-    let state = await loadState();
+    let state = normalizeState(await loadState());
+    const notice = document.getElementById("adminNotice");
     const contentForm = document.getElementById("contentForm");
     const companyForm = document.getElementById("companyForm");
     const statsForm = document.getElementById("statsForm");
     const buildingForm = document.getElementById("buildingForm");
     const roomForm = document.getElementById("roomForm");
+    const adminAccountForm = document.getElementById("adminAccountForm");
     const buildingTableBody = document.getElementById("buildingTableBody");
     const adminRoomGrid = document.getElementById("adminRoomGrid");
-    const notice = document.getElementById("adminNotice");
+    const adminAccountTableBody = document.getElementById("adminAccountTableBody");
+    const buildingSearch = document.getElementById("buildingSearch");
+    const roomSearch = document.getElementById("roomSearch");
+    const roomStatusFilter = document.getElementById("roomStatusFilter");
+    const adminSearch = document.getElementById("adminSearch");
+
+    setupTabs();
 
     document.getElementById("logoutButton").addEventListener("click", async () => {
       await logoutAdmin();
@@ -69,17 +77,21 @@
 
     document.getElementById("buildingResetButton").addEventListener("click", resetBuildingForm);
     document.getElementById("roomResetButton").addEventListener("click", resetRoomForm);
+    document.getElementById("adminAccountResetButton").addEventListener("click", resetAdminAccountForm);
+
+    [buildingSearch, roomSearch, roomStatusFilter, adminSearch].forEach((element) => {
+      element.addEventListener("input", render);
+      element.addEventListener("change", render);
+    });
 
     contentForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       try {
         const data = new FormData(contentForm);
         const nextContent = {};
-
         eachEntry(state.content, (key) => {
           nextContent[key] = String(data.get(key) || "").trim();
         });
-
         state.content = nextContent;
         await persist("Đã lưu nội dung website.");
       } catch (error) {
@@ -89,7 +101,6 @@
 
     companyForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-
       try {
         const data = new FormData(companyForm);
         const logoUploads = await uploadFiles(companyForm.elements.namedItem("logoFile").files);
@@ -97,18 +108,18 @@
 
         state.company = {
           ...state.company,
-          name: String(data.get("name") || "").trim(),
+          name: clean(data.get("name")),
           logo: firstNonEmpty(logoUploads[0], data.get("logo"), state.company.logo),
-          headline: String(data.get("headline") || "").trim(),
-          description: String(data.get("description") || "").trim(),
-          story: String(data.get("story") || "").trim(),
+          headline: clean(data.get("headline")),
+          description: clean(data.get("description")),
+          story: clean(data.get("story")),
           heroImage: firstNonEmpty(heroUploads[0], data.get("heroImage"), state.company.heroImage, FALLBACK_BUILDING_IMAGE),
-          industry: String(data.get("industry") || "").trim(),
-          address: String(data.get("address") || "").trim(),
-          email: String(data.get("email") || "").trim(),
-          phone: String(data.get("phone") || "").trim(),
-          zalo: String(data.get("zalo") || "").trim(),
-          facebook: String(data.get("facebook") || "").trim(),
+          industry: clean(data.get("industry")),
+          address: clean(data.get("address")),
+          email: clean(data.get("email")),
+          phone: clean(data.get("phone")),
+          zalo: clean(data.get("zalo")),
+          facebook: clean(data.get("facebook")),
         };
 
         clearFileInputs(companyForm);
@@ -120,15 +131,13 @@
 
     statsForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-
       try {
         const data = new FormData(statsForm);
         state.investorStats = [1, 2, 3, 4].map((index) => ({
-          label: String(data.get(`statLabel${index}`) || "").trim(),
-          value: String(data.get(`statValue${index}`) || "").trim(),
-          note: String(data.get(`statNote${index}`) || "").trim(),
+          label: clean(data.get(`statLabel${index}`)),
+          value: clean(data.get(`statValue${index}`)),
+          note: clean(data.get(`statNote${index}`)),
         }));
-
         await persist("Đã lưu các chỉ số vận hành.");
       } catch (error) {
         showNotice(error.message || "Không thể lưu chỉ số.", "error");
@@ -137,26 +146,18 @@
 
     buildingForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-
       try {
         const data = new FormData(buildingForm);
-        const id = String(data.get("id") || "").trim() || createId();
+        const id = clean(data.get("id")) || createId();
         const existing = state.buildings.find((building) => building.id === id);
         const imageUploads = await uploadFiles(buildingForm.elements.namedItem("imageFile").files);
         const galleryUploads = await uploadFiles(buildingForm.elements.namedItem("galleryFiles").files);
 
-        const image = firstNonEmpty(
-          imageUploads[0],
-          data.get("image"),
-          existing && existing.image,
-          FALLBACK_BUILDING_IMAGE
-        );
-
-        const galleryFromText = String(data.get("gallery") || "")
+        const image = firstNonEmpty(imageUploads[0], data.get("image"), existing && existing.image, FALLBACK_BUILDING_IMAGE);
+        const galleryFromText = clean(data.get("gallery"))
           .split(/\r?\n/)
           .map((item) => item.trim())
           .filter(Boolean);
-
         const gallery = galleryUploads.length
           ? galleryUploads
           : galleryFromText.length
@@ -167,16 +168,16 @@
 
         const payload = {
           id,
-          name: String(data.get("name") || "").trim(),
-          region: String(data.get("region") || "").trim(),
-          address: String(data.get("address") || "").trim(),
+          name: clean(data.get("name")),
+          region: clean(data.get("region")),
+          address: clean(data.get("address")),
           image,
           gallery,
           floors: Number(data.get("floors")) || 0,
           occupancy: Number(data.get("occupancy")) || 0,
-          averageRent: String(data.get("averageRent") || "").trim(),
-          investmentHighlight: String(data.get("investmentHighlight") || "").trim(),
-          description: String(data.get("description") || "").trim(),
+          averageRent: clean(data.get("averageRent")),
+          investmentHighlight: clean(data.get("investmentHighlight")),
+          description: clean(data.get("description")),
         };
 
         const index = state.buildings.findIndex((building) => building.id === id);
@@ -187,7 +188,7 @@
           room.buildingId === id ? extend(room, { region: payload.region }) : room
         );
 
-        resetBuildingForm();
+        resetBuildingForm(false);
         await persist(index >= 0 ? "Đã cập nhật tòa nhà." : "Đã thêm tòa nhà mới.");
       } catch (error) {
         showNotice(error.message || "Không thể lưu tòa nhà.", "error");
@@ -196,35 +197,61 @@
 
     roomForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-
       try {
         const data = new FormData(roomForm);
-        const id = String(data.get("id") || "").trim() || createId();
+        const id = clean(data.get("id")) || createId();
         const existing = state.rooms.find((room) => room.id === id);
         const roomUploads = await uploadFiles(roomForm.elements.namedItem("imageFile").files);
 
         const payload = {
           id,
-          name: String(data.get("name") || "").trim(),
-          buildingId: String(data.get("buildingId") || "").trim(),
-          region: String(data.get("region") || "").trim(),
+          name: clean(data.get("name")),
+          buildingId: clean(data.get("buildingId")),
+          region: clean(data.get("region")),
           image: firstNonEmpty(roomUploads[0], data.get("image"), existing && existing.image, FALLBACK_ROOM_IMAGE),
-          type: String(data.get("type") || "").trim(),
-          rent: String(data.get("rent") || "").trim(),
-          status: String(data.get("status") || "").trim(),
-          availableFrom: String(data.get("availableFrom") || "").trim(),
-          area: String(data.get("area") || "").trim(),
-          amenities: String(data.get("amenities") || "").trim(),
+          type: clean(data.get("type")),
+          rent: clean(data.get("rent")),
+          status: clean(data.get("status")),
+          availableFrom: clean(data.get("availableFrom")),
+          area: clean(data.get("area")),
+          amenities: clean(data.get("amenities")),
         };
 
         const index = state.rooms.findIndex((room) => room.id === id);
         if (index >= 0) state.rooms[index] = payload;
         else state.rooms.push(payload);
 
-        resetRoomForm();
+        resetRoomForm(false);
         await persist(index >= 0 ? "Đã cập nhật phòng." : "Đã thêm phòng mới.");
       } catch (error) {
         showNotice(error.message || "Không thể lưu phòng.", "error");
+      }
+    });
+
+    adminAccountForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      try {
+        const data = new FormData(adminAccountForm);
+        const id = clean(data.get("id")) || createId();
+        const payload = {
+          id,
+          name: clean(data.get("name")),
+          email: clean(data.get("email")).toLowerCase(),
+          password: clean(data.get("password")),
+        };
+
+        if (state.admins.some((admin) => admin.email === payload.email && admin.id !== id)) {
+          throw new Error("Email admin đã tồn tại.");
+        }
+
+        const index = state.admins.findIndex((admin) => admin.id === id);
+        if (index >= 0) state.admins[index] = payload;
+        else state.admins.push(payload);
+
+        resetAdminAccountForm(false);
+        await persist(index >= 0 ? "Đã cập nhật tài khoản admin." : "Đã thêm tài khoản admin.");
+      } catch (error) {
+        showNotice(error.message || "Không thể lưu tài khoản admin.", "error");
       }
     });
 
@@ -232,6 +259,7 @@
 
     async function persist(message) {
       showNotice("Đang lưu dữ liệu...", "info");
+      state = normalizeState(state);
       await saveState(state);
       render();
       showNotice(message, "success");
@@ -246,18 +274,19 @@
       fillRoomBuildingOptions();
       renderBuildingTable();
       renderRoomCards();
-    }
-
-    function fillCompanyForm() {
-      eachEntry(state.company, (key, value) => {
-        const field = companyForm.elements.namedItem(key);
-        if (field) field.value = value || "";
-      });
+      renderAdminAccounts();
     }
 
     function fillContentForm() {
       eachEntry(state.content, (key, value) => {
         const field = contentForm.elements.namedItem(key);
+        if (field) field.value = value || "";
+      });
+    }
+
+    function fillCompanyForm() {
+      eachEntry(state.company, (key, value) => {
+        const field = companyForm.elements.namedItem(key);
         if (field) field.value = value || "";
       });
     }
@@ -274,10 +303,7 @@
     function fillRoomBuildingOptions() {
       const select = roomForm.elements.namedItem("buildingId");
       const currentValue = select.value;
-
-      select.innerHTML = state.buildings
-        .map((building) => `<option value="${building.id}">${building.name}</option>`)
-        .join("");
+      select.innerHTML = state.buildings.map((building) => `<option value="${building.id}">${building.name}</option>`).join("");
 
       if (state.buildings.some((building) => building.id === currentValue)) {
         select.value = currentValue;
@@ -293,18 +319,20 @@
     }
 
     function renderBuildingTable() {
-      if (!state.buildings.length) {
-        buildingTableBody.innerHTML =
-          '<tr><td colspan="6"><div class="empty-state-inline">Chưa có tòa nhà nào.</div></td></tr>';
+      const keyword = buildingSearch.value.trim().toLowerCase();
+      const buildings = state.buildings.filter((building) =>
+        [building.name, building.region, building.address].join(" ").toLowerCase().includes(keyword)
+      );
+
+      if (!buildings.length) {
+        buildingTableBody.innerHTML = '<tr><td colspan="6"><div class="empty-state-inline">Không có tòa nhà phù hợp.</div></td></tr>';
         return;
       }
 
       buildingTableBody.innerHTML = "";
-
-      state.buildings.forEach((building) => {
+      buildings.forEach((building) => {
         const roomCount = state.rooms.filter((room) => room.buildingId === building.id).length;
         const row = document.createElement("tr");
-
         row.innerHTML = `
           <td><div class="building-thumb"><img src="${safeImage(building.image, FALLBACK_BUILDING_IMAGE)}" alt="${building.name}"></div></td>
           <td><strong>${building.name}</strong><br><span>${building.address}</span></td>
@@ -318,7 +346,6 @@
             </div>
           </td>
         `;
-
         buildingTableBody.appendChild(row);
       });
 
@@ -332,6 +359,7 @@
               const field = buildingForm.elements.namedItem(key);
               if (field) field.value = Array.isArray(value) ? value.join("\n") : value || "";
             });
+            activateTab("buildings");
             scrollToForm(buildingForm, "name");
             showNotice(`Đang chỉnh sửa tòa nhà ${building.name}.`, "info");
           }
@@ -339,7 +367,6 @@
           if (button.dataset.action === "delete") {
             const confirmed = window.confirm(`Xóa tòa nhà "${building.name}" và toàn bộ phòng thuộc tòa nhà này?`);
             if (!confirmed) return;
-
             state.buildings = state.buildings.filter((item) => item.id !== building.id);
             state.rooms = state.rooms.filter((room) => room.buildingId !== building.id);
             await persist("Đã xóa tòa nhà và các phòng liên quan.");
@@ -349,17 +376,23 @@
     }
 
     function renderRoomCards() {
-      if (!state.rooms.length) {
-        adminRoomGrid.innerHTML = '<div class="empty-state-card">Chưa có phòng nào trong hệ thống.</div>';
+      const keyword = roomSearch.value.trim().toLowerCase();
+      const status = roomStatusFilter.value;
+      const rooms = state.rooms.filter((room) => {
+        const matchesKeyword = [room.name, room.region, room.type].join(" ").toLowerCase().includes(keyword);
+        const matchesStatus = !status || room.status === status;
+        return matchesKeyword && matchesStatus;
+      });
+
+      if (!rooms.length) {
+        adminRoomGrid.innerHTML = '<div class="empty-state-card">Không có phòng phù hợp.</div>';
         return;
       }
 
       adminRoomGrid.innerHTML = "";
-
-      state.rooms.forEach((room) => {
+      rooms.forEach((room) => {
         const building = state.buildings.find((item) => item.id === room.buildingId);
         const card = document.createElement("article");
-
         card.className = "room-card";
         card.innerHTML = `
           <div class="room-visual">
@@ -378,7 +411,6 @@
             <button type="button" class="danger" data-room-action="delete" data-id="${room.id}">Xóa</button>
           </div>
         `;
-
         adminRoomGrid.appendChild(card);
       });
 
@@ -392,6 +424,7 @@
               const field = roomForm.elements.namedItem(key);
               if (field) field.value = value || "";
             });
+            activateTab("rooms");
             scrollToForm(roomForm, "name");
             showNotice(`Đang chỉnh sửa phòng ${room.name}.`, "info");
           }
@@ -399,7 +432,6 @@
           if (button.dataset.roomAction === "delete") {
             const confirmed = window.confirm(`Xóa phòng "${room.name}"?`);
             if (!confirmed) return;
-
             state.rooms = state.rooms.filter((item) => item.id !== room.id);
             await persist("Đã xóa phòng.");
           }
@@ -407,25 +439,125 @@
       });
     }
 
-    function resetBuildingForm() {
+    function renderAdminAccounts() {
+      const keyword = adminSearch.value.trim().toLowerCase();
+      const admins = state.admins.filter((admin) =>
+        [admin.name, admin.email].join(" ").toLowerCase().includes(keyword)
+      );
+
+      if (!admins.length) {
+        adminAccountTableBody.innerHTML = '<tr><td colspan="3"><div class="empty-state-inline">Không có tài khoản phù hợp.</div></td></tr>';
+        return;
+      }
+
+      adminAccountTableBody.innerHTML = "";
+      admins.forEach((admin) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><strong>${admin.name}</strong></td>
+          <td>${admin.email}</td>
+          <td>
+            <div class="action-group">
+              <button type="button" data-admin-action="edit" data-id="${admin.id}">Sửa</button>
+              <button type="button" class="danger" data-admin-action="delete" data-id="${admin.id}">Xóa</button>
+            </div>
+          </td>
+        `;
+        adminAccountTableBody.appendChild(row);
+      });
+
+      adminAccountTableBody.querySelectorAll("[data-admin-action]").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const admin = state.admins.find((item) => item.id === button.dataset.id);
+          if (!admin) return;
+
+          if (button.dataset.adminAction === "edit") {
+            adminAccountForm.elements.id.value = admin.id;
+            adminAccountForm.elements.name.value = admin.name;
+            adminAccountForm.elements.email.value = admin.email;
+            adminAccountForm.elements.password.value = admin.password;
+            activateTab("admins");
+            scrollToForm(adminAccountForm, "name");
+            showNotice(`Đang chỉnh sửa tài khoản ${admin.email}.`, "info");
+          }
+
+          if (button.dataset.adminAction === "delete") {
+            if (state.admins.length <= 1) {
+              showNotice("Phải giữ lại ít nhất một tài khoản admin.", "error");
+              return;
+            }
+
+            const confirmed = window.confirm(`Xóa tài khoản admin "${admin.email}"?`);
+            if (!confirmed) return;
+            state.admins = state.admins.filter((item) => item.id !== admin.id);
+            await persist("Đã xóa tài khoản admin.");
+          }
+        });
+      });
+    }
+
+    function resetBuildingForm(showMessage = true) {
       buildingForm.reset();
       buildingForm.elements.id.value = "";
       clearFileInputs(buildingForm);
-      showNotice("Đã làm mới form tòa nhà.", "info");
+      if (showMessage) showNotice("Đã làm mới form tòa nhà.", "info");
     }
 
-    function resetRoomForm() {
+    function resetRoomForm(showMessage = true) {
       roomForm.reset();
       roomForm.elements.id.value = "";
       clearFileInputs(roomForm);
       fillRoomBuildingOptions();
-      showNotice("Đã làm mới form phòng.", "info");
+      if (showMessage) showNotice("Đã làm mới form phòng.", "info");
+    }
+
+    function resetAdminAccountForm(showMessage = true) {
+      adminAccountForm.reset();
+      adminAccountForm.elements.id.value = "";
+      if (showMessage) showNotice("Đã làm mới form tài khoản admin.", "info");
     }
 
     function showNotice(message, tone) {
       notice.textContent = message;
       notice.className = `admin-notice admin-notice-${tone}`;
     }
+  }
+
+  function setupTabs() {
+    document.querySelectorAll(".admin-tab").forEach((button) => {
+      button.addEventListener("click", () => activateTab(button.dataset.tab));
+    });
+  }
+
+  function activateTab(tabName) {
+    document.querySelectorAll(".admin-tab").forEach((button) => {
+      button.classList.toggle("active", button.dataset.tab === tabName);
+    });
+    document.querySelectorAll(".admin-panel").forEach((panel) => {
+      panel.classList.toggle("active", panel.dataset.panel === tabName);
+    });
+  }
+
+  function normalizeState(state) {
+    const nextState = Object.assign({}, state);
+    const defaultAdmin = nextState.admin || { email: "admin@nova.vn", password: "123456" };
+    nextState.admins = Array.isArray(nextState.admins) && nextState.admins.length
+      ? nextState.admins
+      : [{
+          id: "admin-root",
+          name: "Admin chính",
+          email: defaultAdmin.email,
+          password: defaultAdmin.password,
+        }];
+    nextState.admin = {
+      email: nextState.admins[0].email,
+      password: nextState.admins[0].password,
+    };
+    return nextState;
+  }
+
+  function clean(value) {
+    return String(value || "").trim();
   }
 
   function clearFileInputs(form) {

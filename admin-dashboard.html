@@ -13,7 +13,7 @@
   <div class="site-shell">
     <nav class="main-nav">
       <a class="brand-lockup" href="admin-dashboard.html">
-        <span class="brand-mark" id="brandMarkText">NH</span>
+        <span class="brand-mark" id="brandMarkText">BH</span>
         <img class="brand-logo-image hidden" id="brandLogoImage" alt="Logo công ty">
         <div>
           <p class="eyebrow" id="brandEyebrow">Khu vực quản trị</p>
@@ -30,18 +30,25 @@
       <section class="content-section">
         <div class="section-header">
           <div>
-            <p class="section-kicker">Trạng thái</p>
-            <h2>Quản trị nội dung và hình ảnh</h2>
+            <p class="section-kicker">Tổng quan</p>
+            <h2>Quản trị nội dung và danh mục</h2>
           </div>
         </div>
         <p id="adminNotice" class="admin-notice admin-notice-info">Sẵn sàng cập nhật dữ liệu.</p>
+        <div class="admin-tabbar">
+          <button class="admin-tab active" type="button" data-tab="intro">Giới thiệu</button>
+          <button class="admin-tab" type="button" data-tab="metrics">Kết quả</button>
+          <button class="admin-tab" type="button" data-tab="buildings">Tòa nhà</button>
+          <button class="admin-tab" type="button" data-tab="rooms">Phòng</button>
+          <button class="admin-tab" type="button" data-tab="admins">Tài khoản admin</button>
+        </div>
       </section>
 
-      <section class="content-section">
+      <section class="content-section admin-panel active" data-panel="intro">
         <div class="section-header">
           <div>
             <p class="section-kicker">Nội dung website</p>
-            <h2>Chỉnh sửa mọi chữ trên giao diện</h2>
+            <h2>Chỉnh giới thiệu và nội dung chính</h2>
           </div>
         </div>
         <form id="contentForm" class="form-grid">
@@ -67,9 +74,9 @@
           <label>Trang tìm phòng - Kicker<input name="roomsPageKicker" required></label>
           <label>Trang tìm phòng - Tiêu đề<input name="roomsPageTitle" required></label>
           <label>Trang tìm phòng - Mô tả<textarea name="roomsPageDescription" rows="3" required></textarea></label>
-          <label>Liên hệ - Nút nổi<input name="contactToggle" required></label>
+          <label>Liên hệ - Nhãn nút<input name="contactToggle" required></label>
           <label>Liên hệ - Tiêu đề<input name="contactTitle" required></label>
-          <label>Liên hệ - Nhãn số điện thoại<input name="contactPhoneLabel" required></label>
+          <label>Liên hệ - Nhãn điện thoại<input name="contactPhoneLabel" required></label>
           <label>Liên hệ - Nhãn Zalo<input name="contactZaloLabel" required></label>
           <label>Liên hệ - Nhãn Facebook<input name="contactFacebookLabel" required></label>
           <label>Đăng nhập admin - Tiêu đề<input name="adminLoginTitle" required></label>
@@ -79,13 +86,11 @@
             <button class="primary-button button-inline" type="submit">Lưu nội dung website</button>
           </div>
         </form>
-      </section>
 
-      <section class="content-section">
-        <div class="section-header">
+        <div class="section-header admin-subheader">
           <div>
             <p class="section-kicker">Công ty</p>
-            <h2>Cập nhật thông tin giới thiệu và liên hệ</h2>
+            <h2>Thông tin thương hiệu và liên hệ</h2>
           </div>
         </div>
         <form id="companyForm" class="form-grid">
@@ -109,11 +114,11 @@
         </form>
       </section>
 
-      <section class="content-section">
+      <section class="content-section admin-panel" data-panel="metrics">
         <div class="section-header">
           <div>
             <p class="section-kicker">Kết quả</p>
-            <h2>Cập nhật những gì đang vận hành và kết quả đạt được</h2>
+            <h2>Chỉnh số liệu vận hành</h2>
           </div>
         </div>
         <form id="statsForm" class="form-grid">
@@ -135,12 +140,15 @@
         </form>
       </section>
 
-      <section class="content-section">
+      <section class="content-section admin-panel" data-panel="buildings">
         <div class="section-header">
           <div>
             <p class="section-kicker">Tòa nhà</p>
             <h2>Quản lý tòa nhà đang vận hành</h2>
           </div>
+        </div>
+        <div class="admin-toolbar">
+          <input id="buildingSearch" type="search" placeholder="Tìm theo tên, khu vực, địa chỉ">
         </div>
         <form id="buildingForm" class="form-grid">
           <input type="hidden" name="id">
@@ -178,12 +186,21 @@
         </div>
       </section>
 
-      <section class="content-section">
+      <section class="content-section admin-panel" data-panel="rooms">
         <div class="section-header">
           <div>
             <p class="section-kicker">Phòng</p>
             <h2>Quản lý danh mục phòng</h2>
           </div>
+        </div>
+        <div class="admin-toolbar admin-toolbar-split">
+          <input id="roomSearch" type="search" placeholder="Tìm theo tên phòng, khu vực, loại phòng">
+          <select id="roomStatusFilter">
+            <option value="">Tất cả trạng thái</option>
+            <option value="available">Đang trống</option>
+            <option value="occupied">Đã có khách</option>
+            <option value="upcoming">Sắp trống</option>
+          </select>
         </div>
         <form id="roomForm" class="form-grid">
           <input type="hidden" name="id">
@@ -210,6 +227,40 @@
           </div>
         </form>
         <div class="admin-room-grid admin-table-spacing" id="adminRoomGrid"></div>
+      </section>
+
+      <section class="content-section admin-panel" data-panel="admins">
+        <div class="section-header">
+          <div>
+            <p class="section-kicker">Tài khoản admin</p>
+            <h2>Tạo thêm tài khoản quản trị</h2>
+          </div>
+        </div>
+        <div class="admin-toolbar">
+          <input id="adminSearch" type="search" placeholder="Tìm theo tên hoặc email">
+        </div>
+        <form id="adminAccountForm" class="form-grid">
+          <input type="hidden" name="id">
+          <label>Tên hiển thị<input name="name" required></label>
+          <label>Email đăng nhập<input name="email" type="email" required></label>
+          <label>Mật khẩu<input name="password" type="password" required></label>
+          <div class="form-actions">
+            <button class="secondary-button button-inline" type="button" id="adminAccountResetButton">Tạo mới</button>
+            <button class="primary-button button-inline" type="submit">Lưu tài khoản admin</button>
+          </div>
+        </form>
+        <div class="table-wrap admin-table-spacing">
+          <table>
+            <thead>
+              <tr>
+                <th>Tên</th>
+                <th>Email</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="adminAccountTableBody"></tbody>
+          </table>
+        </div>
       </section>
     </main>
   </div>

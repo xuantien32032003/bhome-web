@@ -18,6 +18,7 @@ const USE_CLOUDINARY =
   Boolean(process.env.CLOUDINARY_CLOUD_NAME) &&
   Boolean(process.env.CLOUDINARY_API_KEY) &&
   Boolean(process.env.CLOUDINARY_API_SECRET);
+
 const pool = USE_POSTGRES
   ? new Pool({
       connectionString: process.env.DATABASE_URL,
@@ -108,17 +109,25 @@ const defaultState = {
     email: "admin@nova.vn",
     password: "123456",
   },
+  admins: [
+    {
+      id: "admin-root",
+      name: "Admin chính",
+      email: "admin@nova.vn",
+      password: "123456",
+    },
+  ],
   buildings: [
-    makeBuilding("b1", "Riverfront Residence", "Thu Duc", "12 Nguyen Van Ba, Thu Duc", 12, 94, "14 - 22 trieu VND", "Gan khu cong nghe cao va tuyen metro", "Tai san huong song, tap khach chuyen gia dai han, cong suat lap day on dinh quanh nam."),
-    makeBuilding("b2", "Central Square Apartments", "Quan 7", "88 Nguyen Thi Thap, Quan 7", 16, 89, "16 - 27 trieu VND", "Tap trung nguon cau tu khach doanh nghiep", "Toa nha co he thong dich vu van hanh va chuoi can ho studio den 2PN."),
-    makeBuilding("b3", "Lotus Business Stay", "Binh Thanh", "135 Dien Bien Phu, Binh Thanh", 10, 92, "12 - 19 trieu VND", "Ty le quay vong thap, khach thue ben vung", "Danh muc can ho phuc vu khach lam viec gan trung tam thanh pho."),
+    makeBuilding("b1", "Riverfront Residence", "Thủ Đức", "12 Nguyễn Văn Bá, Thủ Đức", 12, 94, "14 - 22 triệu VND", "Gần khu công nghệ cao và tuyến metro", "Tài sản hướng sông, tệp khách chuyên gia dài hạn, công suất lấp đầy ổn định quanh năm."),
+    makeBuilding("b2", "Central Square Apartments", "Quận 7", "88 Nguyễn Thị Thập, Quận 7", 16, 89, "16 - 27 triệu VND", "Tập trung nguồn cầu từ khách doanh nghiệp", "Tòa nhà có hệ thống dịch vụ vận hành và chuỗi căn hộ studio đến 2PN."),
+    makeBuilding("b3", "Lotus Business Stay", "Bình Thạnh", "135 Điện Biên Phủ, Bình Thạnh", 10, 92, "12 - 19 triệu VND", "Tỷ lệ quay vòng thấp, khách thuê bền vững", "Danh mục căn hộ phục vụ khách làm việc gần trung tâm thành phố."),
   ],
   rooms: [
-    { id: "r1", buildingId: "b1", name: "A1205", region: "Thu Duc", image: FALLBACK_ROOM_IMAGE, type: "1PN Deluxe", rent: "18 trieu VND", status: "available", availableFrom: "2026-04-12", area: "48 m2", amenities: "Noi that day du, may giat rieng, ban cong huong song" },
-    { id: "r2", buildingId: "b1", name: "A0902", region: "Thu Duc", image: FALLBACK_ROOM_IMAGE, type: "Studio Premium", rent: "14.5 trieu VND", status: "occupied", availableFrom: "2026-08-01", area: "34 m2", amenities: "Le tan 24/7, gym, khu tiep khach" },
-    { id: "r3", buildingId: "b2", name: "B1508", region: "Quan 7", image: FALLBACK_ROOM_IMAGE, type: "2PN Executive", rent: "26 trieu VND", status: "upcoming", availableFrom: "2026-05-04", area: "72 m2", amenities: "Ho boi, parking, noi that dong bo" },
-    { id: "r4", buildingId: "b2", name: "B1103", region: "Quan 7", image: FALLBACK_ROOM_IMAGE, type: "1PN Signature", rent: "17 trieu VND", status: "available", availableFrom: "2026-04-18", area: "45 m2", amenities: "The tu, bao tri nhanh, tang trung" },
-    { id: "r5", buildingId: "b3", name: "L0801", region: "Binh Thanh", image: FALLBACK_ROOM_IMAGE, type: "Studio Flex", rent: "13 trieu VND", status: "occupied", availableFrom: "2026-09-15", area: "32 m2", amenities: "Gan trung tam, don dep hang tuan, wifi toc do cao" },
+    { id: "r1", buildingId: "b1", name: "A1205", region: "Thủ Đức", image: FALLBACK_ROOM_IMAGE, type: "1PN Deluxe", rent: "18 triệu VND", status: "available", availableFrom: "2026-04-12", area: "48 m2", amenities: "Nội thất đầy đủ, máy giặt riêng, ban công hướng sông" },
+    { id: "r2", buildingId: "b1", name: "A0902", region: "Thủ Đức", image: FALLBACK_ROOM_IMAGE, type: "Studio Premium", rent: "14.5 triệu VND", status: "occupied", availableFrom: "2026-08-01", area: "34 m2", amenities: "Lễ tân 24/7, gym, khu tiếp khách" },
+    { id: "r3", buildingId: "b2", name: "B1508", region: "Quận 7", image: FALLBACK_ROOM_IMAGE, type: "2PN Executive", rent: "26 triệu VND", status: "upcoming", availableFrom: "2026-05-04", area: "72 m2", amenities: "Hồ bơi, parking, nội thất đồng bộ" },
+    { id: "r4", buildingId: "b2", name: "B1103", region: "Quận 7", image: FALLBACK_ROOM_IMAGE, type: "1PN Signature", rent: "17 triệu VND", status: "available", availableFrom: "2026-04-18", area: "45 m2", amenities: "Thẻ từ, bảo trì nhanh, tầng trung" },
+    { id: "r5", buildingId: "b3", name: "L0801", region: "Bình Thạnh", image: FALLBACK_ROOM_IMAGE, type: "Studio Flex", rent: "13 triệu VND", status: "occupied", availableFrom: "2026-09-15", area: "32 m2", amenities: "Gần trung tâm, dọn dẹp hàng tuần, wifi tốc độ cao" },
   ],
 };
 
@@ -147,7 +156,7 @@ app.use(express.json({ limit: "100mb" }));
 app.use(express.urlencoded({ extended: true, limit: "100mb" }));
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "nova-habitat-session-secret",
+    secret: process.env.SESSION_SECRET || "bhome-session-secret",
     resave: false,
     saveUninitialized: false,
     cookie: { httpOnly: true, sameSite: "lax" },
@@ -167,12 +176,30 @@ const upload = multer({
 app.use("/uploads", express.static(UPLOAD_DIR));
 app.use(express.static(ROOT));
 
+function normalizeState(state) {
+  const nextState = Object.assign({}, state);
+  const legacyAdmin = nextState.admin || defaultState.admin;
+  nextState.admins = Array.isArray(nextState.admins) && nextState.admins.length
+    ? nextState.admins
+    : [{
+        id: "admin-root",
+        name: "Admin chính",
+        email: legacyAdmin.email,
+        password: legacyAdmin.password,
+      }];
+  nextState.admin = {
+    email: nextState.admins[0].email,
+    password: nextState.admins[0].password,
+  };
+  return nextState;
+}
+
 function readState() {
-  return JSON.parse(fs.readFileSync(STATE_FILE, "utf8"));
+  return normalizeState(JSON.parse(fs.readFileSync(STATE_FILE, "utf8")));
 }
 
 function writeState(state) {
-  fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
+  fs.writeFileSync(STATE_FILE, JSON.stringify(normalizeState(state), null, 2));
 }
 
 async function initPersistence() {
@@ -192,17 +219,18 @@ async function initPersistence() {
 async function readStateAny() {
   if (!USE_POSTGRES) return readState();
   const result = await pool.query("SELECT state FROM app_state WHERE id = 1");
-  return result.rows[0] ? result.rows[0].state : defaultState;
+  return normalizeState(result.rows[0] ? result.rows[0].state : defaultState);
 }
 
 async function writeStateAny(state) {
+  const normalized = normalizeState(state);
   if (!USE_POSTGRES) {
-    writeState(state);
+    writeState(normalized);
     return;
   }
   await pool.query(
     "INSERT INTO app_state (id, state) VALUES (1, $1::jsonb) ON CONFLICT (id) DO UPDATE SET state = EXCLUDED.state",
-    [JSON.stringify(state)]
+    [JSON.stringify(normalized)]
   );
 }
 
@@ -230,12 +258,14 @@ app.post("/api/admin/login", async (req, res, next) => {
   try {
     const state = await readStateAny();
     const { email, password } = req.body;
-    if (email === state.admin.email && password === state.admin.password) {
+    const admin = state.admins.find((item) => item.email === email && item.password === password);
+    if (admin) {
       req.session.isAdmin = true;
+      req.session.adminEmail = admin.email;
       res.json({ ok: true });
       return;
     }
-    res.status(401).json({ ok: false, error: "Sai email hoac mat khau." });
+    res.status(401).json({ ok: false, error: "Sai email hoặc mật khẩu." });
   } catch (error) {
     next(error);
   }
@@ -260,10 +290,9 @@ app.post("/api/upload", requireAuth, upload.array("files", 10), async (req, res,
   try {
     let files = [];
     if (USE_CLOUDINARY) {
-      files = [];
       for (const file of req.files || []) {
         const uploaded = await cloudinary.uploader.upload(file.path, {
-          folder: process.env.CLOUDINARY_FOLDER || "nova-habitat",
+          folder: process.env.CLOUDINARY_FOLDER || "bhome",
           resource_type: "image",
         });
         files.push(uploaded.secure_url);

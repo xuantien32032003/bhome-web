@@ -20,7 +20,12 @@
           <h1 id="companyName">Bhome</h1>
         </div>
       </a>
-      <div class="nav-links">
+      <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="primaryNav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="nav-links" id="primaryNav">
         <a href="index.html#gioi-thieu" id="navAboutLabel">Giới Thiệu</a>
         <a href="rooms.html" id="navRoomsLabel">Tìm Phòng</a>
         <a href="admin-login.html" id="navAdminLabel">Admin</a>
@@ -34,11 +39,22 @@
         <p id="detailPageSummary"></p>
       </section>
 
-      <section class="content-section detail-gallery-layout">
-        <div class="detail-main-image">
-          <img id="detailMainImage" alt="Ảnh tòa nhà">
+      <section class="content-section detail-gallery-shell">
+        <div class="detail-gallery-stage">
+          <button class="carousel-button gallery-nav gallery-nav-left" type="button" id="detailPrevImage" aria-label="Ảnh trước">
+            <span aria-hidden="true">‹</span>
+          </button>
+          <div class="detail-main-image">
+            <img id="detailMainImage" alt="Ảnh tòa nhà">
+          </div>
+          <button class="carousel-button gallery-nav gallery-nav-right" type="button" id="detailNextImage" aria-label="Ảnh sau">
+            <span aria-hidden="true">›</span>
+          </button>
         </div>
-        <div class="detail-thumb-grid" id="detailThumbGrid"></div>
+        <div class="detail-gallery-footer">
+          <div class="gallery-dots" id="detailImageDots"></div>
+          <span class="carousel-status" id="detailImageStatus">1 / 1</span>
+        </div>
       </section>
 
       <section class="content-section detail-grid" id="detailContentGrid"></section>
@@ -57,7 +73,7 @@
   </div>
 
   <div class="floating-contact" id="floatingContact">
-    <button class="floating-toggle" id="contactToggle" type="button">Liên hệ</button>
+    <button class="floating-toggle floating-toggle-compact" id="contactToggle" type="button" aria-label="Liên hệ">☎</button>
     <div class="floating-card hidden" id="contactCard">
       <h3 id="contactTitle">Thông tin liên hệ</h3>
       <a id="contactPhoneLink" href="#">SĐT</a>

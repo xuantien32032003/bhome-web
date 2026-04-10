@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tìm phòng</title>
+  <title>Chi tiết phòng</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Prata&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body data-page="rooms">
+<body data-page="room-detail">
   <div class="site-shell">
     <nav class="main-nav">
       <a class="brand-lockup" href="index.html">
@@ -34,24 +34,30 @@
 
     <main>
       <section class="content-section detail-page-hero">
-        <p class="section-kicker" id="roomsPageKicker">Tìm phòng</p>
-        <h2 id="roomsPageTitle">Chọn phòng theo tòa nhà và khu vực</h2>
-        <p id="roomsPageDescription">Danh mục được cập nhật từ hệ thống quản trị, hiển thị trạng thái trống phòng và ngày trống.</p>
+        <p class="section-kicker">Chi tiết phòng</p>
+        <h2 id="roomDetailTitle">Thông tin phòng</h2>
+        <p id="roomDetailSummary"></p>
       </section>
 
-      <section class="content-section">
-        <div class="filter-toolbar filter-toolbar-elevated">
-          <select id="regionFilter" aria-label="Lọc theo khu vực"></select>
-          <select id="buildingFilter" aria-label="Lọc theo tòa nhà"></select>
-          <select id="statusFilter" aria-label="Lọc theo trạng thái"></select>
+      <section class="content-section detail-gallery-shell">
+        <div class="detail-gallery-stage">
+          <button class="carousel-button gallery-nav gallery-nav-left" type="button" id="roomPrevImage" aria-label="Ảnh trước">
+            <span aria-hidden="true">‹</span>
+          </button>
+          <div class="detail-main-image">
+            <img id="roomDetailImage" alt="Ảnh phòng">
+          </div>
+          <button class="carousel-button gallery-nav gallery-nav-right" type="button" id="roomNextImage" aria-label="Ảnh sau">
+            <span aria-hidden="true">›</span>
+          </button>
         </div>
-        <div class="room-grid" id="roomsPageGrid"></div>
-        <div class="pagination-bar">
-          <button class="ghost-button button-inline" type="button" id="roomsPrevButton">Trang trước</button>
-          <div class="pagination-numbers" id="roomsPaginationNumbers"></div>
-          <button class="ghost-button button-inline" type="button" id="roomsNextButton">Trang sau</button>
+        <div class="detail-gallery-footer">
+          <div class="gallery-dots" id="roomImageDots"></div>
+          <span class="carousel-status" id="roomImageStatus">1 / 1</span>
         </div>
       </section>
+
+      <section class="content-section detail-grid" id="roomDetailContent"></section>
     </main>
   </div>
 

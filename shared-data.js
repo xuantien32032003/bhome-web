@@ -30,6 +30,10 @@
     return state.buildings.find((item) => item.id === id);
   }
 
+  function getRoomById(state, id) {
+    return state.rooms.find((item) => item.id === id);
+  }
+
   function getRoomsByBuilding(state, buildingId) {
     return state.rooms.filter((room) => room.buildingId === buildingId);
   }
@@ -82,12 +86,17 @@
     return `building-detail.html?id=${encodeURIComponent(id)}`;
   }
 
+  function roomDetailLink(id) {
+    return `room-detail.html?id=${encodeURIComponent(id)}`;
+  }
+
   window.NovaData = {
     FALLBACK_BUILDING_IMAGE,
     FALLBACK_ROOM_IMAGE,
     loadState,
     saveState,
     getBuildingById,
+    getRoomById,
     getRoomsByBuilding,
     loginAdmin,
     logoutAdmin,
@@ -97,5 +106,6 @@
     statusLabel,
     formatDate,
     buildingDetailLink,
+    roomDetailLink,
   };
 })();
