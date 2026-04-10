@@ -35,12 +35,17 @@
       </section>
 
       <section class="content-section">
-        <div class="filter-toolbar">
+        <div class="filter-toolbar filter-toolbar-elevated">
           <select id="regionFilter" aria-label="Lọc theo khu vực"></select>
           <select id="buildingFilter" aria-label="Lọc theo tòa nhà"></select>
           <select id="statusFilter" aria-label="Lọc theo trạng thái"></select>
         </div>
         <div class="room-grid" id="roomsPageGrid"></div>
+        <div class="pagination-bar">
+          <button class="ghost-button button-inline" type="button" id="roomsPrevButton">Trang trước</button>
+          <div class="pagination-numbers" id="roomsPaginationNumbers"></div>
+          <button class="ghost-button button-inline" type="button" id="roomsNextButton">Trang sau</button>
+        </div>
       </section>
     </main>
   </div>

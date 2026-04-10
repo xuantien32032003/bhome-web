@@ -27,7 +27,7 @@
       </div>
     </nav>
 
-    <header class="hero">
+    <header class="hero hero-refined">
       <section class="hero-grid home-hero-grid">
         <div class="hero-copy">
           <p class="section-kicker" id="heroKicker">Vận hành căn hộ cho thuê</p>
@@ -46,7 +46,7 @@
           <div class="hero-image-card">
             <img id="heroBuildingImage" alt="Ảnh hero tòa nhà">
           </div>
-          <div class="hero-badge-card">
+          <div class="hero-badge-card hero-badge-highlight">
             <span>Danh mục đang vận hành</span>
             <strong id="heroBadgeText">Tòa nhà, phòng cho thuê, hiệu suất vận hành, khả năng mở rộng.</strong>
           </div>
@@ -117,10 +117,15 @@
       </section>
 
       <section id="toa-nha" class="content-section">
-        <div class="section-header">
+        <div class="section-header section-header-compact">
           <div>
             <p class="section-kicker" id="buildingsSectionKicker">Tòa nhà đang vận hành</p>
             <h2 id="buildingsSectionTitle">Chọn tòa nhà để xem chi tiết ở trang riêng</h2>
+          </div>
+          <div class="carousel-controls">
+            <button class="ghost-button button-inline" type="button" id="buildingPrevButton">Lùi</button>
+            <span class="carousel-status" id="buildingCarouselStatus">1 / 1</span>
+            <button class="ghost-button button-inline" type="button" id="buildingNextButton">Tiến</button>
           </div>
         </div>
         <div class="building-list-grid" id="homeBuildingGrid"></div>

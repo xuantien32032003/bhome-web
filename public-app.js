@@ -12,6 +12,8 @@
   } = window.NovaData;
 
   const page = document.body.dataset.page;
+  const BUILDINGS_PER_PAGE = 3;
+  const ROOMS_PER_PAGE = 10;
 
   init();
 
@@ -90,30 +92,66 @@
       resultsGrid.appendChild(card);
     });
 
-    const buildingGrid = document.getElementById("homeBuildingGrid");
-    buildingGrid.innerHTML = "";
+    setupBuildingCarousel(state);
+  }
 
-    state.buildings.forEach((building) => {
-      const roomCount = getRoomsByBuilding(state, building.id).length;
-      const card = document.createElement("article");
-      card.className = "building-overview-card";
-      card.innerHTML = `
-        <div class="building-card-image">
-          <img src="${safeImage(building.image, FALLBACK_BUILDING_IMAGE)}" alt="${building.name}">
-        </div>
-        <div class="building-overview-copy">
-          <h3>${building.name}</h3>
-          <p>${building.description}</p>
-          <div class="building-overview-meta">
-            <div><strong>Khu vực:</strong> ${building.region}</div>
-            <div><strong>Số phòng:</strong> ${roomCount}</div>
-            <div><strong>Lấp đầy:</strong> ${building.occupancy}%</div>
+  function setupBuildingCarousel(state) {
+    const buildingGrid = document.getElementById("homeBuildingGrid");
+    if (!buildingGrid) return;
+
+    const prevButton = document.getElementById("buildingPrevButton");
+    const nextButton = document.getElementById("buildingNextButton");
+    const status = document.getElementById("buildingCarouselStatus");
+    const totalPages = Math.max(1, Math.ceil(state.buildings.length / BUILDINGS_PER_PAGE));
+    let currentPage = 1;
+
+    function renderPage() {
+      buildingGrid.innerHTML = "";
+      const start = (currentPage - 1) * BUILDINGS_PER_PAGE;
+      const currentItems = state.buildings.slice(start, start + BUILDINGS_PER_PAGE);
+
+      currentItems.forEach((building) => {
+        const roomCount = getRoomsByBuilding(state, building.id).length;
+        const card = document.createElement("article");
+        card.className = "building-overview-card";
+        card.innerHTML = `
+          <div class="building-card-image">
+            <img src="${safeImage(building.image, FALLBACK_BUILDING_IMAGE)}" alt="${building.name}">
           </div>
-          <a class="primary-button button-inline" href="${buildingDetailLink(building.id)}">Xem chi tiết</a>
-        </div>
-      `;
-      buildingGrid.appendChild(card);
+          <div class="building-overview-copy">
+            <h3>${building.name}</h3>
+            <p>${building.description}</p>
+            <div class="building-overview-meta">
+              <div><strong>Khu vực:</strong> ${building.region}</div>
+              <div><strong>Số phòng:</strong> ${roomCount}</div>
+              <div><strong>Lấp đầy:</strong> ${building.occupancy}%</div>
+            </div>
+            <a class="primary-button button-inline" href="${buildingDetailLink(building.id)}">Xem chi tiết</a>
+          </div>
+        `;
+        buildingGrid.appendChild(card);
+      });
+
+      status.textContent = `${currentPage} / ${totalPages}`;
+      prevButton.disabled = currentPage === 1;
+      nextButton.disabled = currentPage === totalPages;
+    }
+
+    prevButton.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage -= 1;
+        renderPage();
+      }
     });
+
+    nextButton.addEventListener("click", () => {
+      if (currentPage < totalPages) {
+        currentPage += 1;
+        renderPage();
+      }
+    });
+
+    renderPage();
   }
 
   function renderBuildingDetailPage(state) {
@@ -179,33 +217,91 @@
     const buildingFilter = document.getElementById("buildingFilter");
     const statusFilter = document.getElementById("statusFilter");
     const grid = document.getElementById("roomsPageGrid");
+    const prevButton = document.getElementById("roomsPrevButton");
+    const nextButton = document.getElementById("roomsNextButton");
+    const numbers = document.getElementById("roomsPaginationNumbers");
 
     fillSelect(regionFilter, ["Tất cả khu vực"].concat(unique(state.rooms.map((room) => room.region))));
     fillSelect(buildingFilter, ["Tất cả tòa nhà"].concat(state.buildings.map((building) => building.name)));
     fillSelect(statusFilter, ["Tất cả trạng thái", "Đang trống", "Đã có khách", "Sắp trống"]);
 
-    [regionFilter, buildingFilter, statusFilter].forEach((select) => select.addEventListener("change", render));
+    let currentPage = 1;
+
+    [regionFilter, buildingFilter, statusFilter].forEach((select) =>
+      select.addEventListener("change", () => {
+        currentPage = 1;
+        render();
+      })
+    );
+
+    prevButton.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage -= 1;
+        render();
+      }
+    });
+
+    nextButton.addEventListener("click", () => {
+      const filtered = getFilteredRooms();
+      const totalPages = Math.max(1, Math.ceil(filtered.length / ROOMS_PER_PAGE));
+      if (currentPage < totalPages) {
+        currentPage += 1;
+        render();
+      }
+    });
+
     render();
 
-    function render() {
-      grid.innerHTML = "";
-      const filtered = state.rooms.filter((room) => {
+    function getFilteredRooms() {
+      return state.rooms.filter((room) => {
         const building = getBuildingById(state, room.buildingId);
         const regionMatch = regionFilter.value === "Tất cả khu vực" || room.region === regionFilter.value;
         const buildingMatch = buildingFilter.value === "Tất cả tòa nhà" || (building && building.name === buildingFilter.value);
         const statusMatch = statusFilter.value === "Tất cả trạng thái" || statusLabel(room.status) === statusFilter.value;
         return regionMatch && buildingMatch && statusMatch;
       });
+    }
+
+    function renderPagination(totalPages) {
+      numbers.innerHTML = "";
+
+      for (let pageNumber = 1; pageNumber <= totalPages; pageNumber += 1) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `page-chip${pageNumber === currentPage ? " active" : ""}`;
+        button.textContent = String(pageNumber);
+        button.addEventListener("click", () => {
+          currentPage = pageNumber;
+          render();
+        });
+        numbers.appendChild(button);
+      }
+
+      prevButton.disabled = currentPage === 1;
+      nextButton.disabled = currentPage === totalPages;
+    }
+
+    function render() {
+      grid.innerHTML = "";
+      const filtered = getFilteredRooms();
+      const totalPages = Math.max(1, Math.ceil(filtered.length / ROOMS_PER_PAGE));
+      currentPage = Math.min(currentPage, totalPages);
 
       if (!filtered.length) {
         grid.innerHTML = '<div class="empty-state-card">Không có phòng phù hợp với bộ lọc hiện tại.</div>';
+        numbers.innerHTML = "";
+        prevButton.disabled = true;
+        nextButton.disabled = true;
         return;
       }
 
-      filtered.forEach((room) => {
+      const start = (currentPage - 1) * ROOMS_PER_PAGE;
+      filtered.slice(start, start + ROOMS_PER_PAGE).forEach((room) => {
         const building = getBuildingById(state, room.buildingId);
         grid.appendChild(roomCard(room, building ? building.name : "Không xác định"));
       });
+
+      renderPagination(totalPages);
     }
   }
 
@@ -219,7 +315,7 @@
 
   function roomCard(room, buildingName) {
     const card = document.createElement("article");
-    card.className = "room-card";
+    card.className = "room-card room-card-refined";
     card.innerHTML = `
       <div class="room-visual">
         <img src="${safeImage(room.image, FALLBACK_ROOM_IMAGE)}" alt="${room.name}">
