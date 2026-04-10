@@ -136,8 +136,15 @@ if (USE_CLOUDINARY) {
   });
 }
 
-app.use(express.json({ limit: "25mb" }));
-app.use(express.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+  if (/\.(html?)$/i.test(req.path) || req.path === "/") {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
+  }
+  next();
+});
+
+app.use(express.json({ limit: "100mb" }));
+app.use(express.urlencoded({ extended: true, limit: "100mb" }));
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "nova-habitat-session-secret",

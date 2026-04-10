@@ -153,7 +153,7 @@
         );
 
         const galleryFromText = String(data.get("gallery") || "")
-          .split(",")
+          .split(/\r?\n/)
           .map((item) => item.trim())
           .filter(Boolean);
 
@@ -330,7 +330,7 @@
           if (button.dataset.action === "edit") {
             eachEntry(building, (key, value) => {
               const field = buildingForm.elements.namedItem(key);
-              if (field) field.value = Array.isArray(value) ? value.join(", ") : value || "";
+              if (field) field.value = Array.isArray(value) ? value.join("\n") : value || "";
             });
             window.scrollTo({ top: buildingForm.offsetTop - 24, behavior: "smooth" });
             showNotice(`Đang chỉnh sửa tòa nhà ${building.name}.`, "info");
