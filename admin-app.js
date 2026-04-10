@@ -332,7 +332,7 @@
               const field = buildingForm.elements.namedItem(key);
               if (field) field.value = Array.isArray(value) ? value.join("\n") : value || "";
             });
-            window.scrollTo({ top: buildingForm.offsetTop - 24, behavior: "smooth" });
+            scrollToForm(buildingForm, "name");
             showNotice(`Đang chỉnh sửa tòa nhà ${building.name}.`, "info");
           }
 
@@ -392,7 +392,7 @@
               const field = roomForm.elements.namedItem(key);
               if (field) field.value = value || "";
             });
-            window.scrollTo({ top: roomForm.offsetTop - 24, behavior: "smooth" });
+            scrollToForm(roomForm, "name");
             showNotice(`Đang chỉnh sửa phòng ${room.name}.`, "info");
           }
 
@@ -432,6 +432,16 @@
     form.querySelectorAll('input[type="file"]').forEach((input) => {
       input.value = "";
     });
+  }
+
+  function scrollToForm(form, focusFieldName) {
+    const section = form.closest(".content-section") || form;
+    section.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    window.setTimeout(() => {
+      const field = form.elements.namedItem(focusFieldName);
+      if (field && typeof field.focus === "function") field.focus();
+    }, 320);
   }
 
   function firstNonEmpty() {
