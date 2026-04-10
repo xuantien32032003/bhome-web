@@ -37,6 +37,7 @@
     const phoneLink = document.getElementById("contactPhoneLink");
     const zaloLink = document.getElementById("contactZaloLink");
     const facebookLink = document.getElementById("contactFacebookLink");
+
     if (phoneLink) {
       phoneLink.href = `tel:${state.company.phone}`;
       phoneLink.textContent = `${state.content.contactPhoneLabel}: ${state.company.phone}`;
@@ -62,11 +63,16 @@
     document.getElementById("companyPhone").textContent = state.company.phone;
     document.getElementById("buildingCount").textContent = String(state.buildings.length).padStart(2, "0");
     document.getElementById("roomCount").textContent = String(state.rooms.length).padStart(2, "0");
-    document.getElementById("vacantCount").textContent = String(state.rooms.filter((room) => room.status === "available").length).padStart(2, "0");
-    document.getElementById("heroBadgeText").textContent = `${state.buildings.length} toa nha dang van hanh va ${state.rooms.length} phong trong danh muc.`;
+    document.getElementById("vacantCount").textContent = String(
+      state.rooms.filter((room) => room.status === "available").length
+    ).padStart(2, "0");
+    document.getElementById("heroBadgeText").textContent =
+      `${state.buildings.length} tòa nhà đang vận hành và ${state.rooms.length} phòng trong danh mục.`;
 
     const statTemplate = document.getElementById("statCardTemplate");
     const statGrid = document.getElementById("investorStats");
+    statGrid.innerHTML = "";
+
     state.investorStats.forEach((stat) => {
       const fragment = statTemplate.content.cloneNode(true);
       fragment.querySelector(".stat-label").textContent = stat.label;
@@ -76,6 +82,7 @@
     });
 
     const resultsGrid = document.getElementById("resultsGrid");
+    resultsGrid.innerHTML = "";
     state.results.forEach((result) => {
       const card = document.createElement("article");
       card.className = "results-card";
@@ -84,6 +91,8 @@
     });
 
     const buildingGrid = document.getElementById("homeBuildingGrid");
+    buildingGrid.innerHTML = "";
+
     state.buildings.forEach((building) => {
       const roomCount = getRoomsByBuilding(state, building.id).length;
       const card = document.createElement("article");
@@ -96,11 +105,11 @@
           <h3>${building.name}</h3>
           <p>${building.description}</p>
           <div class="building-overview-meta">
-            <div><strong>Khu vuc:</strong> ${building.region}</div>
-            <div><strong>So phong:</strong> ${roomCount}</div>
-            <div><strong>Lap day:</strong> ${building.occupancy}%</div>
+            <div><strong>Khu vực:</strong> ${building.region}</div>
+            <div><strong>Số phòng:</strong> ${roomCount}</div>
+            <div><strong>Lấp đầy:</strong> ${building.occupancy}%</div>
           </div>
-          <a class="primary-button button-inline" href="${buildingDetailLink(building.id)}">Xem chi tiet</a>
+          <a class="primary-button button-inline" href="${buildingDetailLink(building.id)}">Xem chi tiết</a>
         </div>
       `;
       buildingGrid.appendChild(card);
@@ -110,19 +119,22 @@
   function renderBuildingDetailPage(state) {
     const params = new URLSearchParams(window.location.search);
     const building = getBuildingById(state, params.get("id"));
+
     if (!building) {
-      document.getElementById("detailPageTitle").textContent = "Khong tim thay toa nha";
-      document.getElementById("detailPageSummary").textContent = "Du lieu toa nha khong ton tai hoac da bi xoa.";
-      document.getElementById("detailContentGrid").innerHTML = '<div class="empty-state-card">Khong co noi dung de hien thi.</div>';
+      document.getElementById("detailPageTitle").textContent = "Không tìm thấy tòa nhà";
+      document.getElementById("detailPageSummary").textContent = "Dữ liệu tòa nhà không tồn tại hoặc đã bị xóa.";
+      document.getElementById("detailContentGrid").innerHTML =
+        '<div class="empty-state-card">Không có nội dung để hiển thị.</div>';
       return;
     }
 
-    document.title = `${building.name} | Chi tiet toa nha`;
+    document.title = `${building.name} | Chi tiết tòa nhà`;
     document.getElementById("detailPageTitle").textContent = building.name;
     document.getElementById("detailPageSummary").textContent = building.description;
     document.getElementById("detailMainImage").src = safeImage(building.image, FALLBACK_BUILDING_IMAGE);
 
     const thumbGrid = document.getElementById("detailThumbGrid");
+    thumbGrid.innerHTML = "";
     (building.gallery && building.gallery.length ? building.gallery : [building.image]).forEach((image) => {
       const img = document.createElement("img");
       img.src = safeImage(image, FALLBACK_BUILDING_IMAGE);
@@ -133,30 +145,32 @@
     const rooms = getRoomsByBuilding(state, building.id);
     document.getElementById("detailContentGrid").innerHTML = `
       <article class="detail-info-card">
-        <h3>Thong tin van hanh</h3>
+        <h3>Thông tin vận hành</h3>
         <ul class="detail-list">
-          <li><span>Khu vuc</span><strong>${building.region}</strong></li>
-          <li><span>Dia chi</span><strong>${building.address}</strong></li>
-          <li><span>So tang</span><strong>${building.floors}</strong></li>
-          <li><span>Gia trung binh</span><strong>${building.averageRent}</strong></li>
+          <li><span>Khu vực</span><strong>${building.region}</strong></li>
+          <li><span>Địa chỉ</span><strong>${building.address}</strong></li>
+          <li><span>Số tầng</span><strong>${building.floors}</strong></li>
+          <li><span>Giá trung bình</span><strong>${building.averageRent}</strong></li>
         </ul>
       </article>
       <article class="detail-info-card">
-        <h3>Goc nhin dau tu</h3>
+        <h3>Góc nhìn đầu tư</h3>
         <ul class="detail-list">
-          <li><span>Ty le lap day</span><strong>${building.occupancy}%</strong></li>
-          <li><span>Diem nhan</span><strong>${building.investmentHighlight}</strong></li>
-          <li><span>Tong phong</span><strong>${rooms.length}</strong></li>
-          <li><span>Phong dang trong</span><strong>${rooms.filter((room) => room.status === "available").length}</strong></li>
+          <li><span>Tỷ lệ lấp đầy</span><strong>${building.occupancy}%</strong></li>
+          <li><span>Điểm nhấn</span><strong>${building.investmentHighlight}</strong></li>
+          <li><span>Tổng phòng</span><strong>${rooms.length}</strong></li>
+          <li><span>Phòng đang trống</span><strong>${rooms.filter((room) => room.status === "available").length}</strong></li>
         </ul>
       </article>
     `;
 
     const grid = document.getElementById("detailRoomsGrid");
     if (!rooms.length) {
-      grid.innerHTML = '<div class="empty-state-card">Chua co phong nao duoc cap nhat.</div>';
+      grid.innerHTML = '<div class="empty-state-card">Chưa có phòng nào được cập nhật.</div>';
       return;
     }
+
+    grid.innerHTML = "";
     rooms.forEach((room) => grid.appendChild(roomCard(room, building.name)));
   }
 
@@ -166,9 +180,9 @@
     const statusFilter = document.getElementById("statusFilter");
     const grid = document.getElementById("roomsPageGrid");
 
-    fillSelect(regionFilter, ["Tat ca khu vuc"].concat(unique(state.rooms.map((room) => room.region))));
-    fillSelect(buildingFilter, ["Tat ca toa nha"].concat(state.buildings.map((building) => building.name)));
-    fillSelect(statusFilter, ["Tat ca trang thai", "Dang trong", "Da co khach", "Sap trong"]);
+    fillSelect(regionFilter, ["Tất cả khu vực"].concat(unique(state.rooms.map((room) => room.region))));
+    fillSelect(buildingFilter, ["Tất cả tòa nhà"].concat(state.buildings.map((building) => building.name)));
+    fillSelect(statusFilter, ["Tất cả trạng thái", "Đang trống", "Đã có khách", "Sắp trống"]);
 
     [regionFilter, buildingFilter, statusFilter].forEach((select) => select.addEventListener("change", render));
     render();
@@ -177,20 +191,20 @@
       grid.innerHTML = "";
       const filtered = state.rooms.filter((room) => {
         const building = getBuildingById(state, room.buildingId);
-        const regionMatch = regionFilter.value === "Tat ca khu vuc" || room.region === regionFilter.value;
-        const buildingMatch = buildingFilter.value === "Tat ca toa nha" || (building && building.name === buildingFilter.value);
-        const statusMatch = statusFilter.value === "Tat ca trang thai" || statusLabel(room.status) === statusFilter.value;
+        const regionMatch = regionFilter.value === "Tất cả khu vực" || room.region === regionFilter.value;
+        const buildingMatch = buildingFilter.value === "Tất cả tòa nhà" || (building && building.name === buildingFilter.value);
+        const statusMatch = statusFilter.value === "Tất cả trạng thái" || statusLabel(room.status) === statusFilter.value;
         return regionMatch && buildingMatch && statusMatch;
       });
 
       if (!filtered.length) {
-        grid.innerHTML = '<div class="empty-state-card">Khong co phong phu hop voi bo loc hien tai.</div>';
+        grid.innerHTML = '<div class="empty-state-card">Không có phòng phù hợp với bộ lọc hiện tại.</div>';
         return;
       }
 
       filtered.forEach((room) => {
         const building = getBuildingById(state, room.buildingId);
-        grid.appendChild(roomCard(room, building ? building.name : "Khong xac dinh"));
+        grid.appendChild(roomCard(room, building ? building.name : "Không xác định"));
       });
     }
   }
@@ -214,11 +228,11 @@
       <h3>${room.name}</h3>
       <p>${buildingName} | ${room.type}</p>
       <div class="room-meta">
-        <div><strong>Khu vuc:</strong> ${room.region}</div>
-        <div><strong>Gia thue:</strong> ${room.rent}</div>
-        <div><strong>Ngay trong:</strong> ${formatDate(room.availableFrom)}</div>
-        <div><strong>Dien tich:</strong> ${room.area}</div>
-        <div><strong>Tien ich:</strong> ${room.amenities}</div>
+        <div><strong>Khu vực:</strong> ${room.region}</div>
+        <div><strong>Giá thuê:</strong> ${room.rent}</div>
+        <div><strong>Ngày trống:</strong> ${formatDate(room.availableFrom)}</div>
+        <div><strong>Diện tích:</strong> ${room.area}</div>
+        <div><strong>Tiện ích:</strong> ${room.amenities}</div>
       </div>
     `;
     return card;

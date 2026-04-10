@@ -8,7 +8,7 @@
     return fetch(path, options).then(async (response) => {
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(data.error || "Request failed");
+        throw new Error(data.error || "Yêu cầu thất bại");
       }
       return data;
     });
@@ -54,12 +54,11 @@
     if (!files || !files.length) return Promise.resolve([]);
     const formData = new FormData();
     Array.from(files).forEach((file) => formData.append("files", file));
-    return fetch("/api/upload", { method: "POST", body: formData })
-      .then(async (response) => {
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(data.error || "Upload failed");
-        return data.files || [];
-      });
+    return fetch("/api/upload", { method: "POST", body: formData }).then(async (response) => {
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "Tải ảnh thất bại");
+      return data.files || [];
+    });
   }
 
   function safeImage(value, fallback) {
@@ -68,13 +67,14 @@
 
   function statusLabel(status) {
     return {
-      available: "Dang trong",
-      occupied: "Da co khach",
-      upcoming: "Sap trong",
+      available: "Đang trống",
+      occupied: "Đã có khách",
+      upcoming: "Sắp trống",
     }[status] || status;
   }
 
   function formatDate(value) {
+    if (!value) return "Chưa cập nhật";
     return new Date(value).toLocaleDateString("vi-VN");
   }
 
