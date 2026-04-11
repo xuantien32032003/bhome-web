@@ -424,16 +424,28 @@
       nav.classList.remove("nav-links-open");
       button.classList.remove("is-open");
       button.setAttribute("aria-expanded", "false");
+      document.body.classList.remove("mobile-nav-open");
     };
 
     button.addEventListener("click", () => {
       const isOpen = nav.classList.toggle("nav-links-open");
       button.classList.toggle("is-open", isOpen);
       button.setAttribute("aria-expanded", String(isOpen));
+      document.body.classList.toggle("mobile-nav-open", isOpen);
     });
 
     nav.querySelectorAll("a").forEach((link) => {
       link.addEventListener("click", closeMenu);
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!nav.classList.contains("nav-links-open")) return;
+      if (nav.contains(event.target) || button.contains(event.target)) return;
+      closeMenu();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeMenu();
     });
 
     window.addEventListener("resize", () => {
