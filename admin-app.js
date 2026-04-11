@@ -138,7 +138,11 @@
           value: clean(data.get(`statValue${index}`)),
           note: clean(data.get(`statNote${index}`)),
         }));
-        await persist("Đã lưu các chỉ số vận hành.");
+        state.results = [1, 2, 3].map((index) => ({
+          title: clean(data.get(`resultTitle${index}`)),
+          description: clean(data.get(`resultDescription${index}`)),
+        }));
+        await persist("Đã lưu các chỉ số và nội dung kết quả.");
       } catch (error) {
         showNotice(error.message || "Không thể lưu chỉ số.", "error");
       }
@@ -297,6 +301,13 @@
         statsForm.elements.namedItem(`statLabel${idx}`).value = stat.label || "";
         statsForm.elements.namedItem(`statValue${idx}`).value = stat.value || "";
         statsForm.elements.namedItem(`statNote${idx}`).value = stat.note || "";
+      });
+      state.results.forEach((result, index) => {
+        const idx = index + 1;
+        const titleField = statsForm.elements.namedItem(`resultTitle${idx}`);
+        const descriptionField = statsForm.elements.namedItem(`resultDescription${idx}`);
+        if (titleField) titleField.value = result.title || "";
+        if (descriptionField) descriptionField.value = result.description || "";
       });
     }
 
