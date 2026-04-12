@@ -30,6 +30,7 @@
 
   function setupCommon(state) {
     applyManagedText(state.content);
+    setupAnnouncement(state.content);
 
     const companyName = document.getElementById("companyName");
     if (companyName) companyName.textContent = state.company.name;
@@ -511,6 +512,24 @@
   function setText(id, value) {
     const element = document.getElementById(id);
     if (element) element.textContent = value;
+  }
+
+  function setupAnnouncement(content) {
+    const bar = document.getElementById("announcementBar");
+    const primary = document.getElementById("announcementContent");
+    const clone = document.getElementById("announcementContentClone");
+    if (!bar || !primary || !clone) return;
+
+    const text = String(content.announcementText || "").trim();
+    const enabled = String(content.announcementEnabled) === "true";
+    if (!enabled || !text) {
+      bar.classList.add("hidden");
+      return;
+    }
+
+    primary.textContent = text;
+    clone.textContent = text;
+    bar.classList.remove("hidden");
   }
 
   function applyBrand(company, content) {

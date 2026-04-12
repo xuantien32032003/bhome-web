@@ -178,6 +178,10 @@ app.use(express.static(ROOT));
 
 function normalizeState(state) {
   const nextState = Object.assign({}, state);
+  nextState.content = Object.assign({
+    announcementEnabled: "true",
+    announcementText: "Chào mừng bạn đến với Bhome. Danh mục căn hộ đang được cập nhật liên tục.",
+  }, nextState.content || {});
   const legacyAdmin = nextState.admin || defaultState.admin;
   nextState.admins = Array.isArray(nextState.admins) && nextState.admins.length
     ? nextState.admins

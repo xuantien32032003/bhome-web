@@ -551,6 +551,10 @@
 
   function normalizeState(state) {
     const nextState = Object.assign({}, state);
+    nextState.content = Object.assign({
+      announcementEnabled: "true",
+      announcementText: "Chào mừng bạn đến với Bhome. Danh mục căn hộ đang được cập nhật liên tục.",
+    }, nextState.content || {});
     const defaultAdmin = nextState.admin || { email: "admin@nova.vn", password: "123456" };
     nextState.admins = Array.isArray(nextState.admins) && nextState.admins.length
       ? nextState.admins
