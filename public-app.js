@@ -107,6 +107,7 @@
     const grid = document.getElementById("homeNewsGrid");
     if (!grid) return;
     const items = [...(state.news || [])]
+      .filter((item) => item.status !== "draft")
       .sort((a, b) => String(b.publishedAt || "").localeCompare(String(a.publishedAt || "")))
       .slice(0, HOME_NEWS_LIMIT);
 
@@ -380,7 +381,9 @@
 
   function renderNewsPage(state) {
     const grid = document.getElementById("newsPageGrid");
-    const items = [...(state.news || [])].sort((a, b) => String(b.publishedAt || "").localeCompare(String(a.publishedAt || "")));
+    const items = [...(state.news || [])]
+      .filter((item) => item.status !== "draft")
+      .sort((a, b) => String(b.publishedAt || "").localeCompare(String(a.publishedAt || "")));
 
     if (!items.length) {
       grid.innerHTML = '<div class="empty-state-card">Chưa có bài viết nào được đăng.</div>';
@@ -393,7 +396,7 @@
 
   function renderNewsDetailPage(state) {
     const params = new URLSearchParams(window.location.search);
-    const item = (state.news || []).find((entry) => entry.id === params.get("id"));
+    const item = (state.news || []).find((entry) => entry.id === params.get("id") && entry.status !== "draft");
 
     if (!item) {
       document.getElementById("newsDetailTitle").textContent = "Không tìm thấy bài viết";
@@ -546,7 +549,9 @@
         <img src="${safeImage(item.image, FALLBACK_BUILDING_IMAGE)}" alt="${item.title}">
       </div>
       <div class="news-card-copy">
-        <span class="news-badge">${item.category}</span>
+        <div class="news-card-tags">
+          <span class="news-badge">${item.category}</span>
+        </div>
         <h3>${item.title}</h3>
         <p class="news-card-date">${formatDate(item.publishedAt)}</p>
         <p>${item.excerpt}</p>

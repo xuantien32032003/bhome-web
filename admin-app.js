@@ -83,6 +83,21 @@
     document.getElementById("roomResetButton").addEventListener("click", resetRoomForm);
     document.getElementById("newsResetButton").addEventListener("click", resetNewsForm);
     document.getElementById("adminAccountResetButton").addEventListener("click", resetAdminAccountForm);
+    document.querySelectorAll(".editor-action").forEach((button) => {
+      button.addEventListener("click", () => {
+        const targetName = button.dataset.editorTarget;
+        const insertText = String(button.dataset.editorInsert || "");
+        const field = newsForm.elements.namedItem(targetName);
+        if (!field) return;
+        const start = field.selectionStart || 0;
+        const end = field.selectionEnd || 0;
+        const value = field.value || "";
+        field.value = `${value.slice(0, start)}${insertText}${value.slice(end)}`;
+        field.focus();
+        const caret = start + insertText.length;
+        field.setSelectionRange(caret, caret);
+      });
+    });
 
     [buildingSearch, roomSearch, roomStatusFilter, newsSearch, newsCategoryFilter, adminSearch].forEach((element) => {
       element.addEventListener("input", render);
@@ -249,6 +264,7 @@
           id,
           title: clean(data.get("title")),
           category: clean(data.get("category")),
+          status: clean(data.get("status")),
           publishedAt: clean(data.get("publishedAt")),
           image: firstNonEmpty(imageUploads[0], data.get("image"), existing && existing.image, FALLBACK_BUILDING_IMAGE),
           excerpt: clean(data.get("excerpt")),
@@ -568,7 +584,10 @@
             <img src="${safeImage(item.image, FALLBACK_BUILDING_IMAGE)}" alt="${item.title}">
           </div>
           <div class="news-card-copy">
-            <span class="news-badge">${item.category}</span>
+            <div class="news-card-tags">
+              <span class="news-badge">${item.category}</span>
+              <span class="status-pill ${item.status === "draft" ? "status-upcoming" : "status-available"}">${item.status === "draft" ? "Nháp" : "Đã đăng"}</span>
+            </div>
             <h3>${item.title}</h3>
             <p class="news-card-date">${formatDate(item.publishedAt)}</p>
             <p>${item.excerpt}</p>
@@ -626,6 +645,7 @@
       newsForm.elements.id.value = "";
       clearFileInputs(newsForm);
       newsForm.elements.publishedAt.value = new Date().toISOString().slice(0, 10);
+      newsForm.elements.status.value = "published";
       if (showMessage) showNotice("Đã làm mới form bài viết.", "info");
     }
 
@@ -670,6 +690,14 @@
       announcementText: "Chào mừng bạn đến với Bhome. Danh mục căn hộ đang được cập nhật liên tục.",
     }, nextState.content || {});
     nextState.news = Array.isArray(nextState.news) ? nextState.news : [];
+    nextState.news = nextState.news.map((item) => Object.assign({
+      status: "published",
+      category: "Tin tức",
+      excerpt: "",
+      body: "",
+      image: FALLBACK_BUILDING_IMAGE,
+      publishedAt: new Date().toISOString().slice(0, 10),
+    }, item));
     const defaultAdmin = nextState.admin || { email: "admin@nova.vn", password: "123456" };
     nextState.admins = Array.isArray(nextState.admins) && nextState.admins.length
       ? nextState.admins

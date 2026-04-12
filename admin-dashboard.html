@@ -276,11 +276,22 @@
               <option value="Thông báo">Thông báo</option>
             </select>
           </label>
+          <label>Trạng thái
+            <select name="status" required>
+              <option value="published">Đã đăng</option>
+              <option value="draft">Nháp</option>
+            </select>
+          </label>
           <label>Ngày đăng<input name="publishedAt" type="date" required></label>
           <label>Ảnh đại diện (URL hoặc đường dẫn ảnh)<input name="image"></label>
           <label>Tải ảnh đại diện từ máy<input name="imageFile" type="file" accept="image/*"></label>
           <label class="full-span">Tóm tắt ngắn<textarea name="excerpt" rows="3" required></textarea></label>
-          <label class="full-span">Nội dung bài viết<textarea name="body" rows="8" required></textarea></label>
+          <div class="editor-toolbar full-span">
+            <button type="button" class="ghost-button button-inline editor-action" data-editor-target="body" data-editor-insert="## Tiêu đề phụ&#10;">Tiêu đề phụ</button>
+            <button type="button" class="ghost-button button-inline editor-action" data-editor-target="body" data-editor-insert="- Ý 1&#10;- Ý 2&#10;">Danh sách</button>
+            <button type="button" class="ghost-button button-inline editor-action" data-editor-target="body" data-editor-insert="Liên hệ: 0900 xxx xxx&#10;">Thông tin liên hệ</button>
+          </div>
+          <label class="full-span">Nội dung bài viết<textarea name="body" rows="10" required></textarea></label>
           <div class="form-actions">
             <button class="secondary-button button-inline" type="button" id="newsResetButton">Tạo mới</button>
             <button class="primary-button button-inline" type="submit">Lưu bài viết</button>

@@ -498,6 +498,14 @@ label,
   padding: 22px;
 }
 
+.news-card-tags,
+.editor-toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
 .news-badge {
   display: inline-flex;
   padding: 6px 10px;
@@ -512,6 +520,10 @@ label,
   margin: 12px 0 10px;
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+.editor-toolbar {
+  margin-top: 4px;
 }
 
 .news-detail-layout {
@@ -1019,28 +1031,28 @@ td {
   .building-list-grid,
   .room-grid,
   .news-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     gap: 8px;
   }
 
   .building-card-image,
   .room-visual,
   .news-card-image {
-    height: 92px;
+    height: 180px;
   }
 
   .building-overview-copy,
   .room-card,
   .news-card-copy {
-    padding: 10px;
+    padding: 14px;
   }
 
   .building-overview-copy h3,
   .room-card h3,
   .news-card h3 {
     margin-top: 10px;
-    font-size: 0.78rem;
-    line-height: 1.25;
+    font-size: 1rem;
+    line-height: 1.35;
   }
 
   .room-card p,
@@ -1049,6 +1061,15 @@ td {
   .room-meta {
     font-size: 0.64rem;
     line-height: 1.42;
+  }
+
+  .news-card p {
+    font-size: 0.84rem;
+    line-height: 1.6;
+  }
+
+  .news-card-date {
+    font-size: 0.78rem;
   }
 
   .building-overview-meta,
