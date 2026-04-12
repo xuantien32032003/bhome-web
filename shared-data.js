@@ -18,6 +18,10 @@
     return api("/api/state");
   }
 
+  function loadAdminBootstrap() {
+    return api("/api/admin/bootstrap");
+  }
+
   function saveState(state) {
     return api("/api/state", {
       method: "PUT",
@@ -36,6 +40,42 @@
 
   function getRoomsByBuilding(state, buildingId) {
     return state.rooms.filter((room) => room.buildingId === buildingId);
+  }
+
+  function loadRoomsPage(params) {
+    const query = new URLSearchParams();
+    Object.entries(params || {}).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === "") return;
+      query.set(key, String(value));
+    });
+    const suffix = query.toString() ? `?${query.toString()}` : "";
+    return api(`/api/rooms${suffix}`);
+  }
+
+  function loadRoomById(id) {
+    return api(`/api/rooms/${encodeURIComponent(id)}`);
+  }
+
+  function createRoom(payload) {
+    return api("/api/rooms", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  }
+
+  function updateRoom(id, payload) {
+    return api(`/api/rooms/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  }
+
+  function deleteRoom(id) {
+    return api(`/api/rooms/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    });
   }
 
   function loginAdmin(email, password) {
@@ -94,10 +134,16 @@
     FALLBACK_BUILDING_IMAGE,
     FALLBACK_ROOM_IMAGE,
     loadState,
+    loadAdminBootstrap,
     saveState,
     getBuildingById,
     getRoomById,
     getRoomsByBuilding,
+    loadRoomsPage,
+    loadRoomById,
+    createRoom,
+    updateRoom,
+    deleteRoom,
     loginAdmin,
     logoutAdmin,
     isAdminLoggedIn,

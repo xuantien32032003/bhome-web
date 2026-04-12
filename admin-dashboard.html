@@ -216,6 +216,9 @@
         </div>
         <div class="admin-toolbar admin-toolbar-split">
           <input id="roomSearch" type="search" placeholder="Tìm theo tên phòng, khu vực, loại phòng">
+          <select id="roomBuildingFilter">
+            <option value="">Tất cả tòa nhà</option>
+          </select>
           <select id="roomStatusFilter">
             <option value="">Tất cả trạng thái</option>
             <option value="available">Đang trống</option>
@@ -248,6 +251,11 @@
           </div>
         </form>
         <div class="admin-room-grid admin-table-spacing" id="adminRoomGrid"></div>
+        <div class="pagination-bar admin-table-spacing">
+          <button class="secondary-button button-inline" type="button" id="adminRoomsPrevButton">Trang trước</button>
+          <div class="pagination-numbers" id="adminRoomsPagination"></div>
+          <button class="secondary-button button-inline" type="button" id="adminRoomsNextButton">Trang sau</button>
+        </div>
       </section>
 
       <section class="content-section admin-panel" data-panel="news">

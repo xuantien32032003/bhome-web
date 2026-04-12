@@ -246,9 +246,137 @@ function requireAuth(req, res, next) {
   next();
 }
 
+function parsePositiveInt(value, fallback, max = Infinity) {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed < 1) return fallback;
+  return Math.min(parsed, max);
+}
+
+function normalizeKeyword(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function buildRoomCountMap(rooms) {
+  return rooms.reduce((accumulator, room) => {
+    accumulator[room.buildingId] = (accumulator[room.buildingId] || 0) + 1;
+    return accumulator;
+  }, {});
+}
+
+function filterRooms(rooms, query = {}) {
+  const keyword = normalizeKeyword(query.search);
+  const status = normalizeKeyword(query.status);
+  const buildingId = String(query.buildingId || "").trim();
+  return rooms.filter((room) => {
+    const matchesKeyword = !keyword || [room.name, room.region, room.type, room.rent, room.area]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase()
+      .includes(keyword);
+    const matchesStatus = !status || String(room.status || "").toLowerCase() === status;
+    const matchesBuilding = !buildingId || room.buildingId === buildingId;
+    return matchesKeyword && matchesStatus && matchesBuilding;
+  });
+}
+
+function paginate(items, page, limit) {
+  const totalItems = items.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / limit));
+  const currentPage = Math.min(Math.max(page, 1), totalPages);
+  const start = (currentPage - 1) * limit;
+  return {
+    items: items.slice(start, start + limit),
+    page: currentPage,
+    limit,
+    totalItems,
+    totalPages,
+  };
+}
+
+function serializeRoom(room, buildings) {
+  const building = buildings.find((item) => item.id === room.buildingId);
+  return Object.assign({}, room, {
+    buildingName: building ? building.name : "",
+  });
+}
+
+function sanitizeRoomInput(input, state, existingRoom) {
+  const buildingId = String(input.buildingId || existingRoom?.buildingId || "").trim();
+  const building = state.buildings.find((item) => item.id === buildingId);
+  if (!building) {
+    throw new Error("Tòa nhà không hợp lệ.");
+  }
+
+  const status = String(input.status || existingRoom?.status || "available").trim();
+  const allowedStatuses = new Set(["available", "occupied", "upcoming"]);
+  if (!allowedStatuses.has(status)) {
+    throw new Error("Trạng thái phòng không hợp lệ.");
+  }
+
+  return {
+    id: String(input.id || existingRoom?.id || `room-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`).trim(),
+    name: String(input.name || existingRoom?.name || "").trim(),
+    buildingId,
+    region: String(input.region || building.region || existingRoom?.region || "").trim(),
+    image: String(input.image || existingRoom?.image || FALLBACK_ROOM_IMAGE).trim(),
+    type: String(input.type || existingRoom?.type || "").trim(),
+    rent: String(input.rent || existingRoom?.rent || "").trim(),
+    status,
+    availableFrom: String(input.availableFrom || existingRoom?.availableFrom || "").trim(),
+    area: String(input.area || existingRoom?.area || "").trim(),
+    amenities: String(input.amenities || existingRoom?.amenities || "").trim(),
+  };
+}
+
+function buildAdminBootstrap(state) {
+  return Object.assign({}, state, {
+    rooms: [],
+    meta: {
+      roomCountsByBuilding: buildRoomCountMap(state.rooms || []),
+      totalRooms: Array.isArray(state.rooms) ? state.rooms.length : 0,
+    },
+  });
+}
+
 app.get("/api/state", async (_req, res, next) => {
   try {
     res.json(await readStateAny());
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/admin/bootstrap", requireAuth, async (_req, res, next) => {
+  try {
+    const state = await readStateAny();
+    res.json(buildAdminBootstrap(state));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/rooms", async (req, res, next) => {
+  try {
+    const state = await readStateAny();
+    const page = parsePositiveInt(req.query.page, 1);
+    const limit = parsePositiveInt(req.query.limit, 12, 100);
+    const filteredRooms = filterRooms(state.rooms || [], req.query)
+      .map((room) => serializeRoom(room, state.buildings || []));
+    res.json(paginate(filteredRooms, page, limit));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/rooms/:id", requireAuth, async (req, res, next) => {
+  try {
+    const state = await readStateAny();
+    const room = (state.rooms || []).find((item) => item.id === req.params.id);
+    if (!room) {
+      res.status(404).json({ error: "Không tìm thấy phòng." });
+      return;
+    }
+    res.json({ item: serializeRoom(room, state.buildings || []) });
   } catch (error) {
     next(error);
   }
@@ -284,6 +412,51 @@ app.post("/api/admin/logout", (req, res) => {
 app.put("/api/state", requireAuth, async (req, res, next) => {
   try {
     await writeStateAny(req.body);
+    res.json({ ok: true });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/rooms", requireAuth, async (req, res, next) => {
+  try {
+    const state = await readStateAny();
+    const room = sanitizeRoomInput(req.body, state);
+    state.rooms.unshift(room);
+    await writeStateAny(state);
+    res.json({ ok: true, item: serializeRoom(room, state.buildings || []) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put("/api/rooms/:id", requireAuth, async (req, res, next) => {
+  try {
+    const state = await readStateAny();
+    const index = (state.rooms || []).findIndex((item) => item.id === req.params.id);
+    if (index < 0) {
+      res.status(404).json({ error: "Không tìm thấy phòng." });
+      return;
+    }
+    const room = sanitizeRoomInput(Object.assign({}, req.body, { id: req.params.id }), state, state.rooms[index]);
+    state.rooms[index] = room;
+    await writeStateAny(state);
+    res.json({ ok: true, item: serializeRoom(room, state.buildings || []) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.delete("/api/rooms/:id", requireAuth, async (req, res, next) => {
+  try {
+    const state = await readStateAny();
+    const existing = (state.rooms || []).find((item) => item.id === req.params.id);
+    if (!existing) {
+      res.status(404).json({ error: "Không tìm thấy phòng." });
+      return;
+    }
+    state.rooms = state.rooms.filter((item) => item.id !== req.params.id);
+    await writeStateAny(state);
     res.json({ ok: true });
   } catch (error) {
     next(error);
