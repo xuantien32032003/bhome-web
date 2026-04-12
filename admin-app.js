@@ -59,13 +59,17 @@
     const statsForm = document.getElementById("statsForm");
     const buildingForm = document.getElementById("buildingForm");
     const roomForm = document.getElementById("roomForm");
+    const newsForm = document.getElementById("newsForm");
     const adminAccountForm = document.getElementById("adminAccountForm");
     const buildingTableBody = document.getElementById("buildingTableBody");
     const adminRoomGrid = document.getElementById("adminRoomGrid");
+    const adminNewsGrid = document.getElementById("adminNewsGrid");
     const adminAccountTableBody = document.getElementById("adminAccountTableBody");
     const buildingSearch = document.getElementById("buildingSearch");
     const roomSearch = document.getElementById("roomSearch");
     const roomStatusFilter = document.getElementById("roomStatusFilter");
+    const newsSearch = document.getElementById("newsSearch");
+    const newsCategoryFilter = document.getElementById("newsCategoryFilter");
     const adminSearch = document.getElementById("adminSearch");
 
     setupTabs();
@@ -77,9 +81,10 @@
 
     document.getElementById("buildingResetButton").addEventListener("click", resetBuildingForm);
     document.getElementById("roomResetButton").addEventListener("click", resetRoomForm);
+    document.getElementById("newsResetButton").addEventListener("click", resetNewsForm);
     document.getElementById("adminAccountResetButton").addEventListener("click", resetAdminAccountForm);
 
-    [buildingSearch, roomSearch, roomStatusFilter, adminSearch].forEach((element) => {
+    [buildingSearch, roomSearch, roomStatusFilter, newsSearch, newsCategoryFilter, adminSearch].forEach((element) => {
       element.addEventListener("input", render);
       element.addEventListener("change", render);
     });
@@ -232,6 +237,35 @@
       }
     });
 
+    newsForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      try {
+        const data = new FormData(newsForm);
+        const id = clean(data.get("id")) || createId();
+        const existing = state.news.find((item) => item.id === id);
+        const imageUploads = await uploadFiles(newsForm.elements.namedItem("imageFile").files);
+
+        const payload = {
+          id,
+          title: clean(data.get("title")),
+          category: clean(data.get("category")),
+          publishedAt: clean(data.get("publishedAt")),
+          image: firstNonEmpty(imageUploads[0], data.get("image"), existing && existing.image, FALLBACK_BUILDING_IMAGE),
+          excerpt: clean(data.get("excerpt")),
+          body: clean(data.get("body")),
+        };
+
+        const index = state.news.findIndex((item) => item.id === id);
+        if (index >= 0) state.news[index] = payload;
+        else state.news.unshift(payload);
+
+        resetNewsForm(false);
+        await persist(index >= 0 ? "Đã cập nhật bài viết." : "Đã đăng bài viết mới.");
+      } catch (error) {
+        showNotice(error.message || "Không thể lưu bài viết.", "error");
+      }
+    });
+
     adminAccountForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       try {
@@ -278,7 +312,11 @@
       fillRoomBuildingOptions();
       renderBuildingTable();
       renderRoomCards();
+      renderNewsCards();
       renderAdminAccounts();
+      if (!newsForm.elements.namedItem("publishedAt").value) {
+        newsForm.elements.namedItem("publishedAt").value = new Date().toISOString().slice(0, 10);
+      }
     }
 
     function fillContentForm() {
@@ -507,6 +545,67 @@
       });
     }
 
+    function renderNewsCards() {
+      const keyword = newsSearch.value.trim().toLowerCase();
+      const category = newsCategoryFilter.value;
+      const items = state.news.filter((item) => {
+        const matchesKeyword = [item.title, item.category, item.excerpt].join(" ").toLowerCase().includes(keyword);
+        const matchesCategory = !category || item.category === category;
+        return matchesKeyword && matchesCategory;
+      });
+
+      if (!items.length) {
+        adminNewsGrid.innerHTML = '<div class="empty-state-card">Không có bài viết phù hợp.</div>';
+        return;
+      }
+
+      adminNewsGrid.innerHTML = "";
+      items.forEach((item) => {
+        const card = document.createElement("article");
+        card.className = "news-card";
+        card.innerHTML = `
+          <div class="news-card-image">
+            <img src="${safeImage(item.image, FALLBACK_BUILDING_IMAGE)}" alt="${item.title}">
+          </div>
+          <div class="news-card-copy">
+            <span class="news-badge">${item.category}</span>
+            <h3>${item.title}</h3>
+            <p class="news-card-date">${formatDate(item.publishedAt)}</p>
+            <p>${item.excerpt}</p>
+            <div class="room-actions">
+              <button type="button" data-news-action="edit" data-id="${item.id}">Sửa</button>
+              <button type="button" class="danger" data-news-action="delete" data-id="${item.id}">Xóa</button>
+            </div>
+          </div>
+        `;
+        adminNewsGrid.appendChild(card);
+      });
+
+      adminNewsGrid.querySelectorAll("[data-news-action]").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const item = state.news.find((entry) => entry.id === button.dataset.id);
+          if (!item) return;
+
+          if (button.dataset.newsAction === "edit") {
+            eachEntry(item, (key, value) => {
+              const field = newsForm.elements.namedItem(key);
+              if (field) field.value = value || "";
+            });
+            activateTab("news");
+            scrollToForm(newsForm, "title");
+            showNotice(`Đang chỉnh sửa bài viết ${item.title}.`, "info");
+          }
+
+          if (button.dataset.newsAction === "delete") {
+            const confirmed = window.confirm(`Xóa bài viết "${item.title}"?`);
+            if (!confirmed) return;
+            state.news = state.news.filter((entry) => entry.id !== item.id);
+            await persist("Đã xóa bài viết.");
+          }
+        });
+      });
+    }
+
     function resetBuildingForm(showMessage = true) {
       buildingForm.reset();
       buildingForm.elements.id.value = "";
@@ -520,6 +619,14 @@
       clearFileInputs(roomForm);
       fillRoomBuildingOptions();
       if (showMessage) showNotice("Đã làm mới form phòng.", "info");
+    }
+
+    function resetNewsForm(showMessage = true) {
+      newsForm.reset();
+      newsForm.elements.id.value = "";
+      clearFileInputs(newsForm);
+      newsForm.elements.publishedAt.value = new Date().toISOString().slice(0, 10);
+      if (showMessage) showNotice("Đã làm mới form bài viết.", "info");
     }
 
     function resetAdminAccountForm(showMessage = true) {
@@ -552,9 +659,17 @@
   function normalizeState(state) {
     const nextState = Object.assign({}, state);
     nextState.content = Object.assign({
+      navNews: "Tin tức",
+      newsPageKicker: "Tin tức",
+      newsPageTitle: "Bài viết, tuyển dụng và thông báo mới",
+      newsPageDescription: "Theo dõi cập nhật hoạt động, bài viết thị trường, chương trình tuyển dụng và các thông báo mới từ Bhome.",
+      newsSectionKicker: "Tin tức",
+      newsSectionTitle: "Cập nhật mới nhất từ Bhome",
+      newsSectionButton: "Xem tất cả bài viết",
       announcementEnabled: "true",
       announcementText: "Chào mừng bạn đến với Bhome. Danh mục căn hộ đang được cập nhật liên tục.",
     }, nextState.content || {});
+    nextState.news = Array.isArray(nextState.news) ? nextState.news : [];
     const defaultAdmin = nextState.admin || { email: "admin@nova.vn", password: "123456" };
     nextState.admins = Array.isArray(nextState.admins) && nextState.admins.length
       ? nextState.admins

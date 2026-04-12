@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chi tiết phòng</title>
+  <title>Tin tức | Bhome</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Prata&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body data-page="room-detail">
+<body data-page="news">
   <div class="announcement-bar hidden" id="announcementBar">
     <div class="announcement-icon" aria-hidden="true">!</div>
     <div class="announcement-track">
@@ -28,11 +28,6 @@
           <h1 id="companyName">Bhome</h1>
         </div>
       </a>
-      <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="primaryNav">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
       <div class="nav-links" id="primaryNav">
         <a href="index.html#gioi-thieu" id="navAboutLabel">Giới Thiệu</a>
         <a href="rooms.html" id="navRoomsLabel">Tìm Phòng</a>
@@ -43,30 +38,14 @@
 
     <main>
       <section class="content-section detail-page-hero">
-        <p class="section-kicker">Chi tiết phòng</p>
-        <h2 id="roomDetailTitle">Thông tin phòng</h2>
-        <p id="roomDetailSummary"></p>
+        <p class="section-kicker" id="newsPageKicker">Tin tức</p>
+        <h2 id="newsPageTitle">Bài viết, tuyển dụng và thông báo mới</h2>
+        <p id="newsPageDescription">Theo dõi cập nhật hoạt động, bài viết thị trường, chương trình tuyển dụng và các thông báo mới từ Bhome.</p>
       </section>
 
-      <section class="content-section detail-gallery-shell">
-        <div class="detail-gallery-stage">
-          <button class="carousel-button gallery-nav gallery-nav-left" type="button" id="roomPrevImage" aria-label="Ảnh trước">
-            <span aria-hidden="true">‹</span>
-          </button>
-          <div class="detail-main-image">
-            <img id="roomDetailImage" alt="Ảnh phòng">
-          </div>
-          <button class="carousel-button gallery-nav gallery-nav-right" type="button" id="roomNextImage" aria-label="Ảnh sau">
-            <span aria-hidden="true">›</span>
-          </button>
-        </div>
-        <div class="detail-gallery-footer">
-          <div class="gallery-dots" id="roomImageDots"></div>
-          <span class="carousel-status" id="roomImageStatus">1 / 1</span>
-        </div>
+      <section class="content-section">
+        <div class="news-grid" id="newsPageGrid"></div>
       </section>
-
-      <section class="content-section detail-grid" id="roomDetailContent"></section>
     </main>
   </div>
 

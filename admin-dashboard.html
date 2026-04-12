@@ -40,6 +40,7 @@
           <button class="admin-tab" type="button" data-tab="metrics">Kết quả</button>
           <button class="admin-tab" type="button" data-tab="buildings">Tòa nhà</button>
           <button class="admin-tab" type="button" data-tab="rooms">Phòng</button>
+          <button class="admin-tab" type="button" data-tab="news">Tin tức</button>
           <button class="admin-tab" type="button" data-tab="admins">Tài khoản admin</button>
         </div>
       </section>
@@ -55,6 +56,7 @@
           <label>Dòng chữ trên cùng<input name="brandEyebrow" required></label>
           <label>Menu - Giới thiệu<input name="navAbout" required></label>
           <label>Menu - Tìm phòng<input name="navRooms" required></label>
+          <label>Menu - Tin tức<input name="navNews" required></label>
           <label>Menu - Admin<input name="navAdmin" required></label>
           <label>Hero - Kicker<input name="heroKicker" required></label>
           <label>Hero - Nút chính<input name="heroPrimaryButton" required></label>
@@ -74,6 +76,12 @@
           <label>Trang tìm phòng - Kicker<input name="roomsPageKicker" required></label>
           <label>Trang tìm phòng - Tiêu đề<input name="roomsPageTitle" required></label>
           <label>Trang tìm phòng - Mô tả<textarea name="roomsPageDescription" rows="3" required></textarea></label>
+          <label>Trang tin tức - Kicker<input name="newsPageKicker" required></label>
+          <label>Trang tin tức - Tiêu đề<input name="newsPageTitle" required></label>
+          <label class="full-span">Trang tin tức - Mô tả<textarea name="newsPageDescription" rows="3" required></textarea></label>
+          <label>Khối tin tức - Kicker<input name="newsSectionKicker" required></label>
+          <label>Khối tin tức - Tiêu đề<input name="newsSectionTitle" required></label>
+          <label>Khối tin tức - Nút xem tất cả<input name="newsSectionButton" required></label>
           <label>Liên hệ - Nhãn nút<input name="contactToggle" required></label>
           <label>Liên hệ - Tiêu đề<input name="contactTitle" required></label>
           <label>Liên hệ - Nhãn điện thoại<input name="contactPhoneLabel" required></label>
@@ -240,6 +248,45 @@
           </div>
         </form>
         <div class="admin-room-grid admin-table-spacing" id="adminRoomGrid"></div>
+      </section>
+
+      <section class="content-section admin-panel" data-panel="news">
+        <div class="section-header">
+          <div>
+            <p class="section-kicker">Tin tức</p>
+            <h2>Đăng bài viết và thông báo</h2>
+          </div>
+        </div>
+        <div class="admin-toolbar admin-toolbar-split">
+          <input id="newsSearch" type="search" placeholder="Tìm theo tiêu đề, loại bài, tóm tắt">
+          <select id="newsCategoryFilter">
+            <option value="">Tất cả loại bài</option>
+            <option value="Tin tức">Tin tức</option>
+            <option value="Tuyển dụng">Tuyển dụng</option>
+            <option value="Thông báo">Thông báo</option>
+          </select>
+        </div>
+        <form id="newsForm" class="form-grid">
+          <input type="hidden" name="id">
+          <label>Tiêu đề bài viết<input name="title" required></label>
+          <label>Loại bài
+            <select name="category" required>
+              <option value="Tin tức">Tin tức</option>
+              <option value="Tuyển dụng">Tuyển dụng</option>
+              <option value="Thông báo">Thông báo</option>
+            </select>
+          </label>
+          <label>Ngày đăng<input name="publishedAt" type="date" required></label>
+          <label>Ảnh đại diện (URL hoặc đường dẫn ảnh)<input name="image"></label>
+          <label>Tải ảnh đại diện từ máy<input name="imageFile" type="file" accept="image/*"></label>
+          <label class="full-span">Tóm tắt ngắn<textarea name="excerpt" rows="3" required></textarea></label>
+          <label class="full-span">Nội dung bài viết<textarea name="body" rows="8" required></textarea></label>
+          <div class="form-actions">
+            <button class="secondary-button button-inline" type="button" id="newsResetButton">Tạo mới</button>
+            <button class="primary-button button-inline" type="submit">Lưu bài viết</button>
+          </div>
+        </form>
+        <div class="news-grid admin-table-spacing" id="adminNewsGrid"></div>
       </section>
 
       <section class="content-section admin-panel" data-panel="admins">

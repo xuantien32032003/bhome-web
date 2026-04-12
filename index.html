@@ -16,6 +16,7 @@
       <div class="announcement-content" id="announcementContent"></div>
       <div class="announcement-content" id="announcementContentClone" aria-hidden="true"></div>
     </div>
+    <button class="announcement-close" id="announcementClose" type="button" aria-label="Đóng thông báo">×</button>
   </div>
   <div class="site-shell">
     <nav class="main-nav">
@@ -35,6 +36,7 @@
       <div class="nav-links" id="primaryNav">
         <a href="#gioi-thieu" id="navAboutLabel">Giới Thiệu</a>
         <a href="rooms.html" id="navRoomsLabel">Tìm Phòng</a>
+        <a href="news.html" id="navNewsLabel">Tin Tức</a>
         <a href="admin-login.html" id="navAdminLabel">Admin</a>
       </div>
     </nav>
@@ -145,6 +147,17 @@
             <span aria-hidden="true">›</span>
           </button>
         </div>
+      </section>
+
+      <section id="tin-tuc" class="content-section">
+        <div class="section-header">
+          <div>
+            <p class="section-kicker" id="newsSectionKicker">Tin tức</p>
+            <h2 id="newsSectionTitle">Cập nhật mới nhất từ Bhome</h2>
+          </div>
+          <a class="secondary-button button-inline" href="news.html" id="newsSectionButton">Xem tất cả bài viết</a>
+        </div>
+        <div class="news-grid" id="homeNewsGrid"></div>
       </section>
     </main>
   </div>

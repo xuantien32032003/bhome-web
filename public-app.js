@@ -16,6 +16,7 @@
   const page = document.body.dataset.page;
   const BUILDINGS_PER_PAGE = 3;
   const ROOMS_PER_PAGE = 10;
+  const HOME_NEWS_LIMIT = 3;
 
   init();
 
@@ -25,6 +26,8 @@
     if (page === "home") renderHome(state);
     if (page === "building-detail") renderBuildingDetailPage(state);
     if (page === "rooms") renderRoomsPage(state);
+    if (page === "news") renderNewsPage(state);
+    if (page === "news-detail") renderNewsDetailPage(state);
     if (page === "room-detail") renderRoomDetailPage(state);
   }
 
@@ -39,7 +42,7 @@
     const toggle = document.getElementById("contactToggle");
     const card = document.getElementById("contactCard");
     if (toggle && card) toggle.addEventListener("click", () => card.classList.toggle("hidden"));
-    setupMobileMenu();
+    setupAnnouncementClose();
 
     const phoneLink = document.getElementById("contactPhoneLink");
     const zaloLink = document.getElementById("contactZaloLink");
@@ -97,6 +100,23 @@
     });
 
     setupBuildingCarousel(state);
+    renderHomeNews(state);
+  }
+
+  function renderHomeNews(state) {
+    const grid = document.getElementById("homeNewsGrid");
+    if (!grid) return;
+    const items = [...(state.news || [])]
+      .sort((a, b) => String(b.publishedAt || "").localeCompare(String(a.publishedAt || "")))
+      .slice(0, HOME_NEWS_LIMIT);
+
+    if (!items.length) {
+      grid.innerHTML = '<div class="empty-state-card">Chưa có bài viết nào được đăng.</div>';
+      return;
+    }
+
+    grid.innerHTML = "";
+    items.forEach((item) => grid.appendChild(newsCard(item)));
   }
 
   function setupBuildingCarousel(state) {
@@ -358,6 +378,42 @@
     `;
   }
 
+  function renderNewsPage(state) {
+    const grid = document.getElementById("newsPageGrid");
+    const items = [...(state.news || [])].sort((a, b) => String(b.publishedAt || "").localeCompare(String(a.publishedAt || "")));
+
+    if (!items.length) {
+      grid.innerHTML = '<div class="empty-state-card">Chưa có bài viết nào được đăng.</div>';
+      return;
+    }
+
+    grid.innerHTML = "";
+    items.forEach((item) => grid.appendChild(newsCard(item)));
+  }
+
+  function renderNewsDetailPage(state) {
+    const params = new URLSearchParams(window.location.search);
+    const item = (state.news || []).find((entry) => entry.id === params.get("id"));
+
+    if (!item) {
+      document.getElementById("newsDetailTitle").textContent = "Không tìm thấy bài viết";
+      document.getElementById("newsDetailMeta").textContent = "Bài viết không tồn tại hoặc đã bị xóa.";
+      document.getElementById("newsDetailBody").innerHTML = '<div class="empty-state-card">Không có nội dung để hiển thị.</div>';
+      return;
+    }
+
+    document.title = `${item.title} | Tin tức Bhome`;
+    document.getElementById("newsDetailTitle").textContent = item.title;
+    document.getElementById("newsDetailMeta").textContent = `${item.category} | ${formatDate(item.publishedAt)}`;
+    document.getElementById("newsDetailImage").src = safeImage(item.image, FALLBACK_BUILDING_IMAGE);
+    document.getElementById("newsDetailImage").alt = item.title;
+    document.getElementById("newsDetailBody").innerHTML = `
+      <p class="news-badge">${item.category}</p>
+      <p class="muted-copy">${item.excerpt}</p>
+      ${item.body.split(/\r?\n/).filter(Boolean).map((paragraph) => `<p>${paragraph}</p>`).join("")}
+    `;
+  }
+
   function setupImageGallery(images, imageId, prevId, nextId, statusId, dotsId, fallback, altText) {
     const safeImages = (images && images.length ? images : [fallback]).map((item) => safeImage(item, fallback));
     const imageElement = document.getElementById(imageId);
@@ -482,10 +538,29 @@
     return card;
   }
 
+  function newsCard(item) {
+    const card = document.createElement("article");
+    card.className = "news-card";
+    card.innerHTML = `
+      <div class="news-card-image">
+        <img src="${safeImage(item.image, FALLBACK_BUILDING_IMAGE)}" alt="${item.title}">
+      </div>
+      <div class="news-card-copy">
+        <span class="news-badge">${item.category}</span>
+        <h3>${item.title}</h3>
+        <p class="news-card-date">${formatDate(item.publishedAt)}</p>
+        <p>${item.excerpt}</p>
+        <a class="secondary-button button-inline" href="${newsDetailLink(item.id)}">Đọc bài viết</a>
+      </div>
+    `;
+    return card;
+  }
+
   function applyManagedText(content) {
     setText("brandEyebrow", content.brandEyebrow);
     setText("navAboutLabel", content.navAbout);
     setText("navRoomsLabel", content.navRooms);
+    setText("navNewsLabel", content.navNews);
     setText("navAdminLabel", content.navAdmin);
     setText("heroKicker", content.heroKicker);
     setText("heroPrimaryButton", content.heroPrimaryButton);
@@ -505,6 +580,12 @@
     setText("roomsPageKicker", content.roomsPageKicker);
     setText("roomsPageTitle", content.roomsPageTitle);
     setText("roomsPageDescription", content.roomsPageDescription);
+    setText("newsPageKicker", content.newsPageKicker);
+    setText("newsPageTitle", content.newsPageTitle);
+    setText("newsPageDescription", content.newsPageDescription);
+    setText("newsSectionKicker", content.newsSectionKicker);
+    setText("newsSectionTitle", content.newsSectionTitle);
+    setText("newsSectionButton", content.newsSectionButton);
     setText("contactToggle", content.contactToggle);
     setText("contactTitle", content.contactTitle);
   }
@@ -530,6 +611,25 @@
     primary.textContent = text;
     clone.textContent = text;
     bar.classList.remove("hidden");
+  }
+
+  function setupAnnouncementClose() {
+    const closeButton = document.getElementById("announcementClose");
+    const bar = document.getElementById("announcementBar");
+    if (!closeButton || !bar) return;
+
+    if (window.sessionStorage.getItem("bhomeAnnouncementClosed") === "true") {
+      bar.classList.add("hidden");
+    }
+
+    closeButton.addEventListener("click", () => {
+      bar.classList.add("hidden");
+      window.sessionStorage.setItem("bhomeAnnouncementClosed", "true");
+    });
+  }
+
+  function newsDetailLink(id) {
+    return `news-detail.html?id=${encodeURIComponent(id)}`;
   }
 
   function applyBrand(company, content) {
