@@ -21,14 +21,18 @@
   init();
 
   async function init() {
-    const state = await loadState();
-    setupCommon(state);
-    if (page === "home") renderHome(state);
-    if (page === "building-detail") renderBuildingDetailPage(state);
-    if (page === "rooms") renderRoomsPage(state);
-    if (page === "news") renderNewsPage(state);
-    if (page === "news-detail") renderNewsDetailPage(state);
-    if (page === "room-detail") renderRoomDetailPage(state);
+    try {
+      const state = await loadState();
+      setupCommon(state);
+      if (page === "home") renderHome(state);
+      if (page === "building-detail") renderBuildingDetailPage(state);
+      if (page === "rooms") renderRoomsPage(state);
+      if (page === "news") renderNewsPage(state);
+      if (page === "news-detail") renderNewsDetailPage(state);
+      if (page === "room-detail") renderRoomDetailPage(state);
+    } finally {
+      document.body.classList.remove("app-loading");
+    }
   }
 
   function setupCommon(state) {

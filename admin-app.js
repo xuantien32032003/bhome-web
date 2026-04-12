@@ -19,60 +19,65 @@
   if (page === "admin-dashboard") initDashboard();
 
   async function initLoginPage() {
-    const state = await loadState();
-    applyManagedText(state.content);
-    applyBrand(state.company, state.content);
+    try {
+      const state = await loadState();
+      applyManagedText(state.content);
+      applyBrand(state.company, state.content);
 
-    if (await isAdminLoggedIn()) {
-      window.location.href = "admin-dashboard.html";
-      return;
-    }
-
-    const form = document.getElementById("adminLoginForm");
-    const hint = document.getElementById("loginHint");
-
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      hint.textContent = "Đang đăng nhập...";
-
-      const data = new FormData(form);
-
-      try {
-        await loginAdmin(data.get("email"), data.get("password"));
+      if (await isAdminLoggedIn()) {
         window.location.href = "admin-dashboard.html";
-      } catch (error) {
-        hint.textContent = error.message || "Sai email hoặc mật khẩu.";
+        return;
       }
-    });
+
+      const form = document.getElementById("adminLoginForm");
+      const hint = document.getElementById("loginHint");
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        hint.textContent = "Đang đăng nhập...";
+
+        const data = new FormData(form);
+
+        try {
+          await loginAdmin(data.get("email"), data.get("password"));
+          window.location.href = "admin-dashboard.html";
+        } catch (error) {
+          hint.textContent = error.message || "Sai email hoặc mật khẩu.";
+        }
+      });
+    } finally {
+      document.body.classList.remove("app-loading");
+    }
   }
 
   async function initDashboard() {
-    if (!(await isAdminLoggedIn())) {
-      window.location.href = "admin-login.html";
-      return;
-    }
+    try {
+      if (!(await isAdminLoggedIn())) {
+        window.location.href = "admin-login.html";
+        return;
+      }
 
-    let state = normalizeState(await loadState());
-    const notice = document.getElementById("adminNotice");
-    const contentForm = document.getElementById("contentForm");
-    const companyForm = document.getElementById("companyForm");
-    const statsForm = document.getElementById("statsForm");
-    const buildingForm = document.getElementById("buildingForm");
-    const roomForm = document.getElementById("roomForm");
-    const newsForm = document.getElementById("newsForm");
-    const adminAccountForm = document.getElementById("adminAccountForm");
-    const buildingTableBody = document.getElementById("buildingTableBody");
-    const adminRoomGrid = document.getElementById("adminRoomGrid");
-    const adminNewsGrid = document.getElementById("adminNewsGrid");
-    const adminAccountTableBody = document.getElementById("adminAccountTableBody");
-    const buildingSearch = document.getElementById("buildingSearch");
-    const roomSearch = document.getElementById("roomSearch");
-    const roomStatusFilter = document.getElementById("roomStatusFilter");
-    const newsSearch = document.getElementById("newsSearch");
-    const newsCategoryFilter = document.getElementById("newsCategoryFilter");
-    const adminSearch = document.getElementById("adminSearch");
+      let state = normalizeState(await loadState());
+      const notice = document.getElementById("adminNotice");
+      const contentForm = document.getElementById("contentForm");
+      const companyForm = document.getElementById("companyForm");
+      const statsForm = document.getElementById("statsForm");
+      const buildingForm = document.getElementById("buildingForm");
+      const roomForm = document.getElementById("roomForm");
+      const newsForm = document.getElementById("newsForm");
+      const adminAccountForm = document.getElementById("adminAccountForm");
+      const buildingTableBody = document.getElementById("buildingTableBody");
+      const adminRoomGrid = document.getElementById("adminRoomGrid");
+      const adminNewsGrid = document.getElementById("adminNewsGrid");
+      const adminAccountTableBody = document.getElementById("adminAccountTableBody");
+      const buildingSearch = document.getElementById("buildingSearch");
+      const roomSearch = document.getElementById("roomSearch");
+      const roomStatusFilter = document.getElementById("roomStatusFilter");
+      const newsSearch = document.getElementById("newsSearch");
+      const newsCategoryFilter = document.getElementById("newsCategoryFilter");
+      const adminSearch = document.getElementById("adminSearch");
 
-    setupTabs();
+      setupTabs();
 
     document.getElementById("logoutButton").addEventListener("click", async () => {
       await logoutAdmin();
@@ -655,9 +660,12 @@
       if (showMessage) showNotice("Đã làm mới form tài khoản admin.", "info");
     }
 
-    function showNotice(message, tone) {
-      notice.textContent = message;
-      notice.className = `admin-notice admin-notice-${tone}`;
+      function showNotice(message, tone) {
+        notice.textContent = message;
+        notice.className = `admin-notice admin-notice-${tone}`;
+      }
+    } finally {
+      document.body.classList.remove("app-loading");
     }
   }
 

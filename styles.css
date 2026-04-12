@@ -43,6 +43,18 @@ button:hover { transform: translateY(-1px); }
 img { display: block; max-width: 100%; }
 .hidden { display: none; }
 
+.app-loading .announcement-bar,
+.app-loading .site-shell,
+.app-loading .floating-contact {
+  opacity: 0;
+}
+
+.announcement-bar,
+.site-shell,
+.floating-contact {
+  transition: opacity 0.18s ease;
+}
+
 .announcement-bar {
   position: sticky;
   top: 0;
