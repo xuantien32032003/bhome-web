@@ -44,6 +44,12 @@ img { display: block; max-width: 100%; }
 .hidden { display: none; }
 
 .announcement-bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   overflow: hidden;
   background: linear-gradient(90deg, #8d1414, #c61f1f, #8d1414);
   color: #fff3f3;
@@ -51,10 +57,26 @@ img { display: block; max-width: 100%; }
   box-shadow: 0 10px 24px rgba(110, 13, 13, 0.18);
 }
 
+.announcement-icon {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  margin-left: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.92rem;
+}
+
 .announcement-track {
   display: flex;
   width: max-content;
-  min-width: 100%;
+  min-width: calc(100% - 50px);
   animation: announcement-scroll 22s linear infinite;
 }
 
@@ -787,8 +809,19 @@ td {
 }
 
 @media (max-width: 720px) {
+  .announcement-bar {
+    gap: 8px;
+  }
+
+  .announcement-icon {
+    width: 22px;
+    height: 22px;
+    margin-left: 10px;
+    font-size: 0.8rem;
+  }
+
   .announcement-content {
-    padding: 9px 20px;
+    padding: 9px 16px;
     font-size: 0.82rem;
   }
 
