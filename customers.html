@@ -54,23 +54,41 @@
         <div class="stats-grid" id="customerStatsPublic"></div>
       </section>
 
-      <section class="content-section">
-        <div class="filter-toolbar filter-toolbar-elevated customer-filter-toolbar">
-          <input id="customerPublicSearch" type="search" placeholder="Tìm theo tên, số điện thoại, nhu cầu">
-          <select id="customerPublicPageSize" aria-label="Số lượng hiển thị">
-            <option value="10">10 khách</option>
-            <option value="20">20 khách</option>
-            <option value="50">50 khách</option>
-          </select>
-          <select id="customerPublicPlatform" aria-label="Lọc theo nền tảng">
-            <option value="">Tất cả nền tảng</option>
-          </select>
-          <select id="customerPublicRegion" aria-label="Lọc theo khu vực">
-            <option value="">Tất cả khu vực</option>
-          </select>
-          <select id="customerPublicStatus" aria-label="Lọc theo tình trạng">
-            <option value="">Tất cả tình trạng</option>
-          </select>
+      <section class="content-section customer-page-section">
+        <div class="customer-filter-shell">
+          <div class="customer-filter-grid">
+            <label class="customer-filter-field customer-filter-field-wide">
+              <span>Tìm kiếm</span>
+              <input id="customerPublicSearch" type="search" placeholder="Tìm theo tên, số điện thoại, nhu cầu">
+            </label>
+            <label class="customer-filter-field">
+              <span>Số lượng hiển thị</span>
+              <select id="customerPublicPageSize" aria-label="Số lượng hiển thị">
+                <option value="10">10 khách / trang</option>
+                <option value="20">20 khách / trang</option>
+                <option value="50">50 khách / trang</option>
+              </select>
+            </label>
+            <label class="customer-filter-field">
+              <span>Nền tảng</span>
+              <select id="customerPublicPlatform" aria-label="Lọc theo nền tảng">
+                <option value="">Tất cả nền tảng</option>
+              </select>
+            </label>
+            <label class="customer-filter-field">
+              <span>Khu vực</span>
+              <select id="customerPublicRegion" aria-label="Lọc theo khu vực">
+                <option value="">Tất cả khu vực</option>
+              </select>
+            </label>
+            <label class="customer-filter-field">
+              <span>Tình trạng</span>
+              <select id="customerPublicStatus" aria-label="Lọc theo tình trạng">
+                <option value="">Tất cả tình trạng</option>
+              </select>
+            </label>
+          </div>
+          <p class="customer-scroll-hint">Trên điện thoại có thể vuốt ngang bảng để xem đầy đủ dữ liệu.</p>
         </div>
 
         <div class="table-wrap customer-table-wrap">
@@ -89,7 +107,7 @@
           </table>
         </div>
 
-        <div class="pagination-bar">
+        <div class="pagination-bar customer-pagination-bar">
           <button class="ghost-button button-inline" type="button" id="customerPublicPrev">Trang trước</button>
           <div class="pagination-numbers" id="customerPublicPagination"></div>
           <button class="ghost-button button-inline" type="button" id="customerPublicNext">Trang sau</button>
