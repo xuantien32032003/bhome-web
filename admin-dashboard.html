@@ -378,6 +378,7 @@
                 <th>Nền tảng</th>
                 <th>Khu vực</th>
                 <th>Tình trạng</th>
+                <th>Thời gian</th>
                 <th>Phụ trách</th>
                 <th>Thao tác</th>
               </tr>
@@ -390,6 +391,30 @@
           <div class="pagination-numbers" id="customersPagination"></div>
           <button class="secondary-button button-inline" type="button" id="customersNextButton">Trang sau</button>
         </div>
+        <div class="section-header admin-subheader" data-role="admin,manager">
+          <div>
+            <p class="section-kicker">Vận hành phòng</p>
+            <h2>Cập nhật trạng thái phòng, ngày vào và ngày ra</h2>
+          </div>
+        </div>
+        <form id="roomOccupancyForm" class="form-grid" data-role="admin,manager">
+          <label>Phòng
+            <select name="roomId" id="roomOccupancyRoomId" required></select>
+          </label>
+          <label>Trạng thái
+            <select name="status" id="roomOccupancyStatus" required>
+              <option value="available">Đang trống</option>
+              <option value="occupied">Đã có khách</option>
+              <option value="upcoming">Sắp trống</option>
+            </select>
+          </label>
+          <label>Ngày vào<input name="checkInDate" id="roomOccupancyCheckInDate" type="date"></label>
+          <label>Ngày ra<input name="checkOutDate" id="roomOccupancyCheckOutDate" type="date"></label>
+          <div class="form-actions">
+            <button class="secondary-button button-inline" type="button" id="roomOccupancyResetButton">Làm mới</button>
+            <button class="primary-button button-inline" type="submit">Lưu vận hành phòng</button>
+          </div>
+        </form>
       </section>
 
       <section class="content-section admin-panel" data-panel="admins">

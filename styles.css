@@ -1176,11 +1176,14 @@ td {
   }
 
   .hero-panel,
-  .stats-grid,
   .results-grid,
   .form-grid,
   .detail-grid {
     grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .building-list-grid,
@@ -1348,8 +1351,7 @@ td {
     align-items: stretch;
   }
 
-  .inline-field-group,
-  .admin-stats-grid {
+  .inline-field-group {
     grid-template-columns: 1fr;
   }
 
@@ -1363,12 +1365,12 @@ td {
   }
 
   .customer-filter-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
   }
 
   .customer-filter-field-wide {
-    grid-column: span 1;
+    grid-column: span 2;
   }
 
   .customer-filter-field span {
@@ -1393,7 +1395,7 @@ td {
   }
 
   .customer-table-wrap table {
-    min-width: 760px;
+    min-width: 920px;
   }
 
   .customer-table-wrap th,
@@ -1409,6 +1411,10 @@ td {
   .customer-table-wrap th:nth-child(5),
   .customer-table-wrap td:nth-child(5) {
     display: table-cell;
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .customer-pagination-bar {

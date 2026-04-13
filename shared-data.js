@@ -72,6 +72,14 @@
     });
   }
 
+  function updateRoomOccupancy(id, payload) {
+    return api(`/api/rooms/${encodeURIComponent(id)}/occupancy`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  }
+
   function deleteRoom(id) {
     return api(`/api/rooms/${encodeURIComponent(id)}`, {
       method: "DELETE",
@@ -162,6 +170,11 @@
     return new Date(value).toLocaleDateString("vi-VN");
   }
 
+  function formatDateTime(value) {
+    if (!value) return "Chưa cập nhật";
+    return new Date(value).toLocaleString("vi-VN");
+  }
+
   function buildingDetailLink(id) {
     return `building-detail.html?id=${encodeURIComponent(id)}`;
   }
@@ -183,6 +196,7 @@
     loadRoomById,
     createRoom,
     updateRoom,
+    updateRoomOccupancy,
     deleteRoom,
     loadCustomersPage,
     loadCustomerById,
@@ -197,6 +211,7 @@
     safeImage,
     statusLabel,
     formatDate,
+    formatDateTime,
     buildingDetailLink,
     roomDetailLink,
   };

@@ -4,6 +4,7 @@
     FALLBACK_ROOM_IMAGE,
     buildingDetailLink,
     formatDate,
+    formatDateTime,
     getBuildingById,
     getRoomById,
     getRoomsByBuilding,
@@ -408,7 +409,7 @@
 
     async function refresh() {
       try {
-        tableBody.innerHTML = '<tr><td colspan="6"><div class="empty-state-inline">Đang tải dữ liệu khách hàng...</div></td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state-inline">Đang tải dữ liệu khách hàng...</div></td></tr>';
         const response = await loadCustomersPage({
           page: paging.page,
           limit: Number(pageSizeSelect.value) || 10,
@@ -434,7 +435,7 @@
           window.location.href = "admin-login.html";
           return;
         }
-        tableBody.innerHTML = `<tr><td colspan="6"><div class="empty-state-inline">${error.message || "Không thể tải dữ liệu khách hàng."}</div></td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="7"><div class="empty-state-inline">${error.message || "Không thể tải dữ liệu khách hàng."}</div></td></tr>`;
       }
     }
 
@@ -459,7 +460,7 @@
 
     function renderCustomerPublicRows(items) {
       if (!items.length) {
-        tableBody.innerHTML = '<tr><td colspan="6"><div class="empty-state-inline">Không có khách hàng phù hợp với bộ lọc hiện tại.</div></td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state-inline">Không có khách hàng phù hợp với bộ lọc hiện tại.</div></td></tr>';
         return;
       }
 
@@ -472,6 +473,7 @@
           <td>${customer.platform}</td>
           <td>${customer.region}</td>
           <td>${customer.status}<br><small>${closeLabel}</small></td>
+          <td>${formatDateTime(customer.createdAt)}<br><small>Cập nhật: ${formatDateTime(customer.updatedAt)}</small></td>
           <td>${customer.demand || "Chưa cập nhật"}<br><small>${customer.note || ""}</small></td>
           <td>${customer.createdByName || "Admin"}<br><small>${customer.createdByEmail || ""}</small></td>
         `;

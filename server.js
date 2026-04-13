@@ -376,6 +376,18 @@ function buildCustomerStats(state) {
   };
 }
 
+function getVisibleCustomersForSession(customers, session) {
+  if ((session && session.adminRole) === "admin") return customers;
+  const adminEmail = session && session.adminEmail ? session.adminEmail : "";
+  return customers.filter((customer) => customer.createdByEmail === adminEmail);
+}
+
+function canManageCustomer(customer, session) {
+  if (!customer) return false;
+  if ((session && session.adminRole) === "admin") return true;
+  return customer.createdByEmail === (session && session.adminEmail ? session.adminEmail : "");
+}
+
 function sanitizeRoomInput(input, state, existingRoom) {
   const buildingId = String(input.buildingId || existingRoom?.buildingId || "").trim();
   const building = state.buildings.find((item) => item.id === buildingId);
@@ -399,8 +411,24 @@ function sanitizeRoomInput(input, state, existingRoom) {
     rent: String(input.rent || existingRoom?.rent || "").trim(),
     status,
     availableFrom: String(input.availableFrom || existingRoom?.availableFrom || "").trim(),
+    checkInDate: String(input.checkInDate || existingRoom?.checkInDate || "").trim(),
+    checkOutDate: String(input.checkOutDate || existingRoom?.checkOutDate || "").trim(),
     area: String(input.area || existingRoom?.area || "").trim(),
     amenities: String(input.amenities || existingRoom?.amenities || "").trim(),
+  };
+}
+
+function sanitizeRoomOccupancyInput(input, existingRoom) {
+  const status = String(input.status || existingRoom?.status || "available").trim();
+  const allowedStatuses = new Set(["available", "occupied", "upcoming"]);
+  if (!allowedStatuses.has(status)) {
+    throw new Error("Trạng thái phòng không hợp lệ.");
+  }
+
+  return {
+    status,
+    checkInDate: String(input.checkInDate || existingRoom?.checkInDate || "").trim(),
+    checkOutDate: String(input.checkOutDate || existingRoom?.checkOutDate || "").trim(),
   };
 }
 
@@ -483,7 +511,8 @@ app.get("/api/customers", requireAuth, async (req, res, next) => {
     const state = await readStateAny();
     const page = parsePositiveInt(req.query.page, 1);
     const limit = parsePositiveInt(req.query.limit, 12, 100);
-    const filtered = filterCustomers(state.customers || [], req.query)
+    const visibleCustomers = getVisibleCustomersForSession(state.customers || [], req.session);
+    const filtered = filterCustomers(visibleCustomers, req.query)
       .sort((left, right) => String(right.createdAt || "").localeCompare(String(left.createdAt || "")));
     res.json(Object.assign(
       paginate(filtered, page, limit),
@@ -493,7 +522,7 @@ app.get("/api/customers", requireAuth, async (req, res, next) => {
           regions: uniqueList((state.customerConfig && state.customerConfig.regions) || []),
           statuses: uniqueList((state.customerConfig && state.customerConfig.statuses) || []),
         },
-        stats: buildCustomerStats(state),
+        stats: buildCustomerStats({ customers: visibleCustomers }),
       }
     ));
   } catch (error) {
@@ -507,6 +536,10 @@ app.get("/api/customers/:id", requireAuth, async (req, res, next) => {
     const item = (state.customers || []).find((customer) => customer.id === req.params.id);
     if (!item) {
       res.status(404).json({ error: "Không tìm thấy khách hàng." });
+      return;
+    }
+    if (!canManageCustomer(item, req.session)) {
+      res.status(403).json({ error: "Bạn không có quyền xem khách hàng này." });
       return;
     }
     res.json({ item });
@@ -614,6 +647,23 @@ app.put("/api/rooms/:id", requireAdminRole, async (req, res, next) => {
   }
 });
 
+app.patch("/api/rooms/:id/occupancy", requireAuth, async (req, res, next) => {
+  try {
+    const state = await readStateAny();
+    const index = (state.rooms || []).findIndex((item) => item.id === req.params.id);
+    if (index < 0) {
+      res.status(404).json({ error: "Không tìm thấy phòng." });
+      return;
+    }
+    const patch = sanitizeRoomOccupancyInput(req.body, state.rooms[index]);
+    state.rooms[index] = Object.assign({}, state.rooms[index], patch);
+    await writeStateAny(state);
+    res.json({ ok: true, item: serializeRoom(state.rooms[index], state.buildings || []) });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.delete("/api/rooms/:id", requireAdminRole, async (req, res, next) => {
   try {
     const state = await readStateAny();
@@ -651,6 +701,10 @@ app.put("/api/customers/:id", requireAuth, async (req, res, next) => {
       res.status(404).json({ error: "Không tìm thấy khách hàng." });
       return;
     }
+    if (!canManageCustomer(state.customers[index], req.session)) {
+      res.status(403).json({ error: "Bạn không có quyền cập nhật khách hàng này." });
+      return;
+    }
     const customer = sanitizeCustomerInput(
       Object.assign({}, req.body, { id: req.params.id }),
       state,
@@ -672,6 +726,10 @@ app.delete("/api/customers/:id", requireAuth, async (req, res, next) => {
     const existing = (state.customers || []).find((item) => item.id === req.params.id);
     if (!existing) {
       res.status(404).json({ error: "Không tìm thấy khách hàng." });
+      return;
+    }
+    if (!canManageCustomer(existing, req.session)) {
+      res.status(403).json({ error: "Bạn không có quyền xóa khách hàng này." });
       return;
     }
     state.customers = state.customers.filter((item) => item.id !== req.params.id);

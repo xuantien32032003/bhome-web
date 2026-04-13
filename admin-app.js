@@ -7,6 +7,7 @@
     FALLBACK_BUILDING_IMAGE,
     FALLBACK_ROOM_IMAGE,
     formatDate,
+    formatDateTime,
     isAdminLoggedIn,
     loadCustomerById,
     loadCustomersPage,
@@ -21,6 +22,7 @@
     statusLabel,
     updateCustomer,
     updateRoom,
+    updateRoomOccupancy,
     uploadFiles,
   } = window.NovaData;
 
@@ -83,6 +85,7 @@
       const roomForm = document.getElementById("roomForm");
       const newsForm = document.getElementById("newsForm");
       const customerForm = document.getElementById("customerForm");
+      const roomOccupancyForm = document.getElementById("roomOccupancyForm");
       const adminAccountForm = document.getElementById("adminAccountForm");
       const buildingTableBody = document.getElementById("buildingTableBody");
       const adminRoomGrid = document.getElementById("adminRoomGrid");
@@ -113,6 +116,7 @@
       const customersPrevButton = document.getElementById("customersPrevButton");
       const customersNextButton = document.getElementById("customersNextButton");
       const customersPagination = document.getElementById("customersPagination");
+      const roomOccupancyRoomId = document.getElementById("roomOccupancyRoomId");
       const adminSearch = document.getElementById("adminSearch");
       const currentRole = ((state.meta && state.meta.session && state.meta.session.adminRole) || "admin").toLowerCase();
       const currentAdminName = (state.meta && state.meta.session && state.meta.session.adminName) || "";
@@ -132,6 +136,7 @@
       document.getElementById("roomResetButton").addEventListener("click", () => resetRoomForm(true));
       document.getElementById("newsResetButton").addEventListener("click", () => resetNewsForm(true));
       document.getElementById("customerResetButton").addEventListener("click", () => resetCustomerForm(true));
+      document.getElementById("roomOccupancyResetButton").addEventListener("click", () => resetRoomOccupancyForm(true));
       document.getElementById("adminAccountResetButton").addEventListener("click", () => resetAdminAccountForm(true));
 
       document.querySelectorAll(".editor-action").forEach((button) => {
@@ -184,6 +189,14 @@
       });
       addCustomerPlatformButton.addEventListener("click", () => addCustomerOption("platform"));
       addCustomerRegionButton.addEventListener("click", () => addCustomerOption("region"));
+      roomOccupancyRoomId.addEventListener("change", async () => {
+        try {
+          const response = await loadRoomById(roomOccupancyRoomId.value);
+          syncRoomOccupancyForm(response.item);
+        } catch (_error) {
+          resetRoomOccupancyForm(false);
+        }
+      });
 
       contentForm.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -429,6 +442,26 @@
         }
       });
 
+      roomOccupancyForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          showNotice("Đang lưu dữ liệu...", "info");
+          const data = new FormData(roomOccupancyForm);
+          const roomId = clean(data.get("roomId"));
+          await updateRoomOccupancy(roomId, {
+            status: clean(data.get("status")),
+            checkInDate: clean(data.get("checkInDate")),
+            checkOutDate: clean(data.get("checkOutDate")),
+          });
+          await reloadBootstrap();
+          await refreshRooms();
+          fillRoomOccupancyOptions(roomId);
+          showNotice("Đã cập nhật vận hành phòng.", "success");
+        } catch (error) {
+          showNotice(error.message || "Không thể cập nhật vận hành phòng.", "error");
+        }
+      });
+
       renderStatic();
       await refreshRooms();
       await refreshCustomers();
@@ -488,6 +521,7 @@
         fillStatsForm();
         fillRoomBuildingOptions();
         fillRoomBuildingFilter();
+        fillRoomOccupancyOptions();
         fillCustomerOptionInputs();
         fillCustomerFilterOptions();
         renderCustomerStats();
@@ -557,6 +591,27 @@
         if (state.buildings.some((building) => building.id === currentValue)) {
           roomBuildingFilter.value = currentValue;
         }
+      }
+
+      function fillRoomOccupancyOptions(selectedRoomId) {
+        const currentValue = selectedRoomId || roomOccupancyRoomId.value;
+        loadState().then((fullState) => {
+          const items = (normalizeState(fullState).rooms || []).map((room) => {
+            const building = state.buildings.find((item) => item.id === room.buildingId);
+            return Object.assign({}, room, {
+              buildingName: building ? building.name : "",
+            });
+          });
+          roomOccupancyRoomId.innerHTML = items.map((room) => (
+            `<option value="${room.id}">${room.name} • ${room.buildingName || room.region}</option>`
+          )).join("");
+          if (items.some((room) => room.id === currentValue)) {
+            roomOccupancyRoomId.value = currentValue;
+          }
+          syncRoomOccupancyForm(items.find((room) => room.id === roomOccupancyRoomId.value) || items[0]);
+        }).catch(() => {
+          roomOccupancyRoomId.innerHTML = '<option value="">Chưa có phòng</option>';
+        });
       }
 
       function fillCustomerOptionInputs() {
@@ -752,7 +807,7 @@
 
       async function refreshCustomers() {
         try {
-          customerTableBody.innerHTML = '<tr><td colspan="6"><div class="empty-state-inline">Đang tải dữ liệu khách hàng...</div></td></tr>';
+          customerTableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state-inline">Đang tải dữ liệu khách hàng...</div></td></tr>';
           const response = await loadCustomersPage({
             page: customerPaging.page,
             limit: Number(customerPageSize.value) || 10,
@@ -776,7 +831,7 @@
           renderCustomerStats();
           renderCustomerTable();
         } catch (error) {
-          customerTableBody.innerHTML = `<tr><td colspan="6"><div class="empty-state-inline">${error.message || "Không thể tải data khách hàng."}</div></td></tr>`;
+          customerTableBody.innerHTML = `<tr><td colspan="7"><div class="empty-state-inline">${error.message || "Không thể tải data khách hàng."}</div></td></tr>`;
           customersPagination.textContent = "Lỗi tải dữ liệu";
           customersPrevButton.disabled = true;
           customersNextButton.disabled = true;
@@ -785,7 +840,7 @@
 
       function renderCustomerTable() {
         if (!currentCustomerItems.length) {
-          customerTableBody.innerHTML = '<tr><td colspan="6"><div class="empty-state-inline">Không có khách hàng phù hợp.</div></td></tr>';
+          customerTableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state-inline">Không có khách hàng phù hợp.</div></td></tr>';
           customersPagination.textContent = customerPaging.totalItems ? `Trang ${customerPaging.page} / ${customerPaging.totalPages}` : "0 khách hàng";
           customersPrevButton.disabled = true;
           customersNextButton.disabled = true;
@@ -801,11 +856,12 @@
             <td>${customer.platform}</td>
             <td>${customer.region}</td>
             <td>${customer.status}<br><small>${closeLabel}</small></td>
+            <td>${formatDateTime(customer.createdAt)}<br><small>Cập nhật: ${formatDateTime(customer.updatedAt)}</small></td>
             <td>${customer.createdByName || "Admin"}<br><small>${customer.createdByEmail || ""}</small></td>
             <td>
               <div class="action-group">
                 <button type="button" data-customer-action="edit" data-id="${customer.id}">Sửa</button>
-                <button type="button" class="danger" data-customer-action="delete" data-id="${customer.id}">Xóa</button>
+                ${currentRole === "admin" ? `<button type="button" class="danger" data-customer-action="delete" data-id="${customer.id}">Xóa</button>` : ""}
               </div>
             </td>
           `;
@@ -825,7 +881,7 @@
                 if (field) field.value = value ?? "";
               });
               activateTab("customers");
-              scrollToForm(customerForm, "name");
+              window.setTimeout(() => scrollToForm(customerForm, "name"), 80);
               showNotice(`Đang chỉnh sửa khách hàng ${customer.name}.`, "info");
               return;
             }
@@ -1023,6 +1079,20 @@
         if (showMessage) showNotice("Đã làm mới form khách hàng.", "info");
       }
 
+      function syncRoomOccupancyForm(room) {
+        if (!room) return;
+        roomOccupancyRoomId.value = room.id;
+        roomOccupancyForm.elements.status.value = room.status || "available";
+        roomOccupancyForm.elements.checkInDate.value = room.checkInDate || "";
+        roomOccupancyForm.elements.checkOutDate.value = room.checkOutDate || "";
+      }
+
+      function resetRoomOccupancyForm(showMessage) {
+        roomOccupancyForm.reset();
+        fillRoomOccupancyOptions();
+        if (showMessage) showNotice("Đã làm mới form vận hành phòng.", "info");
+      }
+
       function resetAdminAccountForm(showMessage) {
         adminAccountForm.reset();
         adminAccountForm.elements.id.value = "";
@@ -1186,11 +1256,13 @@
 
   function scrollToForm(form, focusFieldName) {
     const section = form.closest(".content-section") || form;
-    section.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.requestAnimationFrame(() => {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
     window.setTimeout(() => {
       const field = form.elements.namedItem(focusFieldName);
       if (field && typeof field.focus === "function") field.focus();
-    }, 320);
+    }, 420);
   }
 
   function firstNonEmpty() {
