@@ -436,7 +436,7 @@
 
     async function refresh() {
       try {
-        tableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state-inline">Đang tải dữ liệu khách hàng...</div></td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="8"><div class="empty-state-inline">Đang tải dữ liệu khách hàng...</div></td></tr>';
         const response = await loadCustomersPage({
           ...buildCustomerQuery(),
           page: paging.page,
@@ -467,7 +467,7 @@
           window.location.href = "admin-login.html";
           return;
         }
-        tableBody.innerHTML = `<tr><td colspan="7"><div class="empty-state-inline">${error.message || "Không thể tải dữ liệu khách hàng."}</div></td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="8"><div class="empty-state-inline">${error.message || "Không thể tải dữ liệu khách hàng."}</div></td></tr>`;
       }
     }
 
@@ -492,21 +492,21 @@
 
     function renderCustomerPublicRows(items) {
       if (!items.length) {
-        tableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state-inline">Không có khách hàng phù hợp với bộ lọc hiện tại.</div></td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="8"><div class="empty-state-inline">Không có khách hàng phù hợp với bộ lọc hiện tại.</div></td></tr>';
         return;
       }
 
       tableBody.innerHTML = "";
       items.forEach((customer) => {
-        const closeLabel = customer.closeStatus === "closed" ? "Đã chốt" : "Chưa chốt";
         const row = document.createElement("tr");
         row.innerHTML = `
           <td><strong>${customer.name}</strong><br><span>${customer.phone}</span></td>
           <td>${customer.platform}</td>
           <td>${customer.region}</td>
-          <td>${customer.status}<br><small>${closeLabel}</small></td>
+          <td>${customer.status}</td>
           <td>${formatDateTime(customer.createdAt)}<br><small>Cập nhật: ${formatDateTime(customer.updatedAt)}</small></td>
-          <td>${customer.demand || "Chưa cập nhật"}<br><small>${customer.note || ""}</small></td>
+          <td>${customer.demand || "Chưa cập nhật"}</td>
+          <td>${customer.note || "Không có ghi chú"}</td>
           <td>${customer.createdByName || "Admin"}<br><small>${customer.createdByEmail || ""}</small></td>
         `;
         tableBody.appendChild(row);
