@@ -89,6 +89,7 @@
       const customerTableBody = document.getElementById("customerTableBody");
       const customerStatsGrid = document.getElementById("customerStatsGrid");
       const adminAccountTableBody = document.getElementById("adminAccountTableBody");
+      const adminRoleBadge = document.getElementById("adminRoleBadge");
       const buildingSearch = document.getElementById("buildingSearch");
       const roomSearch = document.getElementById("roomSearch");
       const roomBuildingFilter = document.getElementById("roomBuildingFilter");
@@ -111,8 +112,14 @@
       const customersNextButton = document.getElementById("customersNextButton");
       const customersPagination = document.getElementById("customersPagination");
       const adminSearch = document.getElementById("adminSearch");
+      const currentRole = ((state.meta && state.meta.session && state.meta.session.adminRole) || "admin").toLowerCase();
+      const currentAdminName = (state.meta && state.meta.session && state.meta.session.adminName) || "";
 
       setupTabs();
+      applyAccessControl(currentRole);
+      if (adminRoleBadge) {
+        adminRoleBadge.textContent = currentRole === "manager" ? `Quản lý${currentAdminName ? ` • ${currentAdminName}` : ""}` : `Admin${currentAdminName ? ` • ${currentAdminName}` : ""}`;
+      }
 
       document.getElementById("logoutButton").addEventListener("click", async () => {
         await logoutAdmin();
@@ -368,6 +375,7 @@
             name: clean(data.get("name")),
             email: clean(data.get("email")).toLowerCase(),
             password: clean(data.get("password")),
+            role: clean(data.get("role")) || "admin",
           };
           if (state.admins.some((admin) => admin.email === payload.email && admin.id !== id)) {
             throw new Error("Email admin đã tồn tại.");
@@ -480,9 +488,11 @@
         fillCustomerOptionInputs();
         fillCustomerFilterOptions();
         renderCustomerStats();
-        renderBuildingTable();
-        renderNewsCards();
-        renderAdminAccounts();
+        if (currentRole === "admin") {
+          renderBuildingTable();
+          renderNewsCards();
+          renderAdminAccounts();
+        }
         if (!newsForm.elements.namedItem("publishedAt").value) {
           newsForm.elements.namedItem("publishedAt").value = new Date().toISOString().slice(0, 10);
         }
@@ -929,6 +939,7 @@
           row.innerHTML = `
             <td><strong>${admin.name}</strong></td>
             <td>${admin.email}</td>
+            <td>${admin.role === "manager" ? "Quản lý" : "Admin"}</td>
             <td>
               <div class="action-group">
                 <button type="button" data-admin-action="edit" data-id="${admin.id}">Sửa</button>
@@ -949,6 +960,7 @@
               adminAccountForm.elements.name.value = admin.name;
               adminAccountForm.elements.email.value = admin.email;
               adminAccountForm.elements.password.value = admin.password;
+              adminAccountForm.elements.role.value = admin.role || "admin";
               activateTab("admins");
               scrollToForm(adminAccountForm, "name");
               showNotice(`Đang chỉnh sửa tài khoản ${admin.email}.`, "info");
@@ -1008,6 +1020,7 @@
       function resetAdminAccountForm(showMessage) {
         adminAccountForm.reset();
         adminAccountForm.elements.id.value = "";
+        if (adminAccountForm.elements.role) adminAccountForm.elements.role.value = "admin";
         if (showMessage) showNotice("Đã làm mới form tài khoản admin.", "info");
       }
 
@@ -1032,6 +1045,24 @@
     });
     document.querySelectorAll(".admin-panel").forEach((panel) => {
       panel.classList.toggle("active", panel.dataset.panel === tabName);
+    });
+  }
+
+  function applyAccessControl(role) {
+    const normalizedRole = String(role || "admin").toLowerCase();
+    document.querySelectorAll("[data-role]").forEach((element) => {
+      const allowed = String(element.dataset.role || "")
+        .split(",")
+        .map((item) => item.trim().toLowerCase())
+        .filter(Boolean);
+      const visible = !allowed.length || allowed.includes(normalizedRole);
+      element.classList.toggle("hidden", !visible);
+      if (element.classList.contains("admin-panel")) {
+        element.classList.toggle("active", visible && element.dataset.panel === (normalizedRole === "manager" ? "customers" : "intro"));
+      }
+      if (element.classList.contains("admin-tab")) {
+        element.classList.toggle("active", visible && element.dataset.tab === (normalizedRole === "manager" ? "customers" : "intro"));
+      }
     });
   }
 
@@ -1083,7 +1114,9 @@
           name: "Admin chính",
           email: defaultAdmin.email,
           password: defaultAdmin.password,
+          role: "admin",
         }];
+    nextState.admins = nextState.admins.map((admin) => Object.assign({ role: "admin" }, admin));
     nextState.admin = {
       email: nextState.admins[0].email,
       password: nextState.admins[0].password,

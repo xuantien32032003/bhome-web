@@ -196,7 +196,9 @@ function normalizeState(state) {
         name: "Admin chính",
         email: legacyAdmin.email,
         password: legacyAdmin.password,
+        role: "admin",
       }];
+  nextState.admins = nextState.admins.map((admin) => Object.assign({ role: "admin" }, admin));
   nextState.admin = {
     email: nextState.admins[0].email,
     password: nextState.admins[0].password,
@@ -247,6 +249,18 @@ async function writeStateAny(state) {
 function requireAuth(req, res, next) {
   if (!req.session.isAdmin) {
     res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  next();
+}
+
+function requireAdminRole(req, res, next) {
+  if (!req.session.isAdmin) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  if (req.session.adminRole !== "admin") {
+    res.status(403).json({ error: "Bạn không có quyền thực hiện chức năng này." });
     return;
   }
   next();
@@ -440,7 +454,7 @@ function buildAdminBootstrap(state, sessionInfo = {}) {
       totalRooms: Array.isArray(state.rooms) ? state.rooms.length : 0,
       customerStats: buildCustomerStats(state),
       customerConfig: state.customerConfig || { platforms: [], regions: [], statuses: [] },
-      session: sessionInfo,
+      session: Object.assign({ adminEmail: "", adminRole: "admin", adminName: "" }, sessionInfo),
     },
   });
 }
@@ -456,7 +470,12 @@ app.get("/api/state", async (_req, res, next) => {
 app.get("/api/admin/bootstrap", requireAuth, async (_req, res, next) => {
   try {
     const state = await readStateAny();
-    res.json(buildAdminBootstrap(state, { adminEmail: _req.session.adminEmail || "" }));
+    const currentAdmin = (state.admins || []).find((admin) => admin.email === (_req.session.adminEmail || ""));
+    res.json(buildAdminBootstrap(state, {
+      adminEmail: _req.session.adminEmail || "",
+      adminRole: _req.session.adminRole || currentAdmin?.role || "admin",
+      adminName: _req.session.adminName || currentAdmin?.name || "",
+    }));
   } catch (error) {
     next(error);
   }
@@ -538,6 +557,8 @@ app.post("/api/admin/login", async (req, res, next) => {
     if (admin) {
       req.session.isAdmin = true;
       req.session.adminEmail = admin.email;
+      req.session.adminRole = admin.role || "admin";
+      req.session.adminName = admin.name || "";
       res.json({ ok: true });
       return;
     }
@@ -553,7 +574,7 @@ app.post("/api/admin/logout", (req, res) => {
   });
 });
 
-app.put("/api/state", requireAuth, async (req, res, next) => {
+app.put("/api/state", requireAdminRole, async (req, res, next) => {
   try {
     await writeStateAny(req.body);
     res.json({ ok: true });
@@ -562,7 +583,7 @@ app.put("/api/state", requireAuth, async (req, res, next) => {
   }
 });
 
-app.post("/api/rooms", requireAuth, async (req, res, next) => {
+app.post("/api/rooms", requireAdminRole, async (req, res, next) => {
   try {
     const state = await readStateAny();
     const room = sanitizeRoomInput(req.body, state);
@@ -574,7 +595,7 @@ app.post("/api/rooms", requireAuth, async (req, res, next) => {
   }
 });
 
-app.put("/api/rooms/:id", requireAuth, async (req, res, next) => {
+app.put("/api/rooms/:id", requireAdminRole, async (req, res, next) => {
   try {
     const state = await readStateAny();
     const index = (state.rooms || []).findIndex((item) => item.id === req.params.id);
@@ -591,7 +612,7 @@ app.put("/api/rooms/:id", requireAuth, async (req, res, next) => {
   }
 });
 
-app.delete("/api/rooms/:id", requireAuth, async (req, res, next) => {
+app.delete("/api/rooms/:id", requireAdminRole, async (req, res, next) => {
   try {
     const state = await readStateAny();
     const existing = (state.rooms || []).find((item) => item.id === req.params.id);
