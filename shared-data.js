@@ -78,6 +78,42 @@
     });
   }
 
+  function loadCustomersPage(params) {
+    const query = new URLSearchParams();
+    Object.entries(params || {}).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === "") return;
+      query.set(key, String(value));
+    });
+    const suffix = query.toString() ? `?${query.toString()}` : "";
+    return api(`/api/customers${suffix}`);
+  }
+
+  function loadCustomerById(id) {
+    return api(`/api/customers/${encodeURIComponent(id)}`);
+  }
+
+  function createCustomer(payload) {
+    return api("/api/customers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  }
+
+  function updateCustomer(id, payload) {
+    return api(`/api/customers/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  }
+
+  function deleteCustomer(id) {
+    return api(`/api/customers/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    });
+  }
+
   function loginAdmin(email, password) {
     return api("/api/admin/login", {
       method: "POST",
@@ -144,6 +180,11 @@
     createRoom,
     updateRoom,
     deleteRoom,
+    loadCustomersPage,
+    loadCustomerById,
+    createCustomer,
+    updateCustomer,
+    deleteCustomer,
     loginAdmin,
     logoutAdmin,
     isAdminLoggedIn,

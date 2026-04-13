@@ -110,6 +110,43 @@ CREATE TABLE IF NOT EXISTS news_posts (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS customer_platforms (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL UNIQUE,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS customer_regions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL UNIQUE,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS customer_statuses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL UNIQUE,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  is_closed BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS customers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  full_name TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  platform_name TEXT NOT NULL,
+  region_name TEXT NOT NULL,
+  status_name TEXT NOT NULL,
+  demand TEXT NOT NULL DEFAULT '',
+  note TEXT NOT NULL DEFAULT '',
+  closed_units INTEGER NOT NULL DEFAULT 0,
+  created_by UUID REFERENCES admins(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE INDEX IF NOT EXISTS idx_buildings_region ON buildings(region);
 CREATE INDEX IF NOT EXISTS idx_rooms_building_id ON rooms(building_id);
 CREATE INDEX IF NOT EXISTS idx_rooms_status ON rooms(status);
@@ -117,3 +154,9 @@ CREATE INDEX IF NOT EXISTS idx_rooms_region ON rooms(region);
 CREATE INDEX IF NOT EXISTS idx_rooms_code_search ON rooms USING GIN (to_tsvector('simple', code || ' ' || region || ' ' || room_type));
 CREATE INDEX IF NOT EXISTS idx_news_posts_status_date ON news_posts(status, published_at DESC);
 CREATE INDEX IF NOT EXISTS idx_news_posts_search ON news_posts USING GIN (to_tsvector('simple', title || ' ' || excerpt || ' ' || body));
+CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone);
+CREATE INDEX IF NOT EXISTS idx_customers_created_by ON customers(created_by);
+CREATE INDEX IF NOT EXISTS idx_customers_status_name ON customers(status_name);
+CREATE INDEX IF NOT EXISTS idx_customers_region_name ON customers(region_name);
+CREATE INDEX IF NOT EXISTS idx_customers_platform_name ON customers(platform_name);
+CREATE INDEX IF NOT EXISTS idx_customers_search ON customers USING GIN (to_tsvector('simple', full_name || ' ' || phone || ' ' || demand || ' ' || note));

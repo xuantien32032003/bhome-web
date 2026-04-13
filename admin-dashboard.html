@@ -41,6 +41,7 @@
           <button class="admin-tab" type="button" data-tab="buildings">Tòa nhà</button>
           <button class="admin-tab" type="button" data-tab="rooms">Phòng</button>
           <button class="admin-tab" type="button" data-tab="news">Tin tức</button>
+          <button class="admin-tab" type="button" data-tab="customers">Khách hàng</button>
           <button class="admin-tab" type="button" data-tab="admins">Tài khoản admin</button>
         </div>
       </section>
@@ -306,6 +307,75 @@
           </div>
         </form>
         <div class="news-grid admin-table-spacing" id="adminNewsGrid"></div>
+      </section>
+
+      <section class="content-section admin-panel" data-panel="customers">
+        <div class="section-header">
+          <div>
+            <p class="section-kicker">Khách hàng</p>
+            <h2>Quản lý data khách và thống kê theo admin</h2>
+          </div>
+        </div>
+        <div class="admin-stats-grid admin-table-spacing" id="customerStatsGrid"></div>
+        <div class="admin-toolbar admin-toolbar-split admin-table-spacing">
+          <input id="customerSearch" type="search" placeholder="Tìm theo tên, số điện thoại, nhu cầu, ghi chú">
+          <select id="customerPlatformFilter">
+            <option value="">Tất cả nền tảng</option>
+          </select>
+          <select id="customerRegionFilter">
+            <option value="">Tất cả khu vực</option>
+          </select>
+          <select id="customerStatusFilter">
+            <option value="">Tất cả tình trạng</option>
+          </select>
+        </div>
+        <form id="customerForm" class="form-grid">
+          <input type="hidden" name="id">
+          <label>Tên khách<input name="name" required></label>
+          <label>Số điện thoại<input name="phone" required></label>
+          <label>Nền tảng tiếp cận
+            <div class="inline-field-group">
+              <select name="platform" id="customerPlatformInput" required></select>
+              <button class="ghost-button button-inline" type="button" id="addCustomerPlatformButton">Thêm</button>
+            </div>
+          </label>
+          <label>Khu vực tiếp cận
+            <div class="inline-field-group">
+              <select name="region" id="customerRegionInput" required></select>
+              <button class="ghost-button button-inline" type="button" id="addCustomerRegionButton">Thêm</button>
+            </div>
+          </label>
+          <label>Tình trạng
+            <select name="status" id="customerStatusInput" required></select>
+          </label>
+          <label>Số căn đã chốt<input name="closedUnits" type="number" min="0" value="0"></label>
+          <label class="full-span">Nhu cầu của khách<textarea name="demand" rows="3" required></textarea></label>
+          <label class="full-span">Ghi chú<textarea name="note" rows="4"></textarea></label>
+          <div class="form-actions">
+            <button class="secondary-button button-inline" type="button" id="customerResetButton">Tạo mới</button>
+            <button class="primary-button button-inline" type="submit">Lưu khách hàng</button>
+          </div>
+        </form>
+        <div class="table-wrap admin-table-spacing">
+          <table>
+            <thead>
+              <tr>
+                <th>Khách</th>
+                <th>Nền tảng</th>
+                <th>Khu vực</th>
+                <th>Tình trạng</th>
+                <th>Phụ trách</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="customerTableBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination-bar admin-table-spacing">
+          <button class="secondary-button button-inline" type="button" id="customersPrevButton">Trang trước</button>
+          <div class="pagination-numbers" id="customersPagination"></div>
+          <button class="secondary-button button-inline" type="button" id="customersNextButton">Trang sau</button>
+        </div>
       </section>
 
       <section class="content-section admin-panel" data-panel="admins">

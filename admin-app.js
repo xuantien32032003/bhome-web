@@ -1,11 +1,15 @@
 (function () {
   const {
+    createCustomer,
     createRoom,
+    deleteCustomer,
     deleteRoom,
     FALLBACK_BUILDING_IMAGE,
     FALLBACK_ROOM_IMAGE,
     formatDate,
     isAdminLoggedIn,
+    loadCustomerById,
+    loadCustomersPage,
     loadAdminBootstrap,
     loadRoomById,
     loadRoomsPage,
@@ -15,6 +19,7 @@
     safeImage,
     saveState,
     statusLabel,
+    updateCustomer,
     updateRoom,
     uploadFiles,
   } = window.NovaData;
@@ -65,7 +70,9 @@
 
       let state = normalizeState(await loadAdminBootstrap());
       let currentRoomItems = [];
+      let currentCustomerItems = [];
       const roomPaging = { page: 1, totalPages: 1, totalItems: 0 };
+      const customerPaging = { page: 1, totalPages: 1, totalItems: 0 };
 
       const notice = document.getElementById("adminNotice");
       const contentForm = document.getElementById("contentForm");
@@ -74,10 +81,13 @@
       const buildingForm = document.getElementById("buildingForm");
       const roomForm = document.getElementById("roomForm");
       const newsForm = document.getElementById("newsForm");
+      const customerForm = document.getElementById("customerForm");
       const adminAccountForm = document.getElementById("adminAccountForm");
       const buildingTableBody = document.getElementById("buildingTableBody");
       const adminRoomGrid = document.getElementById("adminRoomGrid");
       const adminNewsGrid = document.getElementById("adminNewsGrid");
+      const customerTableBody = document.getElementById("customerTableBody");
+      const customerStatsGrid = document.getElementById("customerStatsGrid");
       const adminAccountTableBody = document.getElementById("adminAccountTableBody");
       const buildingSearch = document.getElementById("buildingSearch");
       const roomSearch = document.getElementById("roomSearch");
@@ -88,6 +98,18 @@
       const adminRoomsPagination = document.getElementById("adminRoomsPagination");
       const newsSearch = document.getElementById("newsSearch");
       const newsCategoryFilter = document.getElementById("newsCategoryFilter");
+      const customerSearch = document.getElementById("customerSearch");
+      const customerPlatformFilter = document.getElementById("customerPlatformFilter");
+      const customerRegionFilter = document.getElementById("customerRegionFilter");
+      const customerStatusFilter = document.getElementById("customerStatusFilter");
+      const customerPlatformInput = document.getElementById("customerPlatformInput");
+      const customerRegionInput = document.getElementById("customerRegionInput");
+      const customerStatusInput = document.getElementById("customerStatusInput");
+      const addCustomerPlatformButton = document.getElementById("addCustomerPlatformButton");
+      const addCustomerRegionButton = document.getElementById("addCustomerRegionButton");
+      const customersPrevButton = document.getElementById("customersPrevButton");
+      const customersNextButton = document.getElementById("customersNextButton");
+      const customersPagination = document.getElementById("customersPagination");
       const adminSearch = document.getElementById("adminSearch");
 
       setupTabs();
@@ -99,6 +121,7 @@
       document.getElementById("buildingResetButton").addEventListener("click", () => resetBuildingForm(true));
       document.getElementById("roomResetButton").addEventListener("click", () => resetRoomForm(true));
       document.getElementById("newsResetButton").addEventListener("click", () => resetNewsForm(true));
+      document.getElementById("customerResetButton").addEventListener("click", () => resetCustomerForm(true));
       document.getElementById("adminAccountResetButton").addEventListener("click", () => resetAdminAccountForm(true));
 
       document.querySelectorAll(".editor-action").forEach((button) => {
@@ -124,6 +147,10 @@
         element.addEventListener("input", handleRoomFilterChange);
         element.addEventListener("change", handleRoomFilterChange);
       });
+      [customerSearch, customerPlatformFilter, customerRegionFilter, customerStatusFilter].forEach((element) => {
+        element.addEventListener("input", handleCustomerFilterChange);
+        element.addEventListener("change", handleCustomerFilterChange);
+      });
 
       adminRoomsPrevButton.addEventListener("click", () => {
         if (roomPaging.page <= 1) return;
@@ -135,6 +162,18 @@
         roomPaging.page += 1;
         refreshRooms();
       });
+      customersPrevButton.addEventListener("click", () => {
+        if (customerPaging.page <= 1) return;
+        customerPaging.page -= 1;
+        refreshCustomers();
+      });
+      customersNextButton.addEventListener("click", () => {
+        if (customerPaging.page >= customerPaging.totalPages) return;
+        customerPaging.page += 1;
+        refreshCustomers();
+      });
+      addCustomerPlatformButton.addEventListener("click", () => addCustomerOption("platform"));
+      addCustomerRegionButton.addEventListener("click", () => addCustomerOption("region"));
 
       contentForm.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -349,12 +388,48 @@
         }
       });
 
+      customerForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          showNotice("Đang lưu dữ liệu...", "info");
+          const data = new FormData(customerForm);
+          const id = clean(data.get("id"));
+          const payload = {
+            name: clean(data.get("name")),
+            phone: clean(data.get("phone")),
+            platform: clean(data.get("platform")),
+            region: clean(data.get("region")),
+            status: clean(data.get("status")),
+            demand: clean(data.get("demand")),
+            note: clean(data.get("note")),
+            closedUnits: Number(data.get("closedUnits")) || 0,
+          };
+          if (id) {
+            await updateCustomer(id, payload);
+          } else {
+            await createCustomer(payload);
+          }
+          await reloadBootstrap();
+          resetCustomerForm(false);
+          await refreshCustomers();
+          showNotice(id ? "Đã cập nhật khách hàng." : "Đã thêm khách hàng mới.", "success");
+        } catch (error) {
+          showNotice(error.message || "Không thể lưu khách hàng.", "error");
+        }
+      });
+
       renderStatic();
       await refreshRooms();
+      await refreshCustomers();
 
       function handleRoomFilterChange() {
         roomPaging.page = 1;
         refreshRooms();
+      }
+
+      function handleCustomerFilterChange() {
+        customerPaging.page = 1;
+        refreshCustomers();
       }
 
       async function persistMutation(mutateFullState, message) {
@@ -402,6 +477,9 @@
         fillStatsForm();
         fillRoomBuildingOptions();
         fillRoomBuildingFilter();
+        fillCustomerOptionInputs();
+        fillCustomerFilterOptions();
+        renderCustomerStats();
         renderBuildingTable();
         renderNewsCards();
         renderAdminAccounts();
@@ -465,6 +543,55 @@
           state.buildings.map((building) => `<option value="${building.id}">${building.name}</option>`).join("");
         if (state.buildings.some((building) => building.id === currentValue)) {
           roomBuildingFilter.value = currentValue;
+        }
+      }
+
+      function fillCustomerOptionInputs() {
+        const config = state.customerConfig || { platforms: [], regions: [], statuses: [] };
+        fillSelectWithPlaceholder(customerPlatformInput, config.platforms, "Chọn nền tảng");
+        fillSelectWithPlaceholder(customerRegionInput, config.regions, "Chọn khu vực");
+        fillSelectWithPlaceholder(customerStatusInput, config.statuses, "Chọn tình trạng");
+        if (!customerStatusInput.value && config.statuses[0]) {
+          customerStatusInput.value = config.statuses[0];
+        }
+      }
+
+      function fillCustomerFilterOptions() {
+        const config = state.customerConfig || { platforms: [], regions: [], statuses: [] };
+        fillSelectWithPlaceholder(customerPlatformFilter, config.platforms, "Tất cả nền tảng", true);
+        fillSelectWithPlaceholder(customerRegionFilter, config.regions, "Tất cả khu vực", true);
+        fillSelectWithPlaceholder(customerStatusFilter, config.statuses, "Tất cả tình trạng", true);
+      }
+
+      function renderCustomerStats() {
+        const stats = (state.meta && state.meta.customerStats) || {
+          totalCustomers: 0,
+          totalClosedCustomers: 0,
+          totalClosedUnits: 0,
+          byAdmin: [],
+        };
+        const cards = [
+          { label: "Tổng khách hàng", value: stats.totalCustomers, note: "Data đang được quản lý trong hệ thống" },
+          { label: "Khách đã chốt", value: stats.totalClosedCustomers, note: "Số khách có trạng thái đã chốt" },
+          { label: "Tổng số căn chốt", value: stats.totalClosedUnits, note: "Tổng số căn đã ghi nhận thành công" },
+          { label: "Admin hoạt động", value: stats.byAdmin.length, note: "Số tài khoản đã nhập data khách hàng" },
+        ];
+        customerStatsGrid.innerHTML = cards.map((item) => `
+          <article class="admin-stat-card">
+            <span>${item.label}</span>
+            <strong>${item.value}</strong>
+            <p class="muted-copy">${item.note}</p>
+          </article>
+        `).join("");
+
+        if (stats.byAdmin.length) {
+          customerStatsGrid.innerHTML += stats.byAdmin.map((item) => `
+            <article class="admin-stat-card">
+              <span>${item.adminName}</span>
+              <strong>${item.totalCustomers}</strong>
+              <p class="muted-copy">Đã tiếp cận ${item.totalCustomers} khách, chốt ${item.closedCustomers} khách / ${item.closedUnits} căn</p>
+            </article>
+          `).join("");
         }
       }
 
@@ -606,6 +733,120 @@
         adminRoomsPagination.textContent = `Trang ${roomPaging.page} / ${roomPaging.totalPages} • ${roomPaging.totalItems} phòng`;
         adminRoomsPrevButton.disabled = roomPaging.page <= 1;
         adminRoomsNextButton.disabled = roomPaging.page >= roomPaging.totalPages;
+      }
+
+      async function refreshCustomers() {
+        try {
+          customerTableBody.innerHTML = '<tr><td colspan="6"><div class="empty-state-inline">Đang tải dữ liệu khách hàng...</div></td></tr>';
+          const response = await loadCustomersPage({
+            page: customerPaging.page,
+            limit: 12,
+            search: customerSearch.value.trim(),
+            status: customerStatusFilter.value,
+            platform: customerPlatformFilter.value,
+            region: customerRegionFilter.value,
+          });
+          currentCustomerItems = response.items || [];
+          customerPaging.page = response.page || 1;
+          customerPaging.totalPages = response.totalPages || 1;
+          customerPaging.totalItems = response.totalItems || 0;
+          state.meta.customerStats = response.stats || state.meta.customerStats;
+          state.customerConfig = {
+            platforms: response.filters?.platforms || [],
+            regions: response.filters?.regions || [],
+            statuses: response.filters?.statuses || [],
+          };
+          fillCustomerOptionInputs();
+          fillCustomerFilterOptions();
+          renderCustomerStats();
+          renderCustomerTable();
+        } catch (error) {
+          customerTableBody.innerHTML = `<tr><td colspan="6"><div class="empty-state-inline">${error.message || "Không thể tải data khách hàng."}</div></td></tr>`;
+          customersPagination.textContent = "Lỗi tải dữ liệu";
+          customersPrevButton.disabled = true;
+          customersNextButton.disabled = true;
+        }
+      }
+
+      function renderCustomerTable() {
+        if (!currentCustomerItems.length) {
+          customerTableBody.innerHTML = '<tr><td colspan="6"><div class="empty-state-inline">Không có khách hàng phù hợp.</div></td></tr>';
+          customersPagination.textContent = customerPaging.totalItems ? `Trang ${customerPaging.page} / ${customerPaging.totalPages}` : "0 khách hàng";
+          customersPrevButton.disabled = true;
+          customersNextButton.disabled = true;
+          return;
+        }
+
+        customerTableBody.innerHTML = "";
+        currentCustomerItems.forEach((customer) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td><strong>${customer.name}</strong><br><span>${customer.phone}</span><br><small>${customer.demand}</small></td>
+            <td>${customer.platform}</td>
+            <td>${customer.region}</td>
+            <td>${customer.status}${Number(customer.closedUnits || 0) ? `<br><small>${customer.closedUnits} căn</small>` : ""}</td>
+            <td>${customer.createdByName || "Admin"}<br><small>${customer.createdByEmail || ""}</small></td>
+            <td>
+              <div class="action-group">
+                <button type="button" data-customer-action="edit" data-id="${customer.id}">Sửa</button>
+                <button type="button" class="danger" data-customer-action="delete" data-id="${customer.id}">Xóa</button>
+              </div>
+            </td>
+          `;
+          customerTableBody.appendChild(row);
+        });
+
+        customerTableBody.querySelectorAll("[data-customer-action]").forEach((button) => {
+          button.addEventListener("click", async () => {
+            const action = button.dataset.customerAction;
+            const current = currentCustomerItems.find((item) => item.id === button.dataset.id);
+            const customer = current || (await loadCustomerById(button.dataset.id)).item;
+            if (!customer) return;
+
+            if (action === "edit") {
+              eachEntry(customer, (key, value) => {
+                const field = customerForm.elements.namedItem(key);
+                if (field) field.value = value ?? "";
+              });
+              activateTab("customers");
+              scrollToForm(customerForm, "name");
+              showNotice(`Đang chỉnh sửa khách hàng ${customer.name}.`, "info");
+              return;
+            }
+
+            const confirmed = window.confirm(`Xóa khách hàng "${customer.name}"?`);
+            if (!confirmed) return;
+            try {
+              showNotice("Đang lưu dữ liệu...", "info");
+              await deleteCustomer(customer.id);
+              await reloadBootstrap();
+              if (customerPaging.page > 1 && currentCustomerItems.length === 1) {
+                customerPaging.page -= 1;
+              }
+              await refreshCustomers();
+              showNotice("Đã xóa khách hàng.", "success");
+            } catch (error) {
+              showNotice(error.message || "Không thể xóa khách hàng.", "error");
+            }
+          });
+        });
+
+        customersPagination.textContent = `Trang ${customerPaging.page} / ${customerPaging.totalPages} • ${customerPaging.totalItems} khách`;
+        customersPrevButton.disabled = customerPaging.page <= 1;
+        customersNextButton.disabled = customerPaging.page >= customerPaging.totalPages;
+      }
+
+      function addCustomerOption(type) {
+        const label = type === "platform" ? "nền tảng" : "khu vực";
+        const value = window.prompt(`Nhập ${label} mới`);
+        const normalized = clean(value);
+        if (!normalized) return;
+        const key = type === "platform" ? "platforms" : "regions";
+        state.customerConfig[key] = unique([...state.customerConfig[key], normalized]);
+        fillCustomerOptionInputs();
+        fillCustomerFilterOptions();
+        if (type === "platform") customerPlatformInput.value = normalized;
+        if (type === "region") customerRegionInput.value = normalized;
       }
 
       function renderNewsCards() {
@@ -756,6 +997,14 @@
         if (showMessage) showNotice("Đã làm mới form bài viết.", "info");
       }
 
+      function resetCustomerForm(showMessage) {
+        customerForm.reset();
+        customerForm.elements.id.value = "";
+        customerForm.elements.closedUnits.value = "0";
+        fillCustomerOptionInputs();
+        if (showMessage) showNotice("Đã làm mới form khách hàng.", "info");
+      }
+
       function resetAdminAccountForm(showMessage) {
         adminAccountForm.reset();
         adminAccountForm.elements.id.value = "";
@@ -805,7 +1054,19 @@
     nextState.buildings = Array.isArray(nextState.buildings) ? nextState.buildings : [];
     nextState.rooms = Array.isArray(nextState.rooms) ? nextState.rooms : [];
     nextState.news = Array.isArray(nextState.news) ? nextState.news : [];
-    nextState.meta = Object.assign({ roomCountsByBuilding: {}, totalRooms: 0 }, nextState.meta || {});
+    nextState.customers = Array.isArray(nextState.customers) ? nextState.customers : [];
+    nextState.customerConfig = Object.assign({
+      platforms: ["Facebook", "Zalo", "Website", "TikTok"],
+      regions: ["Nha Trang", "Cam Ranh", "Diên Khánh"],
+      statuses: ["Mới", "Đang tư vấn", "Đã xem phòng", "Đã chốt", "Chưa phù hợp"],
+    }, nextState.customerConfig || {});
+    nextState.meta = Object.assign({
+      roomCountsByBuilding: {},
+      totalRooms: 0,
+      customerStats: { totalCustomers: 0, totalClosedCustomers: 0, totalClosedUnits: 0, byAdmin: [] },
+      customerConfig: nextState.customerConfig,
+      session: { adminEmail: "" },
+    }, nextState.meta || {});
     nextState.news = nextState.news.map((item) => Object.assign({
       status: "published",
       category: "Tin tức",
@@ -858,6 +1119,26 @@
 
   function eachEntry(object, fn) {
     Object.keys(object || {}).forEach((key) => fn(key, object[key]));
+  }
+
+  function unique(items) {
+    return Array.from(new Set((items || []).map((item) => String(item || "").trim()).filter(Boolean)));
+  }
+
+  function fillSelectWithPlaceholder(select, values, placeholder, allowEmptyValue) {
+    const currentValue = select.value;
+    const options = allowEmptyValue ? [`<option value="">${placeholder}</option>`] : [];
+    const uniqueValues = unique(values);
+    select.innerHTML = options.concat(
+      uniqueValues.map((value) => `<option value="${value}">${value}</option>`)
+    ).join("");
+    if (uniqueValues.includes(currentValue)) {
+      select.value = currentValue;
+    } else if (!allowEmptyValue && uniqueValues[0]) {
+      select.value = uniqueValues[0];
+    } else if (allowEmptyValue) {
+      select.value = "";
+    }
   }
 
   function applyManagedText(content) {

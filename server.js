@@ -182,6 +182,12 @@ function normalizeState(state) {
     announcementEnabled: "true",
     announcementText: "Chào mừng bạn đến với Bhome. Danh mục căn hộ đang được cập nhật liên tục.",
   }, nextState.content || {});
+  nextState.customers = Array.isArray(nextState.customers) ? nextState.customers : [];
+  nextState.customerConfig = Object.assign({
+    platforms: ["Facebook", "Zalo", "Website", "TikTok"],
+    regions: ["Nha Trang", "Cam Ranh", "Diên Khánh"],
+    statuses: ["Mới", "Đang tư vấn", "Đã xem phòng", "Đã chốt", "Chưa phù hợp"],
+  }, nextState.customerConfig || {});
   const legacyAdmin = nextState.admin || defaultState.admin;
   nextState.admins = Array.isArray(nextState.admins) && nextState.admins.length
     ? nextState.admins
@@ -293,11 +299,70 @@ function paginate(items, page, limit) {
   };
 }
 
+function uniqueList(items) {
+  return Array.from(new Set((items || []).map((item) => String(item || "").trim()).filter(Boolean)));
+}
+
 function serializeRoom(room, buildings) {
   const building = buildings.find((item) => item.id === room.buildingId);
   return Object.assign({}, room, {
     buildingName: building ? building.name : "",
   });
+}
+
+function filterCustomers(customers, query = {}) {
+  const keyword = normalizeKeyword(query.search);
+  const status = String(query.status || "").trim();
+  const platform = String(query.platform || "").trim();
+  const region = String(query.region || "").trim();
+  return customers.filter((customer) => {
+    const matchesKeyword = !keyword || [
+      customer.name,
+      customer.phone,
+      customer.platform,
+      customer.region,
+      customer.demand,
+      customer.note,
+      customer.createdByName,
+      customer.createdByEmail,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase()
+      .includes(keyword);
+    const matchesStatus = !status || customer.status === status;
+    const matchesPlatform = !platform || customer.platform === platform;
+    const matchesRegion = !region || customer.region === region;
+    return matchesKeyword && matchesStatus && matchesPlatform && matchesRegion;
+  });
+}
+
+function buildCustomerStats(state) {
+  const customers = Array.isArray(state.customers) ? state.customers : [];
+  const byAdminMap = {};
+  customers.forEach((customer) => {
+    const key = customer.createdByEmail || "unknown";
+    if (!byAdminMap[key]) {
+      byAdminMap[key] = {
+        adminEmail: customer.createdByEmail || "",
+        adminName: customer.createdByName || "Không xác định",
+        totalCustomers: 0,
+        closedCustomers: 0,
+        closedUnits: 0,
+      };
+    }
+    byAdminMap[key].totalCustomers += 1;
+    if (customer.status === "Đã chốt") {
+      byAdminMap[key].closedCustomers += 1;
+      byAdminMap[key].closedUnits += Number(customer.closedUnits || 0);
+    }
+  });
+  return {
+    totalCustomers: customers.length,
+    totalClosedCustomers: customers.filter((customer) => customer.status === "Đã chốt").length,
+    totalClosedUnits: customers.reduce((sum, customer) => sum + Number(customer.closedUnits || 0), 0),
+    byAdmin: Object.values(byAdminMap).sort((left, right) => right.totalCustomers - left.totalCustomers),
+  };
 }
 
 function sanitizeRoomInput(input, state, existingRoom) {
@@ -328,12 +393,54 @@ function sanitizeRoomInput(input, state, existingRoom) {
   };
 }
 
-function buildAdminBootstrap(state) {
+function sanitizeCustomerInput(input, state, sessionInfo, existingCustomer) {
+  const statuses = uniqueList((state.customerConfig && state.customerConfig.statuses) || []);
+  const status = String(input.status || existingCustomer?.status || statuses[0] || "Mới").trim();
+  if (!statuses.includes(status)) {
+    throw new Error("Tình trạng khách hàng không hợp lệ.");
+  }
+
+  const createdByEmail = existingCustomer?.createdByEmail || sessionInfo.adminEmail || "";
+  const createdByName =
+    existingCustomer?.createdByName ||
+    (state.admins || []).find((admin) => admin.email === createdByEmail)?.name ||
+    sessionInfo.adminEmail ||
+    "Admin";
+
+  return {
+    id: String(input.id || existingCustomer?.id || `customer-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`).trim(),
+    name: String(input.name || existingCustomer?.name || "").trim(),
+    phone: String(input.phone || existingCustomer?.phone || "").trim(),
+    platform: String(input.platform || existingCustomer?.platform || "").trim(),
+    region: String(input.region || existingCustomer?.region || "").trim(),
+    status,
+    demand: String(input.demand || existingCustomer?.demand || "").trim(),
+    note: String(input.note || existingCustomer?.note || "").trim(),
+    closedUnits: Number(input.closedUnits || existingCustomer?.closedUnits || 0) || 0,
+    createdByEmail,
+    createdByName,
+    createdAt: existingCustomer?.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function mergeCustomerOptions(state, customer) {
+  state.customerConfig = state.customerConfig || {};
+  state.customerConfig.platforms = uniqueList([...(state.customerConfig.platforms || []), customer.platform]);
+  state.customerConfig.regions = uniqueList([...(state.customerConfig.regions || []), customer.region]);
+  state.customerConfig.statuses = uniqueList(state.customerConfig.statuses || []);
+}
+
+function buildAdminBootstrap(state, sessionInfo = {}) {
   return Object.assign({}, state, {
     rooms: [],
+    customers: [],
     meta: {
       roomCountsByBuilding: buildRoomCountMap(state.rooms || []),
       totalRooms: Array.isArray(state.rooms) ? state.rooms.length : 0,
+      customerStats: buildCustomerStats(state),
+      customerConfig: state.customerConfig || { platforms: [], regions: [], statuses: [] },
+      session: sessionInfo,
     },
   });
 }
@@ -349,7 +456,44 @@ app.get("/api/state", async (_req, res, next) => {
 app.get("/api/admin/bootstrap", requireAuth, async (_req, res, next) => {
   try {
     const state = await readStateAny();
-    res.json(buildAdminBootstrap(state));
+    res.json(buildAdminBootstrap(state, { adminEmail: _req.session.adminEmail || "" }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/customers", requireAuth, async (req, res, next) => {
+  try {
+    const state = await readStateAny();
+    const page = parsePositiveInt(req.query.page, 1);
+    const limit = parsePositiveInt(req.query.limit, 12, 100);
+    const filtered = filterCustomers(state.customers || [], req.query)
+      .sort((left, right) => String(right.createdAt || "").localeCompare(String(left.createdAt || "")));
+    res.json(Object.assign(
+      paginate(filtered, page, limit),
+      {
+        filters: {
+          platforms: uniqueList((state.customerConfig && state.customerConfig.platforms) || []),
+          regions: uniqueList((state.customerConfig && state.customerConfig.regions) || []),
+          statuses: uniqueList((state.customerConfig && state.customerConfig.statuses) || []),
+        },
+        stats: buildCustomerStats(state),
+      }
+    ));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/customers/:id", requireAuth, async (req, res, next) => {
+  try {
+    const state = await readStateAny();
+    const item = (state.customers || []).find((customer) => customer.id === req.params.id);
+    if (!item) {
+      res.status(404).json({ error: "Không tìm thấy khách hàng." });
+      return;
+    }
+    res.json({ item });
   } catch (error) {
     next(error);
   }
@@ -458,6 +602,58 @@ app.delete("/api/rooms/:id", requireAuth, async (req, res, next) => {
     state.rooms = state.rooms.filter((item) => item.id !== req.params.id);
     await writeStateAny(state);
     res.json({ ok: true });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/customers", requireAuth, async (req, res, next) => {
+  try {
+    const state = await readStateAny();
+    const customer = sanitizeCustomerInput(req.body, state, { adminEmail: req.session.adminEmail || "" });
+    mergeCustomerOptions(state, customer);
+    state.customers.unshift(customer);
+    await writeStateAny(state);
+    res.json({ ok: true, item: customer, stats: buildCustomerStats(state), filters: state.customerConfig });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put("/api/customers/:id", requireAuth, async (req, res, next) => {
+  try {
+    const state = await readStateAny();
+    const index = (state.customers || []).findIndex((item) => item.id === req.params.id);
+    if (index < 0) {
+      res.status(404).json({ error: "Không tìm thấy khách hàng." });
+      return;
+    }
+    const customer = sanitizeCustomerInput(
+      Object.assign({}, req.body, { id: req.params.id }),
+      state,
+      { adminEmail: req.session.adminEmail || "" },
+      state.customers[index]
+    );
+    mergeCustomerOptions(state, customer);
+    state.customers[index] = customer;
+    await writeStateAny(state);
+    res.json({ ok: true, item: customer, stats: buildCustomerStats(state), filters: state.customerConfig });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.delete("/api/customers/:id", requireAuth, async (req, res, next) => {
+  try {
+    const state = await readStateAny();
+    const existing = (state.customers || []).find((item) => item.id === req.params.id);
+    if (!existing) {
+      res.status(404).json({ error: "Không tìm thấy khách hàng." });
+      return;
+    }
+    state.customers = state.customers.filter((item) => item.id !== req.params.id);
+    await writeStateAny(state);
+    res.json({ ok: true, stats: buildCustomerStats(state) });
   } catch (error) {
     next(error);
   }

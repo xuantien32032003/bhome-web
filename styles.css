@@ -850,6 +850,38 @@ td {
   flex: 1;
 }
 
+.inline-field-group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.admin-stat-card {
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: var(--shadow-soft);
+}
+
+.admin-stat-card strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 1.7rem;
+}
+
+.admin-stat-card span {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
 .admin-subheader {
   margin-top: 28px;
 }
@@ -1192,5 +1224,10 @@ td {
   .admin-toolbar-split {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .inline-field-group,
+  .admin-stats-grid {
+    grid-template-columns: 1fr;
   }
 }
