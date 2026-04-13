@@ -36,13 +36,16 @@
           </div>
         </div>
         <p id="adminNotice" class="admin-notice admin-notice-info">Sẵn sàng cập nhật dữ liệu.</p>
+        <div class="admin-main-tabbar">
+          <button class="admin-main-tab active" type="button" data-main-tab="info" data-role="admin">Quản lý thông tin</button>
+          <button class="admin-main-tab" type="button" data-main-tab="customers" data-role="admin,manager">Khách hàng</button>
+        </div>
         <div class="admin-tabbar">
           <button class="admin-tab active" type="button" data-tab="intro" data-role="admin">Giới thiệu</button>
           <button class="admin-tab" type="button" data-tab="metrics" data-role="admin">Kết quả</button>
           <button class="admin-tab" type="button" data-tab="buildings" data-role="admin">Tòa nhà</button>
           <button class="admin-tab" type="button" data-tab="rooms" data-role="admin">Phòng</button>
           <button class="admin-tab" type="button" data-tab="news" data-role="admin">Tin tức</button>
-          <button class="admin-tab" type="button" data-tab="customers" data-role="admin,manager">Khách hàng</button>
           <button class="admin-tab" type="button" data-tab="admins" data-role="admin">Tài khoản admin</button>
         </div>
       </section>
@@ -59,7 +62,7 @@
           <label>Menu - Giới thiệu<input name="navAbout" required></label>
           <label>Menu - Tìm phòng<input name="navRooms" required></label>
           <label>Menu - Tin tức<input name="navNews" required></label>
-          <label>Menu - Admin<input name="navAdmin" required></label>
+          <label>Menu - Đăng nhập<input name="navAdmin" required></label>
           <label>Hero - Kicker<input name="heroKicker" required></label>
           <label>Hero - Nút chính<input name="heroPrimaryButton" required></label>
           <label>Hero - Nút phụ<input name="heroSecondaryButton" required></label>
@@ -320,6 +323,11 @@
         <div class="admin-stats-grid admin-table-spacing" id="customerStatsGrid"></div>
         <div class="admin-toolbar admin-toolbar-split admin-table-spacing">
           <input id="customerSearch" type="search" placeholder="Tìm theo tên, số điện thoại, nhu cầu, ghi chú">
+          <select id="customerPageSize">
+            <option value="10">10 khách / trang</option>
+            <option value="20">20 khách / trang</option>
+            <option value="50">50 khách / trang</option>
+          </select>
           <select id="customerPlatformFilter">
             <option value="">Tất cả nền tảng</option>
           </select>
@@ -349,7 +357,12 @@
           <label>Tình trạng
             <select name="status" id="customerStatusInput" required></select>
           </label>
-          <label>Số căn đã chốt<input name="closedUnits" type="number" min="0" value="0"></label>
+          <label>Chốt căn
+            <select name="closeStatus" required>
+              <option value="open">Chưa chốt</option>
+              <option value="closed">Đã chốt</option>
+            </select>
+          </label>
           <label class="full-span">Nhu cầu của khách<textarea name="demand" rows="3" required></textarea></label>
           <label class="full-span">Ghi chú<textarea name="note" rows="4"></textarea></label>
           <div class="form-actions">

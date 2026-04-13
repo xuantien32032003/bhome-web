@@ -52,7 +52,7 @@ const defaultState = {
     brandEyebrow: "Nền tảng đầu tư căn hộ",
     navAbout: "Giới Thiệu",
     navRooms: "Tìm Phòng",
-    navAdmin: "Admin",
+    navAdmin: "Đăng nhập",
     heroKicker: "Vận hành căn hộ cho thuê",
     heroPrimaryButton: "Tìm phòng ngay",
     heroSecondaryButton: "Xem tòa nhà đang vận hành",
@@ -362,19 +362,16 @@ function buildCustomerStats(state) {
         adminName: customer.createdByName || "Không xác định",
         totalCustomers: 0,
         closedCustomers: 0,
-        closedUnits: 0,
       };
     }
     byAdminMap[key].totalCustomers += 1;
-    if (customer.status === "Đã chốt") {
+    if (customer.closeStatus === "closed") {
       byAdminMap[key].closedCustomers += 1;
-      byAdminMap[key].closedUnits += Number(customer.closedUnits || 0);
     }
   });
   return {
     totalCustomers: customers.length,
-    totalClosedCustomers: customers.filter((customer) => customer.status === "Đã chốt").length,
-    totalClosedUnits: customers.reduce((sum, customer) => sum + Number(customer.closedUnits || 0), 0),
+    totalClosedCustomers: customers.filter((customer) => customer.closeStatus === "closed").length,
     byAdmin: Object.values(byAdminMap).sort((left, right) => right.totalCustomers - left.totalCustomers),
   };
 }
@@ -430,7 +427,7 @@ function sanitizeCustomerInput(input, state, sessionInfo, existingCustomer) {
     status,
     demand: String(input.demand || existingCustomer?.demand || "").trim(),
     note: String(input.note || existingCustomer?.note || "").trim(),
-    closedUnits: Number(input.closedUnits || existingCustomer?.closedUnits || 0) || 0,
+    closeStatus: String(input.closeStatus || existingCustomer?.closeStatus || "open").trim() === "closed" ? "closed" : "open",
     createdByEmail,
     createdByName,
     createdAt: existingCustomer?.createdAt || new Date().toISOString(),

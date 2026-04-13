@@ -570,7 +570,7 @@
     setText("navAboutLabel", content.navAbout);
     setText("navRoomsLabel", content.navRooms);
     setText("navNewsLabel", content.navNews);
-    setText("navAdminLabel", content.navAdmin);
+    setText("navAdminLabel", !content.navAdmin || content.navAdmin === "Admin" ? "Đăng nhập" : content.navAdmin);
     setText("heroKicker", content.heroKicker);
     setText("heroPrimaryButton", content.heroPrimaryButton);
     setText("heroSecondaryButton", content.heroSecondaryButton);

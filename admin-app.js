@@ -71,6 +71,7 @@
       let state = normalizeState(await loadAdminBootstrap());
       let currentRoomItems = [];
       let currentCustomerItems = [];
+      let activeMainTab = "info";
       const roomPaging = { page: 1, totalPages: 1, totalItems: 0 };
       const customerPaging = { page: 1, totalPages: 1, totalItems: 0 };
 
@@ -100,6 +101,7 @@
       const newsSearch = document.getElementById("newsSearch");
       const newsCategoryFilter = document.getElementById("newsCategoryFilter");
       const customerSearch = document.getElementById("customerSearch");
+      const customerPageSize = document.getElementById("customerPageSize");
       const customerPlatformFilter = document.getElementById("customerPlatformFilter");
       const customerRegionFilter = document.getElementById("customerRegionFilter");
       const customerStatusFilter = document.getElementById("customerStatusFilter");
@@ -116,6 +118,7 @@
       const currentAdminName = (state.meta && state.meta.session && state.meta.session.adminName) || "";
 
       setupTabs();
+      setupMainTabs(currentRole);
       applyAccessControl(currentRole);
       if (adminRoleBadge) {
         adminRoleBadge.textContent = currentRole === "manager" ? `Quản lý${currentAdminName ? ` • ${currentAdminName}` : ""}` : `Admin${currentAdminName ? ` • ${currentAdminName}` : ""}`;
@@ -154,7 +157,7 @@
         element.addEventListener("input", handleRoomFilterChange);
         element.addEventListener("change", handleRoomFilterChange);
       });
-      [customerSearch, customerPlatformFilter, customerRegionFilter, customerStatusFilter].forEach((element) => {
+      [customerSearch, customerPageSize, customerPlatformFilter, customerRegionFilter, customerStatusFilter].forEach((element) => {
         element.addEventListener("input", handleCustomerFilterChange);
         element.addEventListener("change", handleCustomerFilterChange);
       });
@@ -408,9 +411,9 @@
             platform: clean(data.get("platform")),
             region: clean(data.get("region")),
             status: clean(data.get("status")),
+            closeStatus: clean(data.get("closeStatus")) || "open",
             demand: clean(data.get("demand")),
             note: clean(data.get("note")),
-            closedUnits: Number(data.get("closedUnits")) || 0,
           };
           if (id) {
             await updateCustomer(id, payload);
@@ -577,13 +580,15 @@
         const stats = (state.meta && state.meta.customerStats) || {
           totalCustomers: 0,
           totalClosedCustomers: 0,
-          totalClosedUnits: 0,
           byAdmin: [],
         };
+        const closeRate = stats.totalCustomers
+          ? `${Math.round((Number(stats.totalClosedCustomers || 0) / Number(stats.totalCustomers || 1)) * 100)}%`
+          : "0%";
         const cards = [
           { label: "Tổng khách hàng", value: stats.totalCustomers, note: "Data đang được quản lý trong hệ thống" },
           { label: "Khách đã chốt", value: stats.totalClosedCustomers, note: "Số khách có trạng thái đã chốt" },
-          { label: "Tổng số căn chốt", value: stats.totalClosedUnits, note: "Tổng số căn đã ghi nhận thành công" },
+          { label: "Tỷ lệ chốt", value: closeRate, note: "Tỷ lệ khách đã chuyển sang trạng thái chốt" },
           { label: "Admin hoạt động", value: stats.byAdmin.length, note: "Số tài khoản đã nhập data khách hàng" },
         ];
         customerStatsGrid.innerHTML = cards.map((item) => `
@@ -599,7 +604,7 @@
             <article class="admin-stat-card">
               <span>${item.adminName}</span>
               <strong>${item.totalCustomers}</strong>
-              <p class="muted-copy">Đã tiếp cận ${item.totalCustomers} khách, chốt ${item.closedCustomers} khách / ${item.closedUnits} căn</p>
+              <p class="muted-copy">Đã tiếp cận ${item.totalCustomers} khách, chốt ${item.closedCustomers} khách</p>
             </article>
           `).join("");
         }
@@ -750,7 +755,7 @@
           customerTableBody.innerHTML = '<tr><td colspan="6"><div class="empty-state-inline">Đang tải dữ liệu khách hàng...</div></td></tr>';
           const response = await loadCustomersPage({
             page: customerPaging.page,
-            limit: 12,
+            limit: Number(customerPageSize.value) || 10,
             search: customerSearch.value.trim(),
             status: customerStatusFilter.value,
             platform: customerPlatformFilter.value,
@@ -789,12 +794,13 @@
 
         customerTableBody.innerHTML = "";
         currentCustomerItems.forEach((customer) => {
+          const closeLabel = customer.closeStatus === "closed" ? "Đã chốt" : "Chưa chốt";
           const row = document.createElement("tr");
           row.innerHTML = `
             <td><strong>${customer.name}</strong><br><span>${customer.phone}</span><br><small>${customer.demand}</small></td>
             <td>${customer.platform}</td>
             <td>${customer.region}</td>
-            <td>${customer.status}${Number(customer.closedUnits || 0) ? `<br><small>${customer.closedUnits} căn</small>` : ""}</td>
+            <td>${customer.status}<br><small>${closeLabel}</small></td>
             <td>${customer.createdByName || "Admin"}<br><small>${customer.createdByEmail || ""}</small></td>
             <td>
               <div class="action-group">
@@ -1012,7 +1018,7 @@
       function resetCustomerForm(showMessage) {
         customerForm.reset();
         customerForm.elements.id.value = "";
-        customerForm.elements.closedUnits.value = "0";
+        customerForm.elements.closeStatus.value = "open";
         fillCustomerOptionInputs();
         if (showMessage) showNotice("Đã làm mới form khách hàng.", "info");
       }
@@ -1039,7 +1045,56 @@
     });
   }
 
+  function setupMainTabs(role) {
+    const mainTabs = Array.from(document.querySelectorAll(".admin-main-tab"));
+    const subTabbar = document.querySelector(".admin-tabbar");
+    const normalizedRole = String(role || "admin").toLowerCase();
+    const infoTabs = ["intro", "metrics", "buildings", "rooms", "news", "admins"];
+
+    function setMainTab(tabName) {
+      mainTabs.forEach((button) => {
+        button.classList.toggle("active", button.dataset.mainTab === tabName);
+      });
+
+      if (subTabbar) {
+        subTabbar.classList.toggle("hidden", tabName !== "info");
+      }
+
+      if (tabName === "customers") {
+        activateTab("customers");
+        return;
+      }
+
+      const currentActiveInfoTab = document.querySelector(".admin-tab.active");
+      const nextInfoTab = currentActiveInfoTab && infoTabs.includes(currentActiveInfoTab.dataset.tab)
+        ? currentActiveInfoTab.dataset.tab
+        : "intro";
+      activateTab(nextInfoTab);
+    }
+
+    mainTabs.forEach((button) => {
+      button.addEventListener("click", () => setMainTab(button.dataset.mainTab));
+    });
+
+    if (normalizedRole === "manager") {
+      setMainTab("customers");
+      return;
+    }
+
+    setMainTab("info");
+  }
+
   function activateTab(tabName) {
+    const mainTabs = document.querySelectorAll(".admin-main-tab");
+    const subTabbar = document.querySelector(".admin-tabbar");
+    const isCustomerTab = tabName === "customers";
+
+    mainTabs.forEach((button) => {
+      button.classList.toggle("active", button.dataset.mainTab === (isCustomerTab ? "customers" : "info"));
+    });
+    if (subTabbar) {
+      subTabbar.classList.toggle("hidden", isCustomerTab);
+    }
     document.querySelectorAll(".admin-tab").forEach((button) => {
       button.classList.toggle("active", button.dataset.tab === tabName);
     });
@@ -1057,18 +1112,13 @@
         .filter(Boolean);
       const visible = !allowed.length || allowed.includes(normalizedRole);
       element.classList.toggle("hidden", !visible);
-      if (element.classList.contains("admin-panel")) {
-        element.classList.toggle("active", visible && element.dataset.panel === (normalizedRole === "manager" ? "customers" : "intro"));
-      }
-      if (element.classList.contains("admin-tab")) {
-        element.classList.toggle("active", visible && element.dataset.tab === (normalizedRole === "manager" ? "customers" : "intro"));
-      }
     });
   }
 
   function normalizeState(state) {
     const nextState = Object.assign({}, state);
     nextState.content = Object.assign({
+      navAdmin: "Đăng nhập",
       navNews: "Tin tức",
       newsPageKicker: "Tin tức",
       newsPageTitle: "Bài viết, tuyển dụng và thông báo mới",
@@ -1094,9 +1144,9 @@
     nextState.meta = Object.assign({
       roomCountsByBuilding: {},
       totalRooms: 0,
-      customerStats: { totalCustomers: 0, totalClosedCustomers: 0, totalClosedUnits: 0, byAdmin: [] },
+      customerStats: { totalCustomers: 0, totalClosedCustomers: 0, byAdmin: [] },
       customerConfig: nextState.customerConfig,
-      session: { adminEmail: "" },
+      session: { adminEmail: "", adminRole: "admin", adminName: "" },
     }, nextState.meta || {});
     nextState.news = nextState.news.map((item) => Object.assign({
       status: "published",

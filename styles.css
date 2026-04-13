@@ -807,6 +807,29 @@ td {
   margin-top: 18px;
 }
 
+.admin-main-tabbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.admin-main-tab {
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-weight: 700;
+}
+
+.admin-main-tab.active {
+  background: linear-gradient(135deg, var(--primary), #167580);
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(13, 92, 99, 0.16);
+}
+
 .admin-tab {
   min-height: 42px;
   padding: 0 16px;
@@ -1211,6 +1234,11 @@ td {
   }
 
   .admin-tabbar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-main-tabbar {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

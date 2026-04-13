@@ -139,9 +139,9 @@ CREATE TABLE IF NOT EXISTS customers (
   platform_name TEXT NOT NULL,
   region_name TEXT NOT NULL,
   status_name TEXT NOT NULL,
+  close_status TEXT NOT NULL DEFAULT 'open' CHECK (close_status IN ('open', 'closed')),
   demand TEXT NOT NULL DEFAULT '',
   note TEXT NOT NULL DEFAULT '',
-  closed_units INTEGER NOT NULL DEFAULT 0,
   created_by UUID REFERENCES admins(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
