@@ -27,7 +27,7 @@
   async function init() {
     try {
       const session = await loadAdminSession().catch(() => ({ authenticated: false, adminRole: "", adminName: "" }));
-      if (page === "customers" && !(session.authenticated && session.adminRole === "admin")) {
+      if (page === "customers" && !session.authenticated) {
         window.location.href = "admin-login.html";
         return;
       }
@@ -83,13 +83,16 @@
     const navCustomersLink = document.getElementById("navCustomersLink");
     const navManageLink = document.getElementById("navManageLink");
     const navAdminLabel = document.getElementById("navAdminLabel");
-    const isAdminSession = Boolean(session && session.authenticated && session.adminRole === "admin");
+    const isAuthenticated = Boolean(session && session.authenticated);
+    const role = String((session && session.adminRole) || "").toLowerCase();
+    const canViewCustomers = isAuthenticated;
+    const canManage = isAuthenticated && (role === "admin" || role === "manager");
 
-    if (navCustomersLink) navCustomersLink.classList.toggle("hidden", !isAdminSession);
-    if (navManageLink) navManageLink.classList.toggle("hidden", !isAdminSession);
+    if (navCustomersLink) navCustomersLink.classList.toggle("hidden", !canViewCustomers);
+    if (navManageLink) navManageLink.classList.toggle("hidden", !canManage);
     if (!navAdminLabel) return;
 
-    if (!isAdminSession) {
+    if (!isAuthenticated) {
       navAdminLabel.textContent = "Đăng nhập";
       navAdminLabel.href = "admin-login.html";
       return;

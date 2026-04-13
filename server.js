@@ -605,6 +605,7 @@ app.post("/api/admin/login", async (req, res, next) => {
 
 app.post("/api/admin/logout", (req, res) => {
   req.session.destroy(() => {
+    res.clearCookie("connect.sid");
     res.json({ ok: true });
   });
 });
