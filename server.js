@@ -543,7 +543,12 @@ app.get("/api/rooms/:id", requireAuth, async (req, res, next) => {
 });
 
 app.get("/api/admin/session", (req, res) => {
-  res.json({ authenticated: Boolean(req.session.isAdmin) });
+  res.json({
+    authenticated: Boolean(req.session.isAdmin),
+    adminEmail: req.session.adminEmail || "",
+    adminRole: req.session.adminRole || "",
+    adminName: req.session.adminName || "",
+  });
 });
 
 app.post("/api/admin/login", async (req, res, next) => {

@@ -37,7 +37,7 @@
       applyBrand(state.company || {}, state.content || {});
 
       if (await isAdminLoggedIn()) {
-        window.location.href = "admin-dashboard.html";
+        window.location.href = "index.html";
         return;
       }
 
@@ -51,7 +51,7 @@
         try {
           const data = new FormData(form);
           await loginAdmin(data.get("email"), data.get("password"));
-          window.location.href = "admin-dashboard.html";
+          window.location.href = "index.html";
         } catch (error) {
           hint.textContent = error.message || "Sai email hoặc mật khẩu.";
         }

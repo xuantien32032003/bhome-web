@@ -7,7 +7,10 @@
     getBuildingById,
     getRoomById,
     getRoomsByBuilding,
+    loadAdminSession,
+    loadCustomersPage,
     loadState,
+    logoutAdmin,
     roomDetailLink,
     safeImage,
     statusLabel,
@@ -22,11 +25,18 @@
 
   async function init() {
     try {
+      const session = await loadAdminSession().catch(() => ({ authenticated: false, adminRole: "", adminName: "" }));
+      if (page === "customers" && !(session.authenticated && session.adminRole === "admin")) {
+        window.location.href = "admin-login.html";
+        return;
+      }
+
       const state = await loadState();
-      setupCommon(state);
+      setupCommon(state, session);
       if (page === "home") renderHome(state);
       if (page === "building-detail") renderBuildingDetailPage(state);
       if (page === "rooms") renderRoomsPage(state);
+      if (page === "customers") renderCustomersPage(session);
       if (page === "news") renderNewsPage(state);
       if (page === "news-detail") renderNewsDetailPage(state);
       if (page === "room-detail") renderRoomDetailPage(state);
@@ -35,9 +45,11 @@
     }
   }
 
-  function setupCommon(state) {
+  function setupCommon(state, session) {
     applyManagedText(state.content);
     setupAnnouncement(state.content);
+    setupSessionNavigation(session);
+    setupMobileMenu();
 
     const companyName = document.getElementById("companyName");
     if (companyName) companyName.textContent = state.company.name;
@@ -64,6 +76,31 @@
       facebookLink.href = state.company.facebook;
       facebookLink.textContent = state.content.contactFacebookLabel;
     }
+  }
+
+  function setupSessionNavigation(session) {
+    const navCustomersLink = document.getElementById("navCustomersLink");
+    const navManageLink = document.getElementById("navManageLink");
+    const navAdminLabel = document.getElementById("navAdminLabel");
+    const isAdminSession = Boolean(session && session.authenticated && session.adminRole === "admin");
+
+    if (navCustomersLink) navCustomersLink.classList.toggle("hidden", !isAdminSession);
+    if (navManageLink) navManageLink.classList.toggle("hidden", !isAdminSession);
+    if (!navAdminLabel) return;
+
+    if (!isAdminSession) {
+      navAdminLabel.textContent = "Đăng nhập";
+      navAdminLabel.href = "admin-login.html";
+      return;
+    }
+
+    navAdminLabel.textContent = "Đăng xuất";
+    navAdminLabel.href = "#";
+    navAdminLabel.addEventListener("click", async (event) => {
+      event.preventDefault();
+      await logoutAdmin().catch(() => null);
+      window.location.href = "index.html";
+    });
   }
 
   function renderHome(state) {
@@ -329,6 +366,134 @@
       });
 
       renderPagination(totalPages);
+    }
+  }
+
+  function renderCustomersPage(session) {
+    const statsGrid = document.getElementById("customerStatsPublic");
+    const tableBody = document.getElementById("customerPublicTableBody");
+    const searchInput = document.getElementById("customerPublicSearch");
+    const pageSizeSelect = document.getElementById("customerPublicPageSize");
+    const platformFilter = document.getElementById("customerPublicPlatform");
+    const regionFilter = document.getElementById("customerPublicRegion");
+    const statusFilter = document.getElementById("customerPublicStatus");
+    const prevButton = document.getElementById("customerPublicPrev");
+    const nextButton = document.getElementById("customerPublicNext");
+    const pagination = document.getElementById("customerPublicPagination");
+    const paging = { page: 1, totalPages: 1, totalItems: 0 };
+
+    [searchInput, pageSizeSelect, platformFilter, regionFilter, statusFilter].forEach((element) => {
+      element.addEventListener("input", handleFilterChange);
+      element.addEventListener("change", handleFilterChange);
+    });
+
+    prevButton.addEventListener("click", () => {
+      if (paging.page <= 1) return;
+      paging.page -= 1;
+      refresh();
+    });
+
+    nextButton.addEventListener("click", () => {
+      if (paging.page >= paging.totalPages) return;
+      paging.page += 1;
+      refresh();
+    });
+
+    refresh();
+
+    function handleFilterChange() {
+      paging.page = 1;
+      refresh();
+    }
+
+    async function refresh() {
+      try {
+        tableBody.innerHTML = '<tr><td colspan="6"><div class="empty-state-inline">Đang tải dữ liệu khách hàng...</div></td></tr>';
+        const response = await loadCustomersPage({
+          page: paging.page,
+          limit: Number(pageSizeSelect.value) || 10,
+          search: searchInput.value.trim(),
+          platform: platformFilter.value,
+          region: regionFilter.value,
+          status: statusFilter.value,
+        });
+
+        paging.page = response.page || 1;
+        paging.totalPages = response.totalPages || 1;
+        paging.totalItems = response.totalItems || 0;
+
+        fillSelect(platformFilter, ["Tất cả nền tảng"].concat(response.filters?.platforms || []));
+        fillSelect(regionFilter, ["Tất cả khu vực"].concat(response.filters?.regions || []));
+        fillSelect(statusFilter, ["Tất cả tình trạng"].concat(response.filters?.statuses || []));
+
+        renderCustomerPublicStats(response.stats || { totalCustomers: 0, totalClosedCustomers: 0, byAdmin: [] }, session);
+        renderCustomerPublicRows(response.items || []);
+        renderPagination();
+      } catch (error) {
+        if ((error.message || "").includes("Unauthorized")) {
+          window.location.href = "admin-login.html";
+          return;
+        }
+        tableBody.innerHTML = `<tr><td colspan="6"><div class="empty-state-inline">${error.message || "Không thể tải dữ liệu khách hàng."}</div></td></tr>`;
+      }
+    }
+
+    function renderCustomerPublicStats(stats, currentSession) {
+      const closeRate = stats.totalCustomers
+        ? `${Math.round((Number(stats.totalClosedCustomers || 0) / Number(stats.totalCustomers || 1)) * 100)}%`
+        : "0%";
+      const cards = [
+        { label: "Tổng khách hàng", value: stats.totalCustomers || 0, note: "Toàn bộ data khách hàng đang được quản lý" },
+        { label: "Khách đã chốt", value: stats.totalClosedCustomers || 0, note: "Khách đã chuyển sang trạng thái chốt" },
+        { label: "Tỷ lệ chốt", value: closeRate, note: "Tỷ lệ chuyển đổi hiện tại trên toàn bộ danh sách" },
+        { label: "Tài khoản xem", value: currentSession.adminName || currentSession.adminEmail || "Admin", note: "Phiên đăng nhập hiện tại" },
+      ];
+      statsGrid.innerHTML = cards.map((item) => `
+        <article class="admin-stat-card">
+          <span>${item.label}</span>
+          <strong>${item.value}</strong>
+          <p class="muted-copy">${item.note}</p>
+        </article>
+      `).join("");
+    }
+
+    function renderCustomerPublicRows(items) {
+      if (!items.length) {
+        tableBody.innerHTML = '<tr><td colspan="6"><div class="empty-state-inline">Không có khách hàng phù hợp với bộ lọc hiện tại.</div></td></tr>';
+        return;
+      }
+
+      tableBody.innerHTML = "";
+      items.forEach((customer) => {
+        const closeLabel = customer.closeStatus === "closed" ? "Đã chốt" : "Chưa chốt";
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><strong>${customer.name}</strong><br><span>${customer.phone}</span></td>
+          <td>${customer.platform}</td>
+          <td>${customer.region}</td>
+          <td>${customer.status}<br><small>${closeLabel}</small></td>
+          <td>${customer.demand || "Chưa cập nhật"}<br><small>${customer.note || ""}</small></td>
+          <td>${customer.createdByName || "Admin"}<br><small>${customer.createdByEmail || ""}</small></td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function renderPagination() {
+      pagination.innerHTML = "";
+      for (let pageNumber = 1; pageNumber <= paging.totalPages; pageNumber += 1) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `page-chip${pageNumber === paging.page ? " active" : ""}`;
+        button.textContent = String(pageNumber);
+        button.addEventListener("click", () => {
+          paging.page = pageNumber;
+          refresh();
+        });
+        pagination.appendChild(button);
+      }
+      prevButton.disabled = paging.page <= 1;
+      nextButton.disabled = paging.page >= paging.totalPages;
     }
   }
 

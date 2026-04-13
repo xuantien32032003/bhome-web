@@ -130,6 +130,10 @@
     return api("/api/admin/session").then((data) => Boolean(data.authenticated));
   }
 
+  function loadAdminSession() {
+    return api("/api/admin/session");
+  }
+
   function uploadFiles(files) {
     if (!files || !files.length) return Promise.resolve([]);
     const formData = new FormData();
@@ -188,6 +192,7 @@
     loginAdmin,
     logoutAdmin,
     isAdminLoggedIn,
+    loadAdminSession,
     uploadFiles,
     safeImage,
     statusLabel,

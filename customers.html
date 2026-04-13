@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tin tức | Bhome</title>
+  <title>Khách hàng | Bhome</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Prata&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body data-page="news" class="app-loading">
+<body data-page="customers" class="app-loading">
   <div class="announcement-bar hidden" id="announcementBar">
     <div class="announcement-icon" aria-hidden="true">!</div>
     <div class="announcement-track">
@@ -28,6 +28,11 @@
           <h1 id="companyName">Bhome</h1>
         </div>
       </a>
+      <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="primaryNav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
       <div class="nav-links" id="primaryNav">
         <a href="index.html#gioi-thieu" id="navAboutLabel">Giới Thiệu</a>
         <a href="rooms.html" id="navRoomsLabel">Tìm Phòng</a>
@@ -40,13 +45,55 @@
 
     <main>
       <section class="content-section detail-page-hero">
-        <p class="section-kicker" id="newsPageKicker">Tin tức</p>
-        <h2 id="newsPageTitle">Bài viết, tuyển dụng và thông báo mới</h2>
-        <p id="newsPageDescription">Theo dõi cập nhật hoạt động, bài viết thị trường, chương trình tuyển dụng và các thông báo mới từ Bhome.</p>
+        <p class="section-kicker">Khách hàng</p>
+        <h2>Xem thống kê và dữ liệu khách hàng</h2>
+        <p>Trang này chỉ hiển thị dữ liệu khách hàng dành cho tài khoản đã đăng nhập, không có thêm, sửa hoặc xóa.</p>
       </section>
 
       <section class="content-section">
-        <div class="news-grid" id="newsPageGrid"></div>
+        <div class="stats-grid" id="customerStatsPublic"></div>
+      </section>
+
+      <section class="content-section">
+        <div class="filter-toolbar filter-toolbar-elevated customer-filter-toolbar">
+          <input id="customerPublicSearch" type="search" placeholder="Tìm theo tên, số điện thoại, nhu cầu">
+          <select id="customerPublicPageSize" aria-label="Số lượng hiển thị">
+            <option value="10">10 khách</option>
+            <option value="20">20 khách</option>
+            <option value="50">50 khách</option>
+          </select>
+          <select id="customerPublicPlatform" aria-label="Lọc theo nền tảng">
+            <option value="">Tất cả nền tảng</option>
+          </select>
+          <select id="customerPublicRegion" aria-label="Lọc theo khu vực">
+            <option value="">Tất cả khu vực</option>
+          </select>
+          <select id="customerPublicStatus" aria-label="Lọc theo tình trạng">
+            <option value="">Tất cả tình trạng</option>
+          </select>
+        </div>
+
+        <div class="table-wrap customer-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Khách hàng</th>
+                <th>Nền tảng</th>
+                <th>Khu vực</th>
+                <th>Tình trạng</th>
+                <th>Nhu cầu</th>
+                <th>Người nhập</th>
+              </tr>
+            </thead>
+            <tbody id="customerPublicTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="pagination-bar">
+          <button class="ghost-button button-inline" type="button" id="customerPublicPrev">Trang trước</button>
+          <div class="pagination-numbers" id="customerPublicPagination"></div>
+          <button class="ghost-button button-inline" type="button" id="customerPublicNext">Trang sau</button>
+        </div>
       </section>
     </main>
   </div>
