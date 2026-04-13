@@ -3,6 +3,7 @@
     FALLBACK_BUILDING_IMAGE,
     FALLBACK_ROOM_IMAGE,
     buildingDetailLink,
+    buildCustomersExportLink,
     formatDate,
     formatDateTime,
     getBuildingById,
@@ -378,17 +379,40 @@
     const tableBody = document.getElementById("customerPublicTableBody");
     const searchInput = document.getElementById("customerPublicSearch");
     const pageSizeSelect = document.getElementById("customerPublicPageSize");
+    const periodFilter = document.getElementById("customerPublicPeriod");
     const platformFilter = document.getElementById("customerPublicPlatform");
     const regionFilter = document.getElementById("customerPublicRegion");
     const statusFilter = document.getElementById("customerPublicStatus");
+    const fromDateInput = document.getElementById("customerPublicFromDate");
+    const toDateInput = document.getElementById("customerPublicToDate");
+    const exportButton = document.getElementById("customerExportButton");
     const prevButton = document.getElementById("customerPublicPrev");
     const nextButton = document.getElementById("customerPublicNext");
     const pagination = document.getElementById("customerPublicPagination");
     const paging = { page: 1, totalPages: 1, totalItems: 0 };
 
-    [searchInput, pageSizeSelect, platformFilter, regionFilter, statusFilter].forEach((element) => {
+    [searchInput, pageSizeSelect, periodFilter, platformFilter, regionFilter, statusFilter, fromDateInput, toDateInput].forEach((element) => {
       element.addEventListener("input", handleFilterChange);
       element.addEventListener("change", handleFilterChange);
+    });
+
+    periodFilter.addEventListener("change", () => {
+      if (periodFilter.value) {
+        fromDateInput.value = "";
+        toDateInput.value = "";
+      }
+    });
+
+    [fromDateInput, toDateInput].forEach((element) => {
+      element.addEventListener("change", () => {
+        if (fromDateInput.value || toDateInput.value) {
+          periodFilter.value = "";
+        }
+      });
+    });
+
+    exportButton.addEventListener("click", () => {
+      window.location.href = buildCustomersExportLink(buildCustomerQuery());
     });
 
     prevButton.addEventListener("click", () => {
@@ -414,12 +438,8 @@
       try {
         tableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state-inline">Đang tải dữ liệu khách hàng...</div></td></tr>';
         const response = await loadCustomersPage({
+          ...buildCustomerQuery(),
           page: paging.page,
-          limit: Number(pageSizeSelect.value) || 10,
-          search: searchInput.value.trim(),
-          platform: platformFilter.value,
-          region: regionFilter.value,
-          status: statusFilter.value,
         });
 
         paging.page = response.page || 1;
@@ -499,6 +519,19 @@
       }
       prevButton.disabled = paging.page <= 1;
       nextButton.disabled = paging.page >= paging.totalPages;
+    }
+
+    function buildCustomerQuery() {
+      return {
+        limit: Number(pageSizeSelect.value) || 10,
+        search: searchInput.value.trim(),
+        period: periodFilter.value,
+        fromDate: fromDateInput.value,
+        toDate: toDateInput.value,
+        platform: platformFilter.value,
+        region: regionFilter.value,
+        status: statusFilter.value,
+      };
     }
   }
 

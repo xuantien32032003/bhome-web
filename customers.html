@@ -70,6 +70,16 @@
               </select>
             </label>
             <label class="customer-filter-field">
+              <span>Thời gian nhanh</span>
+              <select id="customerPublicPeriod" aria-label="Lọc nhanh theo thời gian">
+                <option value="">Tất cả thời gian</option>
+                <option value="today">Hôm nay</option>
+                <option value="7days">7 ngày</option>
+                <option value="1month">1 tháng</option>
+                <option value="1year">1 năm</option>
+              </select>
+            </label>
+            <label class="customer-filter-field">
               <span>Nền tảng</span>
               <select id="customerPublicPlatform" aria-label="Lọc theo nền tảng">
                 <option value="">Tất cả nền tảng</option>
@@ -87,8 +97,19 @@
                 <option value="">Tất cả tình trạng</option>
               </select>
             </label>
+            <label class="customer-filter-field">
+              <span>Từ ngày</span>
+              <input id="customerPublicFromDate" type="date" aria-label="Từ ngày">
+            </label>
+            <label class="customer-filter-field">
+              <span>Đến ngày</span>
+              <input id="customerPublicToDate" type="date" aria-label="Đến ngày">
+            </label>
           </div>
-          <p class="customer-scroll-hint">Trên điện thoại có thể vuốt ngang bảng để xem đầy đủ dữ liệu.</p>
+          <div class="customer-filter-actions">
+            <button class="secondary-button button-inline" type="button" id="customerExportButton">Xuất Excel</button>
+          </div>
+          <p class="customer-scroll-hint">Trên điện thoại có thể vuốt ngang bảng để xem đầy đủ dữ liệu. Bộ lọc thời gian áp dụng theo ngày tạo khách.</p>
         </div>
 
         <div class="table-wrap customer-table-wrap">

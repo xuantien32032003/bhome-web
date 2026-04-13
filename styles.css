@@ -902,6 +902,12 @@ td {
   color: var(--muted);
 }
 
+.customer-filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
 .customer-table-wrap {
   overflow-x: auto;
   overflow-y: hidden;
@@ -1398,6 +1404,15 @@ td {
   .customer-scroll-hint {
     margin-top: 8px;
     font-size: 0.8rem;
+  }
+
+  .customer-filter-actions {
+    margin-top: 10px;
+    justify-content: stretch;
+  }
+
+  .customer-filter-actions .button-inline {
+    width: 100%;
   }
 
   .customer-table-wrap {

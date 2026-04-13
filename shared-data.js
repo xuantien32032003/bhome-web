@@ -96,6 +96,16 @@
     return api(`/api/customers${suffix}`);
   }
 
+  function buildCustomersExportLink(params) {
+    const query = new URLSearchParams();
+    Object.entries(params || {}).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === "") return;
+      query.set(key, String(value));
+    });
+    const suffix = query.toString() ? `?${query.toString()}` : "";
+    return `/api/customers-export${suffix}`;
+  }
+
   function loadCustomerById(id) {
     return api(`/api/customers/${encodeURIComponent(id)}`);
   }
@@ -199,6 +209,7 @@
     updateRoomOccupancy,
     deleteRoom,
     loadCustomersPage,
+    buildCustomersExportLink,
     loadCustomerById,
     createCustomer,
     updateCustomer,

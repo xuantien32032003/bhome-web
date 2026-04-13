@@ -329,6 +329,10 @@ function filterCustomers(customers, query = {}) {
   const status = String(query.status || "").trim();
   const platform = String(query.platform || "").trim();
   const region = String(query.region || "").trim();
+  const period = String(query.period || "").trim();
+  const fromDate = String(query.fromDate || "").trim();
+  const toDate = String(query.toDate || "").trim();
+  const range = resolveCustomerDateRange(period, fromDate, toDate);
   return customers.filter((customer) => {
     const matchesKeyword = !keyword || [
       customer.name,
@@ -347,8 +351,53 @@ function filterCustomers(customers, query = {}) {
     const matchesStatus = !status || customer.status === status;
     const matchesPlatform = !platform || customer.platform === platform;
     const matchesRegion = !region || customer.region === region;
-    return matchesKeyword && matchesStatus && matchesPlatform && matchesRegion;
+    const createdTime = customer.createdAt ? new Date(customer.createdAt).getTime() : NaN;
+    const matchesDate =
+      !range ||
+      (Number.isFinite(createdTime) &&
+        createdTime >= range.start.getTime() &&
+        createdTime <= range.end.getTime());
+    return matchesKeyword && matchesStatus && matchesPlatform && matchesRegion && matchesDate;
   });
+}
+
+function resolveCustomerDateRange(period, fromDate, toDate) {
+  const now = new Date();
+  if (period === "today") {
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    return { start, end };
+  }
+  if (period === "7days") {
+    const start = new Date(now);
+    start.setDate(start.getDate() - 6);
+    start.setHours(0, 0, 0, 0);
+    return { start, end: now };
+  }
+  if (period === "1month") {
+    const start = new Date(now);
+    start.setMonth(start.getMonth() - 1);
+    start.setHours(0, 0, 0, 0);
+    return { start, end: now };
+  }
+  if (period === "1year") {
+    const start = new Date(now);
+    start.setFullYear(start.getFullYear() - 1);
+    start.setHours(0, 0, 0, 0);
+    return { start, end: now };
+  }
+  if (fromDate || toDate) {
+    const start = fromDate ? new Date(`${fromDate}T00:00:00`) : new Date("1970-01-01T00:00:00");
+    const end = toDate ? new Date(`${toDate}T23:59:59.999`) : now;
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return null;
+    return { start, end };
+  }
+  return null;
+}
+
+function toCsvCell(value) {
+  const text = String(value ?? "");
+  return `"${text.replace(/"/g, '""')}"`;
 }
 
 function buildCustomerStats(state) {
@@ -543,6 +592,41 @@ app.get("/api/customers/:id", requireAuth, async (req, res, next) => {
       return;
     }
     res.json({ item });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/customers-export", requireAuth, async (req, res, next) => {
+  try {
+    const state = await readStateAny();
+    const visibleCustomers = getVisibleCustomersForSession(state.customers || [], req.session);
+    const filtered = filterCustomers(visibleCustomers, req.query)
+      .sort((left, right) => String(right.createdAt || "").localeCompare(String(left.createdAt || "")));
+
+    const rows = [
+      ["Tên khách", "Số điện thoại", "Nền tảng", "Khu vực", "Tình trạng", "Chốt căn", "Nhu cầu", "Ghi chú", "Người nhập", "Email người nhập", "Thời gian tạo", "Cập nhật lần cuối"],
+      ...filtered.map((customer) => [
+        customer.name,
+        customer.phone,
+        customer.platform,
+        customer.region,
+        customer.status,
+        customer.closeStatus === "closed" ? "Đã chốt" : "Chưa chốt",
+        customer.demand,
+        customer.note,
+        customer.createdByName,
+        customer.createdByEmail,
+        customer.createdAt,
+        customer.updatedAt,
+      ]),
+    ];
+
+    const csv = "\uFEFF" + rows.map((row) => row.map(toCsvCell).join(",")).join("\r\n");
+    const stamp = new Date().toISOString().slice(0, 10);
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename="khach-hang-${stamp}.csv"`);
+    res.send(csv);
   } catch (error) {
     next(error);
   }
