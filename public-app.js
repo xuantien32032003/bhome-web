@@ -446,9 +446,18 @@
         paging.totalPages = response.totalPages || 1;
         paging.totalItems = response.totalItems || 0;
 
-        fillSelect(platformFilter, ["Tất cả nền tảng"].concat(response.filters?.platforms || []));
-        fillSelect(regionFilter, ["Tất cả khu vực"].concat(response.filters?.regions || []));
-        fillSelect(statusFilter, ["Tất cả tình trạng"].concat(response.filters?.statuses || []));
+        fillSelect(platformFilter, [
+          { value: "", label: "Tất cả nền tảng" },
+          ...(response.filters?.platforms || []).map((value) => ({ value, label: value })),
+        ]);
+        fillSelect(regionFilter, [
+          { value: "", label: "Tất cả khu vực" },
+          ...(response.filters?.regions || []).map((value) => ({ value, label: value })),
+        ]);
+        fillSelect(statusFilter, [
+          { value: "", label: "Tất cả tình trạng" },
+          ...(response.filters?.statuses || []).map((value) => ({ value, label: value })),
+        ]);
 
         renderCustomerPublicStats(response.stats || { totalCustomers: 0, totalClosedCustomers: 0, byAdmin: [] }, session);
         renderCustomerPublicRows(response.items || []);
@@ -721,7 +730,21 @@
   }
 
   function fillSelect(select, values) {
-    select.innerHTML = values.map((value) => `<option value="${value}">${value}</option>`).join("");
+    const previousValue = String(select.value || "");
+    select.innerHTML = values
+      .map((item) => {
+        const option = typeof item === "object" && item !== null
+          ? item
+          : { value: item, label: item };
+        return `<option value="${option.value}">${option.label}</option>`;
+      })
+      .join("");
+
+    const hasPreviousValue = values.some((item) => {
+      const optionValue = typeof item === "object" && item !== null ? String(item.value ?? "") : String(item ?? "");
+      return optionValue === previousValue;
+    });
+    select.value = hasPreviousValue ? previousValue : "";
   }
 
   function unique(items) {
