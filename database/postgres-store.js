@@ -3,6 +3,22 @@ const fs = require("fs");
 
 const HASH_PREFIX = "scrypt";
 
+function isUuid(value) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || ""));
+}
+
+function legacyIdToUuid(scope, value) {
+  const text = `${scope}:${String(value || "").trim()}`;
+  const hash = crypto.createHash("sha1").update(text).digest("hex");
+  return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-5${hash.slice(13, 16)}-a${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
+}
+
+function normalizeEntityId(scope, value) {
+  const normalized = String(value || "").trim();
+  if (!normalized) return legacyIdToUuid(scope, crypto.randomUUID());
+  return isUuid(normalized) ? normalized : legacyIdToUuid(scope, normalized);
+}
+
 function hashPassword(password) {
   const normalized = String(password || "").trim();
   if (!normalized) throw new Error("Mật khẩu không được để trống.");
@@ -234,6 +250,11 @@ async function writeStateToPostgres(pool, state) {
   const existingHashByEmail = new Map(existingAdmins.rows.map((row) => [row.email, row.password_hash]));
 
   const adminIdByEmail = new Map();
+  const adminIdMap = new Map((state.admins || []).map((admin) => [String(admin.id || admin.email || crypto.randomUUID()), normalizeEntityId("admin", admin.id || admin.email)]));
+  const buildingIdMap = new Map((state.buildings || []).map((building) => [String(building.id || building.name || crypto.randomUUID()), normalizeEntityId("building", building.id || building.name)]));
+  const roomIdMap = new Map((state.rooms || []).map((room) => [String(room.id || room.name || crypto.randomUUID()), normalizeEntityId("room", room.id || room.name)]));
+  const newsIdMap = new Map((state.news || []).map((item) => [String(item.id || item.title || crypto.randomUUID()), normalizeEntityId("news", item.id || item.title)]));
+  const customerIdMap = new Map((state.customers || []).map((customer) => [String(customer.id || customer.phone || crypto.randomUUID()), normalizeEntityId("customer", customer.id || customer.phone)]));
 
   await pool.query("BEGIN");
   try {
@@ -297,26 +318,28 @@ async function writeStateToPostgres(pool, state) {
     }
 
     for (const admin of state.admins || []) {
-      const existingHash = existingHashById.get(admin.id) || existingHashByEmail.get(admin.email);
+      const adminId = adminIdMap.get(String(admin.id || admin.email));
+      const existingHash = existingHashById.get(adminId) || existingHashByEmail.get(admin.email);
       const passwordHash = String(admin.password || "").trim()
         ? hashPassword(admin.password)
         : (existingHash || hashPassword("123456"));
       await pool.query(
         `INSERT INTO admins (id, name, email, password_hash, role, is_active, created_at, updated_at)
          VALUES ($1, $2, $3, $4, $5, TRUE, NOW(), NOW())`,
-        [admin.id, String(admin.name || ""), String(admin.email || ""), passwordHash, String(admin.role || "admin")]
+        [adminId, String(admin.name || ""), String(admin.email || ""), passwordHash, String(admin.role || "admin")]
       );
-      adminIdByEmail.set(String(admin.email || ""), admin.id);
+      adminIdByEmail.set(String(admin.email || ""), adminId);
     }
 
     for (const building of state.buildings || []) {
+      const buildingId = buildingIdMap.get(String(building.id || building.name));
       await pool.query(
         `INSERT INTO buildings
           (id, slug, name, region, address, image_url, floors, occupancy_percent, average_rent, investment_highlight, description, created_at, updated_at)
          VALUES
           ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), NOW())`,
         [
-          building.id,
+          buildingId,
           null,
           String(building.name || ""),
           String(building.region || ""),
@@ -334,20 +357,22 @@ async function writeStateToPostgres(pool, state) {
         await pool.query(
           `INSERT INTO building_gallery_images (building_id, sort_order, image_url, created_at)
            VALUES ($1, $2, $3, NOW())`,
-          [building.id, index, String(imageUrl || "")]
+          [buildingId, index, String(imageUrl || "")]
         );
       }
     }
 
     for (const room of state.rooms || []) {
+      const roomId = roomIdMap.get(String(room.id || room.name));
+      const buildingId = buildingIdMap.get(String(room.buildingId || ""));
       await pool.query(
         `INSERT INTO rooms
           (id, building_id, code, region, image_url, room_type, rent_text, status, available_from, check_in_date, check_out_date, area_text, amenities, created_at, updated_at)
          VALUES
           ($1, $2, $3, $4, $5, $6, $7, $8, NULLIF($9, '')::date, NULLIF($10, '')::date, NULLIF($11, '')::date, $12, $13, NOW(), NOW())`,
         [
-          room.id,
-          room.buildingId,
+          roomId,
+          buildingId,
           String(room.name || ""),
           String(room.region || ""),
           String(room.image || ""),
@@ -386,13 +411,14 @@ async function writeStateToPostgres(pool, state) {
     }
 
     for (const customer of state.customers || []) {
+      const customerId = customerIdMap.get(String(customer.id || customer.phone));
       await pool.query(
         `INSERT INTO customers
           (id, full_name, phone, platform_name, region_name, status_name, close_status, demand, note, created_by, created_at, updated_at)
          VALUES
           ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, COALESCE(NULLIF($11, '')::timestamptz, NOW()), COALESCE(NULLIF($12, '')::timestamptz, NOW()))`,
         [
-          customer.id,
+          customerId,
           String(customer.name || ""),
           String(customer.phone || ""),
           String(customer.platform || ""),
@@ -409,13 +435,14 @@ async function writeStateToPostgres(pool, state) {
     }
 
     for (const item of state.news || []) {
+      const newsId = newsIdMap.get(String(item.id || item.title));
       await pool.query(
         `INSERT INTO news_posts
           (id, slug, title, category, status, published_at, cover_image_url, excerpt, body, created_by, created_at, updated_at)
          VALUES
           ($1, $2, $3, $4, $5, NULLIF($6, '')::date, $7, $8, $9, $10, NOW(), NOW())`,
         [
-          item.id,
+          newsId,
           null,
           String(item.title || ""),
           String(item.category || "Tin tức"),
