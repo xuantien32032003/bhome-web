@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   const {
     createCustomer,
     createRoom,
@@ -40,7 +40,7 @@
       applyBrand(state.company || {}, state.content || {});
 
       if (await isAdminLoggedIn()) {
-        window.location.href = "index.html";
+        window.location.href = "admin-dashboard.html";
         return;
       }
 
@@ -49,14 +49,14 @@
 
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
-        hint.textContent = "Đang đăng nhập...";
+        hint.textContent = "Äang Ä‘Äƒng nháº­p...";
 
         try {
           const data = new FormData(form);
           await loginAdmin(data.get("email"), data.get("password"));
-          window.location.href = "index.html";
+          window.location.href = "admin-dashboard.html";
         } catch (error) {
-          hint.textContent = error.message || "Sai email hoặc mật khẩu.";
+          hint.textContent = error.message || "Sai email hoáº·c máº­t kháº©u.";
         }
       });
     } finally {
@@ -127,7 +127,7 @@
       setupMainTabs(currentRole);
       applyAccessControl(currentRole);
       if (adminRoleBadge) {
-        adminRoleBadge.textContent = currentRole === "manager" ? `Quản lý${currentAdminName ? ` • ${currentAdminName}` : ""}` : `Admin${currentAdminName ? ` • ${currentAdminName}` : ""}`;
+        adminRoleBadge.textContent = currentRole === "manager" ? `Quáº£n lÃ½${currentAdminName ? ` â€¢ ${currentAdminName}` : ""}` : `Admin${currentAdminName ? ` â€¢ ${currentAdminName}` : ""}`;
       }
 
       document.getElementById("logoutButton").addEventListener("click", async () => {
@@ -214,9 +214,9 @@
           state.content = nextContent;
           await persistMutation((fullState) => {
             fullState.content = state.content;
-          }, "Đã lưu nội dung website.");
+          }, "ÄÃ£ lÆ°u ná»™i dung website.");
         } catch (error) {
-          showNotice(error.message || "Không thể lưu nội dung website.", "error");
+          showNotice(error.message || "KhÃ´ng thá»ƒ lÆ°u ná»™i dung website.", "error");
         }
       });
 
@@ -244,9 +244,9 @@
           clearFileInputs(companyForm);
           await persistMutation((fullState) => {
             fullState.company = state.company;
-          }, "Đã lưu thông tin công ty.");
+          }, "ÄÃ£ lÆ°u thÃ´ng tin cÃ´ng ty.");
         } catch (error) {
-          showNotice(error.message || "Không thể lưu thông tin công ty.", "error");
+          showNotice(error.message || "KhÃ´ng thá»ƒ lÆ°u thÃ´ng tin cÃ´ng ty.", "error");
         }
       });
 
@@ -266,16 +266,16 @@
           await persistMutation((fullState) => {
             fullState.investorStats = state.investorStats;
             fullState.results = state.results;
-          }, "Đã lưu các chỉ số và nội dung kết quả.");
+          }, "ÄÃ£ lÆ°u cÃ¡c chá»‰ sá»‘ vÃ  ná»™i dung káº¿t quáº£.");
         } catch (error) {
-          showNotice(error.message || "Không thể lưu chỉ số.", "error");
+          showNotice(error.message || "KhÃ´ng thá»ƒ lÆ°u chá»‰ sá»‘.", "error");
         }
       });
 
       buildingForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         try {
-          showNotice("Đang lưu dữ liệu...", "info");
+          showNotice("Äang lÆ°u dá»¯ liá»‡u...", "info");
           const fullState = normalizeState(await loadState());
           const data = new FormData(buildingForm);
           const id = clean(data.get("id")) || createId("building");
@@ -316,16 +316,16 @@
           await reloadBootstrap();
           resetBuildingForm(false);
           await refreshRooms();
-          showNotice(index >= 0 ? "Đã cập nhật tòa nhà." : "Đã thêm tòa nhà mới.", "success");
+          showNotice(index >= 0 ? "ÄÃ£ cáº­p nháº­t tÃ²a nhÃ ." : "ÄÃ£ thÃªm tÃ²a nhÃ  má»›i.", "success");
         } catch (error) {
-          showNotice(error.message || "Không thể lưu tòa nhà.", "error");
+          showNotice(error.message || "KhÃ´ng thá»ƒ lÆ°u tÃ²a nhÃ .", "error");
         }
       });
 
       roomForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         try {
-          showNotice("Đang lưu dữ liệu...", "info");
+          showNotice("Äang lÆ°u dá»¯ liá»‡u...", "info");
           const data = new FormData(roomForm);
           const id = clean(data.get("id"));
           const existing = currentRoomItems.find((room) => room.id === id) || null;
@@ -350,9 +350,9 @@
           await reloadBootstrap();
           resetRoomForm(false);
           await refreshRooms();
-          showNotice(id ? "Đã cập nhật phòng." : "Đã thêm phòng mới.", "success");
+          showNotice(id ? "ÄÃ£ cáº­p nháº­t phÃ²ng." : "ÄÃ£ thÃªm phÃ²ng má»›i.", "success");
         } catch (error) {
-          showNotice(error.message || "Không thể lưu phòng.", "error");
+          showNotice(error.message || "KhÃ´ng thá»ƒ lÆ°u phÃ²ng.", "error");
         }
       });
 
@@ -380,9 +380,9 @@
           resetNewsForm(false);
           await persistMutation((fullState) => {
             fullState.news = state.news;
-          }, index >= 0 ? "Đã cập nhật bài viết." : "Đã đăng bài viết mới.");
+          }, index >= 0 ? "ÄÃ£ cáº­p nháº­t bÃ i viáº¿t." : "ÄÃ£ Ä‘Äƒng bÃ i viáº¿t má»›i.");
         } catch (error) {
-          showNotice(error.message || "Không thể lưu bài viết.", "error");
+          showNotice(error.message || "KhÃ´ng thá»ƒ lÆ°u bÃ i viáº¿t.", "error");
         }
       });
 
@@ -399,10 +399,10 @@
             role: clean(data.get("role")) || "admin",
           };
           if (!clean(data.get("id")) && !payload.password) {
-            throw new Error("Tài khoản mới phải có mật khẩu.");
+            throw new Error("TÃ i khoáº£n má»›i pháº£i cÃ³ máº­t kháº©u.");
           }
           if (state.admins.some((admin) => admin.email === payload.email && admin.id !== id)) {
-            throw new Error("Email admin đã tồn tại.");
+            throw new Error("Email admin Ä‘Ã£ tá»“n táº¡i.");
           }
           const index = state.admins.findIndex((admin) => admin.id === id);
           if (index >= 0) state.admins[index] = Object.assign({}, state.admins[index], payload);
@@ -414,16 +414,16 @@
               email: state.admins[0].email,
               password: state.admins[0].password,
             };
-          }, index >= 0 ? "Đã cập nhật tài khoản admin." : "Đã thêm tài khoản admin.");
+          }, index >= 0 ? "ÄÃ£ cáº­p nháº­t tÃ i khoáº£n admin." : "ÄÃ£ thÃªm tÃ i khoáº£n admin.");
         } catch (error) {
-          showNotice(error.message || "Không thể lưu tài khoản admin.", "error");
+          showNotice(error.message || "KhÃ´ng thá»ƒ lÆ°u tÃ i khoáº£n admin.", "error");
         }
       });
 
       customerForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         try {
-          showNotice("Đang lưu dữ liệu...", "info");
+          showNotice("Äang lÆ°u dá»¯ liá»‡u...", "info");
           const data = new FormData(customerForm);
           const id = clean(data.get("id"));
           const payload = {
@@ -444,16 +444,16 @@
           await reloadBootstrap();
           resetCustomerForm(false);
           await refreshCustomers();
-          showNotice(id ? "Đã cập nhật khách hàng." : "Đã thêm khách hàng mới.", "success");
+          showNotice(id ? "ÄÃ£ cáº­p nháº­t khÃ¡ch hÃ ng." : "ÄÃ£ thÃªm khÃ¡ch hÃ ng má»›i.", "success");
         } catch (error) {
-          showNotice(error.message || "Không thể lưu khách hàng.", "error");
+          showNotice(error.message || "KhÃ´ng thá»ƒ lÆ°u khÃ¡ch hÃ ng.", "error");
         }
       });
 
       roomOccupancyForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         try {
-          showNotice("Đang lưu dữ liệu...", "info");
+          showNotice("Äang lÆ°u dá»¯ liá»‡u...", "info");
           const data = new FormData(roomOccupancyForm);
           const roomId = clean(data.get("roomId"));
           await updateRoomOccupancy(roomId, {
@@ -464,9 +464,9 @@
           await reloadBootstrap();
           await refreshRooms();
           fillRoomOccupancyOptions(roomId);
-          showNotice("Đã cập nhật vận hành phòng.", "success");
+          showNotice("ÄÃ£ cáº­p nháº­t váº­n hÃ nh phÃ²ng.", "success");
         } catch (error) {
-          showNotice(error.message || "Không thể cập nhật vận hành phòng.", "error");
+          showNotice(error.message || "KhÃ´ng thá»ƒ cáº­p nháº­t váº­n hÃ nh phÃ²ng.", "error");
         }
       });
 
@@ -485,7 +485,7 @@
       }
 
       async function persistMutation(mutateFullState, message) {
-        showNotice("Đang lưu dữ liệu...", "info");
+        showNotice("Äang lÆ°u dá»¯ liá»‡u...", "info");
         const fullState = normalizeState(await loadState());
         mutateFullState(fullState);
         await saveState(fullState);
@@ -500,7 +500,7 @@
 
       async function refreshRooms() {
         try {
-          adminRoomGrid.innerHTML = '<div class="empty-state-card">Đang tải danh sách phòng...</div>';
+          adminRoomGrid.innerHTML = '<div class="empty-state-card">Äang táº£i danh sÃ¡ch phÃ²ng...</div>';
           const response = await loadRoomsPage({
             page: roomPaging.page,
             limit: ROOM_PAGE_LIMIT,
@@ -514,8 +514,8 @@
           roomPaging.totalItems = response.totalItems || 0;
           renderRoomCards();
         } catch (error) {
-          adminRoomGrid.innerHTML = `<div class="empty-state-card">${error.message || "Không thể tải danh sách phòng."}</div>`;
-          adminRoomsPagination.textContent = "Lỗi tải dữ liệu";
+          adminRoomGrid.innerHTML = `<div class="empty-state-card">${error.message || "KhÃ´ng thá»ƒ táº£i danh sÃ¡ch phÃ²ng."}</div>`;
+          adminRoomsPagination.textContent = "Lá»—i táº£i dá»¯ liá»‡u";
           adminRoomsPrevButton.disabled = true;
           adminRoomsNextButton.disabled = true;
         }
@@ -594,7 +594,7 @@
 
       function fillRoomBuildingFilter() {
         const currentValue = roomBuildingFilter.value;
-        roomBuildingFilter.innerHTML = '<option value="">Tất cả tòa nhà</option>' +
+        roomBuildingFilter.innerHTML = '<option value="">Táº¥t cáº£ tÃ²a nhÃ </option>' +
           state.buildings.map((building) => `<option value="${building.id}">${building.name}</option>`).join("");
         if (state.buildings.some((building) => building.id === currentValue)) {
           roomBuildingFilter.value = currentValue;
@@ -611,22 +611,22 @@
             });
           });
           roomOccupancyRoomId.innerHTML = items.map((room) => (
-            `<option value="${room.id}">${room.name} • ${room.buildingName || room.region}</option>`
+            `<option value="${room.id}">${room.name} â€¢ ${room.buildingName || room.region}</option>`
           )).join("");
           if (items.some((room) => room.id === currentValue)) {
             roomOccupancyRoomId.value = currentValue;
           }
           syncRoomOccupancyForm(items.find((room) => room.id === roomOccupancyRoomId.value) || items[0]);
         }).catch(() => {
-          roomOccupancyRoomId.innerHTML = '<option value="">Chưa có phòng</option>';
+          roomOccupancyRoomId.innerHTML = '<option value="">ChÆ°a cÃ³ phÃ²ng</option>';
         });
       }
 
       function fillCustomerOptionInputs() {
         const config = state.customerConfig || { platforms: [], regions: [], statuses: [] };
-        fillSelectWithPlaceholder(customerPlatformInput, config.platforms, "Chọn nền tảng");
-        fillSelectWithPlaceholder(customerRegionInput, config.regions, "Chọn khu vực");
-        fillSelectWithPlaceholder(customerStatusInput, config.statuses, "Chọn tình trạng");
+        fillSelectWithPlaceholder(customerPlatformInput, config.platforms, "Chá»n ná»n táº£ng");
+        fillSelectWithPlaceholder(customerRegionInput, config.regions, "Chá»n khu vá»±c");
+        fillSelectWithPlaceholder(customerStatusInput, config.statuses, "Chá»n tÃ¬nh tráº¡ng");
         if (!customerStatusInput.value && config.statuses[0]) {
           customerStatusInput.value = config.statuses[0];
         }
@@ -634,9 +634,9 @@
 
       function fillCustomerFilterOptions() {
         const config = state.customerConfig || { platforms: [], regions: [], statuses: [] };
-        fillSelectWithPlaceholder(customerPlatformFilter, config.platforms, "Tất cả nền tảng", true);
-        fillSelectWithPlaceholder(customerRegionFilter, config.regions, "Tất cả khu vực", true);
-        fillSelectWithPlaceholder(customerStatusFilter, config.statuses, "Tất cả tình trạng", true);
+        fillSelectWithPlaceholder(customerPlatformFilter, config.platforms, "Táº¥t cáº£ ná»n táº£ng", true);
+        fillSelectWithPlaceholder(customerRegionFilter, config.regions, "Táº¥t cáº£ khu vá»±c", true);
+        fillSelectWithPlaceholder(customerStatusFilter, config.statuses, "Táº¥t cáº£ tÃ¬nh tráº¡ng", true);
       }
 
       function renderCustomerStats() {
@@ -649,10 +649,10 @@
           ? `${Math.round((Number(stats.totalClosedCustomers || 0) / Number(stats.totalCustomers || 1)) * 100)}%`
           : "0%";
         const cards = [
-          { label: "Tổng khách hàng", value: stats.totalCustomers, note: "Data đang được quản lý trong hệ thống" },
-          { label: "Khách đã chốt", value: stats.totalClosedCustomers, note: "Số khách có trạng thái đã chốt" },
-          { label: "Tỷ lệ chốt", value: closeRate, note: "Tỷ lệ khách đã chuyển sang trạng thái chốt" },
-          { label: "Admin hoạt động", value: stats.byAdmin.length, note: "Số tài khoản đã nhập data khách hàng" },
+          { label: "Tá»•ng khÃ¡ch hÃ ng", value: stats.totalCustomers, note: "Data Ä‘ang Ä‘Æ°á»£c quáº£n lÃ½ trong há»‡ thá»‘ng" },
+          { label: "KhÃ¡ch Ä‘Ã£ chá»‘t", value: stats.totalClosedCustomers, note: "Sá»‘ khÃ¡ch cÃ³ tráº¡ng thÃ¡i Ä‘Ã£ chá»‘t" },
+          { label: "Tá»· lá»‡ chá»‘t", value: closeRate, note: "Tá»· lá»‡ khÃ¡ch Ä‘Ã£ chuyá»ƒn sang tráº¡ng thÃ¡i chá»‘t" },
+          { label: "Admin hoáº¡t Ä‘á»™ng", value: stats.byAdmin.length, note: "Sá»‘ tÃ i khoáº£n Ä‘Ã£ nháº­p data khÃ¡ch hÃ ng" },
         ];
         customerStatsGrid.innerHTML = cards.map((item) => `
           <article class="admin-stat-card">
@@ -667,7 +667,7 @@
             <article class="admin-stat-card">
               <span>${item.adminName}</span>
               <strong>${item.totalCustomers}</strong>
-              <p class="muted-copy">Đã tiếp cận ${item.totalCustomers} khách, chốt ${item.closedCustomers} khách</p>
+              <p class="muted-copy">ÄÃ£ tiáº¿p cáº­n ${item.totalCustomers} khÃ¡ch, chá»‘t ${item.closedCustomers} khÃ¡ch</p>
             </article>
           `).join("");
         }
@@ -679,7 +679,7 @@
           [building.name, building.region, building.address].join(" ").toLowerCase().includes(keyword)
         );
         if (!buildings.length) {
-          buildingTableBody.innerHTML = '<tr><td colspan="6"><div class="empty-state-inline">Không có tòa nhà phù hợp.</div></td></tr>';
+          buildingTableBody.innerHTML = '<tr><td colspan="6"><div class="empty-state-inline">KhÃ´ng cÃ³ tÃ²a nhÃ  phÃ¹ há»£p.</div></td></tr>';
           return;
         }
 
@@ -695,8 +695,8 @@
             <td>${building.occupancy}%</td>
             <td>
               <div class="action-group">
-                <button type="button" data-action="edit" data-id="${building.id}">Sửa</button>
-                <button type="button" class="danger" data-action="delete" data-id="${building.id}">Xóa</button>
+                <button type="button" data-action="edit" data-id="${building.id}">Sá»­a</button>
+                <button type="button" class="danger" data-action="delete" data-id="${building.id}">XÃ³a</button>
               </div>
             </td>
           `;
@@ -715,14 +715,14 @@
               });
               activateTab("buildings");
               scrollToForm(buildingForm, "name");
-              showNotice(`Đang chỉnh sửa tòa nhà ${building.name}.`, "info");
+              showNotice(`Äang chá»‰nh sá»­a tÃ²a nhÃ  ${building.name}.`, "info");
               return;
             }
 
-            const confirmed = window.confirm(`Xóa tòa nhà "${building.name}" và toàn bộ phòng thuộc tòa nhà này?`);
+            const confirmed = window.confirm(`XÃ³a tÃ²a nhÃ  "${building.name}" vÃ  toÃ n bá»™ phÃ²ng thuá»™c tÃ²a nhÃ  nÃ y?`);
             if (!confirmed) return;
             try {
-              showNotice("Đang lưu dữ liệu...", "info");
+              showNotice("Äang lÆ°u dá»¯ liá»‡u...", "info");
               const fullState = normalizeState(await loadState());
               fullState.buildings = fullState.buildings.filter((item) => item.id !== building.id);
               fullState.rooms = (fullState.rooms || []).filter((room) => room.buildingId !== building.id);
@@ -732,9 +732,9 @@
                 roomBuildingFilter.value = "";
               }
               await refreshRooms();
-              showNotice("Đã xóa tòa nhà và các phòng liên quan.", "success");
+              showNotice("ÄÃ£ xÃ³a tÃ²a nhÃ  vÃ  cÃ¡c phÃ²ng liÃªn quan.", "success");
             } catch (error) {
-              showNotice(error.message || "Không thể xóa tòa nhà.", "error");
+              showNotice(error.message || "KhÃ´ng thá»ƒ xÃ³a tÃ²a nhÃ .", "error");
             }
           });
         });
@@ -742,8 +742,8 @@
 
       function renderRoomCards() {
         if (!currentRoomItems.length) {
-          adminRoomGrid.innerHTML = '<div class="empty-state-card">Không có phòng phù hợp.</div>';
-          adminRoomsPagination.textContent = roomPaging.totalItems ? `Trang ${roomPaging.page} / ${roomPaging.totalPages}` : "0 phòng";
+          adminRoomGrid.innerHTML = '<div class="empty-state-card">KhÃ´ng cÃ³ phÃ²ng phÃ¹ há»£p.</div>';
+          adminRoomsPagination.textContent = roomPaging.totalItems ? `Trang ${roomPaging.page} / ${roomPaging.totalPages}` : "0 phÃ²ng";
           adminRoomsPrevButton.disabled = true;
           adminRoomsNextButton.disabled = true;
           return;
@@ -759,15 +759,15 @@
             </div>
             <span class="status-pill status-${room.status}">${statusLabel(room.status)}</span>
             <h3>${room.name}</h3>
-            <p>${room.buildingName || "Không xác định"} | ${room.type}</p>
+            <p>${room.buildingName || "KhÃ´ng xÃ¡c Ä‘á»‹nh"} | ${room.type}</p>
             <div class="room-meta">
-              <div><strong>Khu vực:</strong> ${room.region}</div>
-              <div><strong>Giá thuê:</strong> ${room.rent}</div>
-              <div><strong>Ngày trống:</strong> ${formatDate(room.availableFrom)}</div>
+              <div><strong>Khu vá»±c:</strong> ${room.region}</div>
+              <div><strong>GiÃ¡ thuÃª:</strong> ${room.rent}</div>
+              <div><strong>NgÃ y trá»‘ng:</strong> ${formatDate(room.availableFrom)}</div>
             </div>
             <div class="room-actions">
-              <button type="button" data-room-action="edit" data-id="${room.id}">Sửa</button>
-              <button type="button" class="danger" data-room-action="delete" data-id="${room.id}">Xóa</button>
+              <button type="button" data-room-action="edit" data-id="${room.id}">Sá»­a</button>
+              <button type="button" class="danger" data-room-action="delete" data-id="${room.id}">XÃ³a</button>
             </div>
           `;
           adminRoomGrid.appendChild(card);
@@ -787,35 +787,35 @@
               });
               activateTab("rooms");
               scrollToForm(roomForm, "name");
-              showNotice(`Đang chỉnh sửa phòng ${room.name}.`, "info");
+              showNotice(`Äang chá»‰nh sá»­a phÃ²ng ${room.name}.`, "info");
               return;
             }
 
-            const confirmed = window.confirm(`Xóa phòng "${room.name}"?`);
+            const confirmed = window.confirm(`XÃ³a phÃ²ng "${room.name}"?`);
             if (!confirmed) return;
             try {
-              showNotice("Đang lưu dữ liệu...", "info");
+              showNotice("Äang lÆ°u dá»¯ liá»‡u...", "info");
               await deleteRoom(room.id);
               await reloadBootstrap();
               if (roomPaging.page > 1 && currentRoomItems.length === 1) {
                 roomPaging.page -= 1;
               }
               await refreshRooms();
-              showNotice("Đã xóa phòng.", "success");
+              showNotice("ÄÃ£ xÃ³a phÃ²ng.", "success");
             } catch (error) {
-              showNotice(error.message || "Không thể xóa phòng.", "error");
+              showNotice(error.message || "KhÃ´ng thá»ƒ xÃ³a phÃ²ng.", "error");
             }
           });
         });
 
-        adminRoomsPagination.textContent = `Trang ${roomPaging.page} / ${roomPaging.totalPages} • ${roomPaging.totalItems} phòng`;
+        adminRoomsPagination.textContent = `Trang ${roomPaging.page} / ${roomPaging.totalPages} â€¢ ${roomPaging.totalItems} phÃ²ng`;
         adminRoomsPrevButton.disabled = roomPaging.page <= 1;
         adminRoomsNextButton.disabled = roomPaging.page >= roomPaging.totalPages;
       }
 
       async function refreshCustomers() {
         try {
-          customerTableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state-inline">Đang tải dữ liệu khách hàng...</div></td></tr>';
+          customerTableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state-inline">Äang táº£i dá»¯ liá»‡u khÃ¡ch hÃ ng...</div></td></tr>';
           const response = await loadCustomersPage({
             page: customerPaging.page,
             limit: Number(customerPageSize.value) || 10,
@@ -839,8 +839,8 @@
           renderCustomerStats();
           renderCustomerTable();
         } catch (error) {
-          customerTableBody.innerHTML = `<tr><td colspan="7"><div class="empty-state-inline">${error.message || "Không thể tải data khách hàng."}</div></td></tr>`;
-          customersPagination.textContent = "Lỗi tải dữ liệu";
+          customerTableBody.innerHTML = `<tr><td colspan="7"><div class="empty-state-inline">${error.message || "KhÃ´ng thá»ƒ táº£i data khÃ¡ch hÃ ng."}</div></td></tr>`;
+          customersPagination.textContent = "Lá»—i táº£i dá»¯ liá»‡u";
           customersPrevButton.disabled = true;
           customersNextButton.disabled = true;
         }
@@ -848,8 +848,8 @@
 
       function renderCustomerTable() {
         if (!currentCustomerItems.length) {
-          customerTableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state-inline">Không có khách hàng phù hợp.</div></td></tr>';
-          customersPagination.textContent = customerPaging.totalItems ? `Trang ${customerPaging.page} / ${customerPaging.totalPages}` : "0 khách hàng";
+          customerTableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state-inline">KhÃ´ng cÃ³ khÃ¡ch hÃ ng phÃ¹ há»£p.</div></td></tr>';
+          customersPagination.textContent = customerPaging.totalItems ? `Trang ${customerPaging.page} / ${customerPaging.totalPages}` : "0 khÃ¡ch hÃ ng";
           customersPrevButton.disabled = true;
           customersNextButton.disabled = true;
           return;
@@ -857,19 +857,19 @@
 
         customerTableBody.innerHTML = "";
         currentCustomerItems.forEach((customer) => {
-          const closeLabel = customer.closeStatus === "closed" ? "Đã chốt" : "Chưa chốt";
+          const closeLabel = customer.closeStatus === "closed" ? "ÄÃ£ chá»‘t" : "ChÆ°a chá»‘t";
           const row = document.createElement("tr");
           row.innerHTML = `
             <td><strong>${customer.name}</strong><br><span>${customer.phone}</span><br><small>${customer.demand}</small></td>
             <td>${customer.platform}</td>
             <td>${customer.region}</td>
             <td>${customer.status}<br><small>${closeLabel}</small></td>
-            <td>${formatDateTime(customer.createdAt)}<br><small>Cập nhật: ${formatDateTime(customer.updatedAt)}</small></td>
+            <td>${formatDateTime(customer.createdAt)}<br><small>Cáº­p nháº­t: ${formatDateTime(customer.updatedAt)}</small></td>
             <td>${customer.createdByName || "Admin"}<br><small>${customer.createdByEmail || ""}</small></td>
             <td>
               <div class="action-group">
-                <button type="button" data-customer-action="edit" data-id="${customer.id}">Sửa</button>
-                ${currentRole === "admin" ? `<button type="button" class="danger" data-customer-action="delete" data-id="${customer.id}">Xóa</button>` : ""}
+                <button type="button" data-customer-action="edit" data-id="${customer.id}">Sá»­a</button>
+                ${currentRole === "admin" ? `<button type="button" class="danger" data-customer-action="delete" data-id="${customer.id}">XÃ³a</button>` : ""}
               </div>
             </td>
           `;
@@ -890,35 +890,35 @@
               });
               activateTab("customers");
               window.setTimeout(() => scrollToForm(customerForm, "name"), 80);
-              showNotice(`Đang chỉnh sửa khách hàng ${customer.name}.`, "info");
+              showNotice(`Äang chá»‰nh sá»­a khÃ¡ch hÃ ng ${customer.name}.`, "info");
               return;
             }
 
-            const confirmed = window.confirm(`Xóa khách hàng "${customer.name}"?`);
+            const confirmed = window.confirm(`XÃ³a khÃ¡ch hÃ ng "${customer.name}"?`);
             if (!confirmed) return;
             try {
-              showNotice("Đang lưu dữ liệu...", "info");
+              showNotice("Äang lÆ°u dá»¯ liá»‡u...", "info");
               await deleteCustomer(customer.id);
               await reloadBootstrap();
               if (customerPaging.page > 1 && currentCustomerItems.length === 1) {
                 customerPaging.page -= 1;
               }
               await refreshCustomers();
-              showNotice("Đã xóa khách hàng.", "success");
+              showNotice("ÄÃ£ xÃ³a khÃ¡ch hÃ ng.", "success");
             } catch (error) {
-              showNotice(error.message || "Không thể xóa khách hàng.", "error");
+              showNotice(error.message || "KhÃ´ng thá»ƒ xÃ³a khÃ¡ch hÃ ng.", "error");
             }
           });
         });
 
-        customersPagination.textContent = `Trang ${customerPaging.page} / ${customerPaging.totalPages} • ${customerPaging.totalItems} khách`;
+        customersPagination.textContent = `Trang ${customerPaging.page} / ${customerPaging.totalPages} â€¢ ${customerPaging.totalItems} khÃ¡ch`;
         customersPrevButton.disabled = customerPaging.page <= 1;
         customersNextButton.disabled = customerPaging.page >= customerPaging.totalPages;
       }
 
       function addCustomerOption(type) {
-        const label = type === "platform" ? "nền tảng" : "khu vực";
-        const value = window.prompt(`Nhập ${label} mới`);
+        const label = type === "platform" ? "ná»n táº£ng" : "khu vá»±c";
+        const value = window.prompt(`Nháº­p ${label} má»›i`);
         const normalized = clean(value);
         if (!normalized) return;
         const key = type === "platform" ? "platforms" : "regions";
@@ -938,7 +938,7 @@
           return matchesKeyword && matchesCategory;
         });
         if (!items.length) {
-          adminNewsGrid.innerHTML = '<div class="empty-state-card">Không có bài viết phù hợp.</div>';
+          adminNewsGrid.innerHTML = '<div class="empty-state-card">KhÃ´ng cÃ³ bÃ i viáº¿t phÃ¹ há»£p.</div>';
           return;
         }
 
@@ -953,14 +953,14 @@
             <div class="news-card-copy">
               <div class="news-card-tags">
                 <span class="news-badge">${item.category}</span>
-                <span class="status-pill ${item.status === "draft" ? "status-upcoming" : "status-available"}">${item.status === "draft" ? "Nháp" : "Đã đăng"}</span>
+                <span class="status-pill ${item.status === "draft" ? "status-upcoming" : "status-available"}">${item.status === "draft" ? "NhÃ¡p" : "ÄÃ£ Ä‘Äƒng"}</span>
               </div>
               <h3>${item.title}</h3>
               <p class="news-card-date">${formatDate(item.publishedAt)}</p>
               <p>${item.excerpt}</p>
               <div class="room-actions">
-                <button type="button" data-news-action="edit" data-id="${item.id}">Sửa</button>
-                <button type="button" class="danger" data-news-action="delete" data-id="${item.id}">Xóa</button>
+                <button type="button" data-news-action="edit" data-id="${item.id}">Sá»­a</button>
+                <button type="button" class="danger" data-news-action="delete" data-id="${item.id}">XÃ³a</button>
               </div>
             </div>
           `;
@@ -979,16 +979,16 @@
               });
               activateTab("news");
               scrollToForm(newsForm, "title");
-              showNotice(`Đang chỉnh sửa bài viết ${item.title}.`, "info");
+              showNotice(`Äang chá»‰nh sá»­a bÃ i viáº¿t ${item.title}.`, "info");
               return;
             }
 
-            const confirmed = window.confirm(`Xóa bài viết "${item.title}"?`);
+            const confirmed = window.confirm(`XÃ³a bÃ i viáº¿t "${item.title}"?`);
             if (!confirmed) return;
             state.news = state.news.filter((entry) => entry.id !== item.id);
             await persistMutation((fullState) => {
               fullState.news = state.news;
-            }, "Đã xóa bài viết.");
+            }, "ÄÃ£ xÃ³a bÃ i viáº¿t.");
           });
         });
       }
@@ -999,7 +999,7 @@
           [admin.name, admin.email].join(" ").toLowerCase().includes(keyword)
         );
         if (!admins.length) {
-          adminAccountTableBody.innerHTML = '<tr><td colspan="3"><div class="empty-state-inline">Không có tài khoản phù hợp.</div></td></tr>';
+          adminAccountTableBody.innerHTML = '<tr><td colspan="3"><div class="empty-state-inline">KhÃ´ng cÃ³ tÃ i khoáº£n phÃ¹ há»£p.</div></td></tr>';
           return;
         }
 
@@ -1009,11 +1009,11 @@
           row.innerHTML = `
             <td><strong>${admin.name}</strong></td>
             <td>${admin.email}</td>
-            <td>${admin.role === "manager" ? "Quản lý" : "Admin"}</td>
+            <td>${admin.role === "manager" ? "Quáº£n lÃ½" : "Admin"}</td>
             <td>
               <div class="action-group">
-                <button type="button" data-admin-action="edit" data-id="${admin.id}">Sửa</button>
-                <button type="button" class="danger" data-admin-action="delete" data-id="${admin.id}">Xóa</button>
+                <button type="button" data-admin-action="edit" data-id="${admin.id}">Sá»­a</button>
+                <button type="button" class="danger" data-admin-action="delete" data-id="${admin.id}">XÃ³a</button>
               </div>
             </td>
           `;
@@ -1033,15 +1033,15 @@
               adminAccountForm.elements.role.value = admin.role || "admin";
               activateTab("admins");
               scrollToForm(adminAccountForm, "name");
-              showNotice(`Đang chỉnh sửa tài khoản ${admin.email}.`, "info");
+              showNotice(`Äang chá»‰nh sá»­a tÃ i khoáº£n ${admin.email}.`, "info");
               return;
             }
 
             if (state.admins.length <= 1) {
-              showNotice("Phải giữ lại ít nhất một tài khoản admin.", "error");
+              showNotice("Pháº£i giá»¯ láº¡i Ã­t nháº¥t má»™t tÃ i khoáº£n admin.", "error");
               return;
             }
-            const confirmed = window.confirm(`Xóa tài khoản admin "${admin.email}"?`);
+            const confirmed = window.confirm(`XÃ³a tÃ i khoáº£n admin "${admin.email}"?`);
             if (!confirmed) return;
             state.admins = state.admins.filter((item) => item.id !== admin.id);
             await persistMutation((fullState) => {
@@ -1050,7 +1050,7 @@
                 email: state.admins[0].email,
                 password: state.admins[0].password,
               };
-            }, "Đã xóa tài khoản admin.");
+            }, "ÄÃ£ xÃ³a tÃ i khoáº£n admin.");
           });
         });
       }
@@ -1059,7 +1059,7 @@
         buildingForm.reset();
         buildingForm.elements.id.value = "";
         clearFileInputs(buildingForm);
-        if (showMessage) showNotice("Đã làm mới form tòa nhà.", "info");
+        if (showMessage) showNotice("ÄÃ£ lÃ m má»›i form tÃ²a nhÃ .", "info");
       }
 
       function resetRoomForm(showMessage) {
@@ -1067,7 +1067,7 @@
         roomForm.elements.id.value = "";
         clearFileInputs(roomForm);
         fillRoomBuildingOptions();
-        if (showMessage) showNotice("Đã làm mới form phòng.", "info");
+        if (showMessage) showNotice("ÄÃ£ lÃ m má»›i form phÃ²ng.", "info");
       }
 
       function resetNewsForm(showMessage) {
@@ -1076,7 +1076,7 @@
         clearFileInputs(newsForm);
         newsForm.elements.publishedAt.value = new Date().toISOString().slice(0, 10);
         newsForm.elements.status.value = "published";
-        if (showMessage) showNotice("Đã làm mới form bài viết.", "info");
+        if (showMessage) showNotice("ÄÃ£ lÃ m má»›i form bÃ i viáº¿t.", "info");
       }
 
       function resetCustomerForm(showMessage) {
@@ -1084,7 +1084,7 @@
         customerForm.elements.id.value = "";
         customerForm.elements.closeStatus.value = "open";
         fillCustomerOptionInputs();
-        if (showMessage) showNotice("Đã làm mới form khách hàng.", "info");
+        if (showMessage) showNotice("ÄÃ£ lÃ m má»›i form khÃ¡ch hÃ ng.", "info");
       }
 
       function syncRoomOccupancyForm(room) {
@@ -1098,14 +1098,14 @@
       function resetRoomOccupancyForm(showMessage) {
         roomOccupancyForm.reset();
         fillRoomOccupancyOptions();
-        if (showMessage) showNotice("Đã làm mới form vận hành phòng.", "info");
+        if (showMessage) showNotice("ÄÃ£ lÃ m má»›i form váº­n hÃ nh phÃ²ng.", "info");
       }
 
       function resetAdminAccountForm(showMessage) {
         adminAccountForm.reset();
         adminAccountForm.elements.id.value = "";
         if (adminAccountForm.elements.role) adminAccountForm.elements.role.value = "admin";
-        if (showMessage) showNotice("Đã làm mới form tài khoản admin.", "info");
+        if (showMessage) showNotice("ÄÃ£ lÃ m má»›i form tÃ i khoáº£n admin.", "info");
       }
 
       function showNotice(message, tone) {
@@ -1196,16 +1196,16 @@
   function normalizeState(state) {
     const nextState = Object.assign({}, state);
     nextState.content = Object.assign({
-      navAdmin: "Đăng nhập",
-      navNews: "Tin tức",
-      newsPageKicker: "Tin tức",
-      newsPageTitle: "Bài viết, tuyển dụng và thông báo mới",
-      newsPageDescription: "Theo dõi cập nhật hoạt động, bài viết thị trường, chương trình tuyển dụng và các thông báo mới từ Bhome.",
-      newsSectionKicker: "Tin tức",
-      newsSectionTitle: "Cập nhật mới nhất từ Bhome",
-      newsSectionButton: "Xem tất cả bài viết",
+      navAdmin: "ÄÄƒng nháº­p",
+      navNews: "Tin tá»©c",
+      newsPageKicker: "Tin tá»©c",
+      newsPageTitle: "BÃ i viáº¿t, tuyá»ƒn dá»¥ng vÃ  thÃ´ng bÃ¡o má»›i",
+      newsPageDescription: "Theo dÃµi cáº­p nháº­t hoáº¡t Ä‘á»™ng, bÃ i viáº¿t thá»‹ trÆ°á»ng, chÆ°Æ¡ng trÃ¬nh tuyá»ƒn dá»¥ng vÃ  cÃ¡c thÃ´ng bÃ¡o má»›i tá»« Bhome.",
+      newsSectionKicker: "Tin tá»©c",
+      newsSectionTitle: "Cáº­p nháº­t má»›i nháº¥t tá»« Bhome",
+      newsSectionButton: "Xem táº¥t cáº£ bÃ i viáº¿t",
       announcementEnabled: "true",
-      announcementText: "Chào mừng bạn đến với Bhome. Danh mục căn hộ đang được cập nhật liên tục.",
+      announcementText: "ChÃ o má»«ng báº¡n Ä‘áº¿n vá»›i Bhome. Danh má»¥c cÄƒn há»™ Ä‘ang Ä‘Æ°á»£c cáº­p nháº­t liÃªn tá»¥c.",
     }, nextState.content || {});
     nextState.company = Object.assign({}, nextState.company || {});
     nextState.investorStats = Array.isArray(nextState.investorStats) ? nextState.investorStats : [];
@@ -1216,8 +1216,8 @@
     nextState.customers = Array.isArray(nextState.customers) ? nextState.customers : [];
     nextState.customerConfig = Object.assign({
       platforms: ["Facebook", "Zalo", "Website", "TikTok"],
-      regions: ["Nha Trang", "Cam Ranh", "Diên Khánh"],
-      statuses: ["Mới", "Đang tư vấn", "Đã xem phòng", "Đã chốt", "Chưa phù hợp"],
+      regions: ["Nha Trang", "Cam Ranh", "DiÃªn KhÃ¡nh"],
+      statuses: ["Má»›i", "Äang tÆ° váº¥n", "ÄÃ£ xem phÃ²ng", "ÄÃ£ chá»‘t", "ChÆ°a phÃ¹ há»£p"],
     }, nextState.customerConfig || {});
     nextState.meta = Object.assign({
       roomCountsByBuilding: {},
@@ -1228,7 +1228,7 @@
     }, nextState.meta || {});
     nextState.news = nextState.news.map((item) => Object.assign({
       status: "published",
-      category: "Tin tức",
+      category: "Tin tá»©c",
       excerpt: "",
       body: "",
       image: FALLBACK_BUILDING_IMAGE,
@@ -1239,7 +1239,7 @@
       ? nextState.admins
       : [{
           id: "admin-root",
-          name: "Admin chính",
+          name: "Admin chÃ­nh",
           email: defaultAdmin.email,
           password: defaultAdmin.password,
           role: "admin",
@@ -1343,3 +1343,4 @@
     return `${prefix || "id"}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
   }
 })();
+
