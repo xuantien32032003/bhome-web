@@ -1,23 +1,36 @@
-const express = require("express");
+﻿const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const session = require("express-session");
 const multer = require("multer");
 const { v2: cloudinary } = require("cloudinary");
 const { Pool } = require("pg");
+const {
+  ensureSchema,
+  findAdminForLogin,
+  hasRelationalData,
+  readStateFromPostgres,
+  verifyPassword,
+  writeStateToPostgres,
+} = require("./database/postgres-store");
 require("dotenv").config();
 
 const app = express();
+app.disable("x-powered-by");
 const PORT = process.env.PORT || 3000;
 const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, "data");
 const UPLOAD_DIR = path.join(ROOT, "uploads");
 const STATE_FILE = path.join(DATA_DIR, "state.json");
+const SCHEMA_FILE = path.join(ROOT, "database", "schema.sql");
 const USE_POSTGRES = Boolean(process.env.DATABASE_URL);
 const USE_CLOUDINARY =
   Boolean(process.env.CLOUDINARY_CLOUD_NAME) &&
   Boolean(process.env.CLOUDINARY_API_KEY) &&
   Boolean(process.env.CLOUDINARY_API_SECRET);
+const SESSION_TTL_MS = 1000 * 60 * 60 * 12;
+const LOGIN_WINDOW_MS = 1000 * 60 * 15;
+const MAX_LOGIN_ATTEMPTS = 5;
 
 const pool = USE_POSTGRES
   ? new Pool({
@@ -25,6 +38,7 @@ const pool = USE_POSTGRES
       ssl: process.env.DATABASE_SSL === "false" ? false : { rejectUnauthorized: false },
     })
   : null;
+const loginAttempts = new Map();
 
 const FALLBACK_BUILDING_IMAGE =
   "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800'><defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'><stop stop-color='%230d5c63'/><stop offset='1' stop-color='%23d7a86e'/></linearGradient></defs><rect width='1200' height='800' fill='%23ede2d3'/><rect x='120' y='180' width='360' height='460' rx='24' fill='url(%23g)' opacity='0.95'/><rect x='520' y='120' width='250' height='520' rx='24' fill='%232f241d' opacity='0.92'/><rect x='810' y='220' width='250' height='420' rx='24' fill='%230d5c63' opacity='0.88'/><rect y='650' width='1200' height='150' fill='%23f4efe7'/></svg>";
@@ -49,61 +63,61 @@ function makeBuilding(id, name, region, address, floors, occupancy, averageRent,
 
 const defaultState = {
   content: {
-    brandEyebrow: "Nền tảng đầu tư căn hộ",
-    navAbout: "Giới Thiệu",
-    navRooms: "Tìm Phòng",
-    navAdmin: "Đăng nhập",
-    heroKicker: "Vận hành căn hộ cho thuê",
-    heroPrimaryButton: "Tìm phòng ngay",
-    heroSecondaryButton: "Xem tòa nhà đang vận hành",
-    companySectionKicker: "Giới thiệu về công ty",
-    companySectionTitle: "Doanh nghiệp vận hành căn hộ cho thuê hướng đến nhà đầu tư",
-    portfolioSectionKicker: "Những gì công ty đang vận hành",
-    portfolioSectionTitle: "Danh mục và quy mô hiện tại",
-    resultsSectionKicker: "Kết quả đạt được",
-    resultsSectionTitle: "Chỉ số hiệu quả và thành tựu vận hành",
-    buildingsSectionKicker: "Tòa nhà đang vận hành",
-    buildingsSectionTitle: "Chọn tòa nhà để xem chi tiết ở trang riêng",
-    detailPageKicker: "Chi tiết tòa nhà",
-    detailRoomsButton: "Mở trang tìm phòng",
-    detailRoomsSectionKicker: "Phòng thuộc tòa nhà",
-    detailRoomsSectionTitle: "Danh mục phòng liên quan",
-    roomsPageKicker: "Tìm phòng",
-    roomsPageTitle: "Chọn phòng theo tòa nhà và khu vực",
-    roomsPageDescription: "Danh mục được cập nhật từ hệ thống quản trị, hiển thị trạng thái trống phòng và ngày trống.",
-    contactToggle: "Liên hệ",
-    contactTitle: "Thông tin liên hệ",
-    contactPhoneLabel: "SĐT",
+    brandEyebrow: "Ná»n táº£ng Ä‘áº§u tÆ° cÄƒn há»™",
+    navAbout: "Giá»›i Thiá»‡u",
+    navRooms: "TÃ¬m PhÃ²ng",
+    navAdmin: "ÄÄƒng nháº­p",
+    heroKicker: "Váº­n hÃ nh cÄƒn há»™ cho thuÃª",
+    heroPrimaryButton: "TÃ¬m phÃ²ng ngay",
+    heroSecondaryButton: "Xem tÃ²a nhÃ  Ä‘ang váº­n hÃ nh",
+    companySectionKicker: "Giá»›i thiá»‡u vá» cÃ´ng ty",
+    companySectionTitle: "Doanh nghiá»‡p váº­n hÃ nh cÄƒn há»™ cho thuÃª hÆ°á»›ng Ä‘áº¿n nhÃ  Ä‘áº§u tÆ°",
+    portfolioSectionKicker: "Nhá»¯ng gÃ¬ cÃ´ng ty Ä‘ang váº­n hÃ nh",
+    portfolioSectionTitle: "Danh má»¥c vÃ  quy mÃ´ hiá»‡n táº¡i",
+    resultsSectionKicker: "Káº¿t quáº£ Ä‘áº¡t Ä‘Æ°á»£c",
+    resultsSectionTitle: "Chá»‰ sá»‘ hiá»‡u quáº£ vÃ  thÃ nh tá»±u váº­n hÃ nh",
+    buildingsSectionKicker: "TÃ²a nhÃ  Ä‘ang váº­n hÃ nh",
+    buildingsSectionTitle: "Chá»n tÃ²a nhÃ  Ä‘á»ƒ xem chi tiáº¿t á»Ÿ trang riÃªng",
+    detailPageKicker: "Chi tiáº¿t tÃ²a nhÃ ",
+    detailRoomsButton: "Má»Ÿ trang tÃ¬m phÃ²ng",
+    detailRoomsSectionKicker: "PhÃ²ng thuá»™c tÃ²a nhÃ ",
+    detailRoomsSectionTitle: "Danh má»¥c phÃ²ng liÃªn quan",
+    roomsPageKicker: "TÃ¬m phÃ²ng",
+    roomsPageTitle: "Chá»n phÃ²ng theo tÃ²a nhÃ  vÃ  khu vá»±c",
+    roomsPageDescription: "Danh má»¥c Ä‘Æ°á»£c cáº­p nháº­t tá»« há»‡ thá»‘ng quáº£n trá»‹, hiá»ƒn thá»‹ tráº¡ng thÃ¡i trá»‘ng phÃ²ng vÃ  ngÃ y trá»‘ng.",
+    contactToggle: "LiÃªn há»‡",
+    contactTitle: "ThÃ´ng tin liÃªn há»‡",
+    contactPhoneLabel: "SÄT",
     contactZaloLabel: "Zalo",
     contactFacebookLabel: "Facebook",
-    adminLoginTitle: "Đăng nhập admin",
-    adminLoginDescription: "Đăng nhập để vào trang quản trị hệ thống.",
-    adminLoginButton: "Đăng nhập",
+    adminLoginTitle: "ÄÄƒng nháº­p admin",
+    adminLoginDescription: "ÄÄƒng nháº­p Ä‘á»ƒ vÃ o trang quáº£n trá»‹ há»‡ thá»‘ng.",
+    adminLoginButton: "ÄÄƒng nháº­p",
   },
   company: {
     name: "Bhome",
     logo: "",
-    headline: "Nền tảng giới thiệu danh mục tài sản đến các nhà đầu tư.",
-    description: "Bhome vận hành danh mục căn hộ cho thuê tại nhiều khu vực trung tâm, tối ưu lấp đầy, doanh thu và trải nghiệm khách thuê.",
-    story: "Bhome chuyên vận hành và khai thác căn hộ cho thuê, xây dựng hệ thống vận hành minh bạch để giới thiệu đến nhà đầu tư và đối tác.",
+    headline: "Ná»n táº£ng giá»›i thiá»‡u danh má»¥c tÃ i sáº£n Ä‘áº¿n cÃ¡c nhÃ  Ä‘áº§u tÆ°.",
+    description: "Bhome váº­n hÃ nh danh má»¥c cÄƒn há»™ cho thuÃª táº¡i nhiá»u khu vá»±c trung tÃ¢m, tá»‘i Æ°u láº¥p Ä‘áº§y, doanh thu vÃ  tráº£i nghiá»‡m khÃ¡ch thuÃª.",
+    story: "Bhome chuyÃªn váº­n hÃ nh vÃ  khai thÃ¡c cÄƒn há»™ cho thuÃª, xÃ¢y dá»±ng há»‡ thá»‘ng váº­n hÃ nh minh báº¡ch Ä‘á»ƒ giá»›i thiá»‡u Ä‘áº¿n nhÃ  Ä‘áº§u tÆ° vÃ  Ä‘á»‘i tÃ¡c.",
     heroImage: FALLBACK_BUILDING_IMAGE,
-    industry: "Thuê và cho thuê căn hộ",
-    address: "Nha Trang, Khánh Hòa",
+    industry: "ThuÃª vÃ  cho thuÃª cÄƒn há»™",
+    address: "Nha Trang, KhÃ¡nh HÃ²a",
     email: "info@bhome.vn",
     phone: "0900123456",
     zalo: "https://zalo.me/0900123456",
     facebook: "https://facebook.com/bhome",
   },
   investorStats: [
-    { label: "Tổng căn hộ quản lý", value: "186", note: "Danh mục đang vận hành ở nhiều khu vực" },
-    { label: "Tỷ lệ lấp đầy trung bình", value: "91%", note: "Duy trì ổn định trên danh mục hiện hữu" },
-    { label: "Doanh thu dự kiến năm", value: "48 tỷ VND", note: "Danh mục có dòng tiền từ vận hành cho thuê" },
-    { label: "Nhà đầu tư mục tiêu", value: "Core-plus", note: "Tập trung tài sản có khả năng mở rộng" },
+    { label: "Tá»•ng cÄƒn há»™ quáº£n lÃ½", value: "186", note: "Danh má»¥c Ä‘ang váº­n hÃ nh á»Ÿ nhiá»u khu vá»±c" },
+    { label: "Tá»· lá»‡ láº¥p Ä‘áº§y trung bÃ¬nh", value: "91%", note: "Duy trÃ¬ á»•n Ä‘á»‹nh trÃªn danh má»¥c hiá»‡n há»¯u" },
+    { label: "Doanh thu dá»± kiáº¿n nÄƒm", value: "48 tá»· VND", note: "Danh má»¥c cÃ³ dÃ²ng tiá»n tá»« váº­n hÃ nh cho thuÃª" },
+    { label: "NhÃ  Ä‘áº§u tÆ° má»¥c tiÃªu", value: "Core-plus", note: "Táº­p trung tÃ i sáº£n cÃ³ kháº£ nÄƒng má»Ÿ rá»™ng" },
   ],
   results: [
-    { title: "Hệ thống vận hành minh bạch", description: "Báo cáo vận hành, số lượng phòng, công suất và hiện trạng danh mục được cập nhật liên tục." },
-    { title: "Tốc độ lấp đầy ổn định", description: "Phòng trống được đưa vào kênh tìm kiếm và tiếp cận khách thuê nhanh hơn." },
-    { title: "Danh mục phân bổ theo khu vực", description: "Tài sản phân bổ tại nhiều khu vực có nhu cầu cao." },
+    { title: "Há»‡ thá»‘ng váº­n hÃ nh minh báº¡ch", description: "BÃ¡o cÃ¡o váº­n hÃ nh, sá»‘ lÆ°á»£ng phÃ²ng, cÃ´ng suáº¥t vÃ  hiá»‡n tráº¡ng danh má»¥c Ä‘Æ°á»£c cáº­p nháº­t liÃªn tá»¥c." },
+    { title: "Tá»‘c Ä‘á»™ láº¥p Ä‘áº§y á»•n Ä‘á»‹nh", description: "PhÃ²ng trá»‘ng Ä‘Æ°á»£c Ä‘Æ°a vÃ o kÃªnh tÃ¬m kiáº¿m vÃ  tiáº¿p cáº­n khÃ¡ch thuÃª nhanh hÆ¡n." },
+    { title: "Danh má»¥c phÃ¢n bá»• theo khu vá»±c", description: "TÃ i sáº£n phÃ¢n bá»• táº¡i nhiá»u khu vá»±c cÃ³ nhu cáº§u cao." },
   ],
   admin: {
     email: "admin@nova.vn",
@@ -112,22 +126,22 @@ const defaultState = {
   admins: [
     {
       id: "admin-root",
-      name: "Admin chính",
+      name: "Admin chÃ­nh",
       email: "admin@nova.vn",
       password: "123456",
     },
   ],
   buildings: [
-    makeBuilding("b1", "Riverfront Residence", "Thủ Đức", "12 Nguyễn Văn Bá, Thủ Đức", 12, 94, "14 - 22 triệu VND", "Gần khu công nghệ cao và tuyến metro", "Tài sản hướng sông, tệp khách chuyên gia dài hạn, công suất lấp đầy ổn định quanh năm."),
-    makeBuilding("b2", "Central Square Apartments", "Quận 7", "88 Nguyễn Thị Thập, Quận 7", 16, 89, "16 - 27 triệu VND", "Tập trung nguồn cầu từ khách doanh nghiệp", "Tòa nhà có hệ thống dịch vụ vận hành và chuỗi căn hộ studio đến 2PN."),
-    makeBuilding("b3", "Lotus Business Stay", "Bình Thạnh", "135 Điện Biên Phủ, Bình Thạnh", 10, 92, "12 - 19 triệu VND", "Tỷ lệ quay vòng thấp, khách thuê bền vững", "Danh mục căn hộ phục vụ khách làm việc gần trung tâm thành phố."),
+    makeBuilding("b1", "Riverfront Residence", "Thá»§ Äá»©c", "12 Nguyá»…n VÄƒn BÃ¡, Thá»§ Äá»©c", 12, 94, "14 - 22 triá»‡u VND", "Gáº§n khu cÃ´ng nghá»‡ cao vÃ  tuyáº¿n metro", "TÃ i sáº£n hÆ°á»›ng sÃ´ng, tá»‡p khÃ¡ch chuyÃªn gia dÃ i háº¡n, cÃ´ng suáº¥t láº¥p Ä‘áº§y á»•n Ä‘á»‹nh quanh nÄƒm."),
+    makeBuilding("b2", "Central Square Apartments", "Quáº­n 7", "88 Nguyá»…n Thá»‹ Tháº­p, Quáº­n 7", 16, 89, "16 - 27 triá»‡u VND", "Táº­p trung nguá»“n cáº§u tá»« khÃ¡ch doanh nghiá»‡p", "TÃ²a nhÃ  cÃ³ há»‡ thá»‘ng dá»‹ch vá»¥ váº­n hÃ nh vÃ  chuá»—i cÄƒn há»™ studio Ä‘áº¿n 2PN."),
+    makeBuilding("b3", "Lotus Business Stay", "BÃ¬nh Tháº¡nh", "135 Äiá»‡n BiÃªn Phá»§, BÃ¬nh Tháº¡nh", 10, 92, "12 - 19 triá»‡u VND", "Tá»· lá»‡ quay vÃ²ng tháº¥p, khÃ¡ch thuÃª bá»n vá»¯ng", "Danh má»¥c cÄƒn há»™ phá»¥c vá»¥ khÃ¡ch lÃ m viá»‡c gáº§n trung tÃ¢m thÃ nh phá»‘."),
   ],
   rooms: [
-    { id: "r1", buildingId: "b1", name: "A1205", region: "Thủ Đức", image: FALLBACK_ROOM_IMAGE, type: "1PN Deluxe", rent: "18 triệu VND", status: "available", availableFrom: "2026-04-12", area: "48 m2", amenities: "Nội thất đầy đủ, máy giặt riêng, ban công hướng sông" },
-    { id: "r2", buildingId: "b1", name: "A0902", region: "Thủ Đức", image: FALLBACK_ROOM_IMAGE, type: "Studio Premium", rent: "14.5 triệu VND", status: "occupied", availableFrom: "2026-08-01", area: "34 m2", amenities: "Lễ tân 24/7, gym, khu tiếp khách" },
-    { id: "r3", buildingId: "b2", name: "B1508", region: "Quận 7", image: FALLBACK_ROOM_IMAGE, type: "2PN Executive", rent: "26 triệu VND", status: "upcoming", availableFrom: "2026-05-04", area: "72 m2", amenities: "Hồ bơi, parking, nội thất đồng bộ" },
-    { id: "r4", buildingId: "b2", name: "B1103", region: "Quận 7", image: FALLBACK_ROOM_IMAGE, type: "1PN Signature", rent: "17 triệu VND", status: "available", availableFrom: "2026-04-18", area: "45 m2", amenities: "Thẻ từ, bảo trì nhanh, tầng trung" },
-    { id: "r5", buildingId: "b3", name: "L0801", region: "Bình Thạnh", image: FALLBACK_ROOM_IMAGE, type: "Studio Flex", rent: "13 triệu VND", status: "occupied", availableFrom: "2026-09-15", area: "32 m2", amenities: "Gần trung tâm, dọn dẹp hàng tuần, wifi tốc độ cao" },
+    { id: "r1", buildingId: "b1", name: "A1205", region: "Thá»§ Äá»©c", image: FALLBACK_ROOM_IMAGE, type: "1PN Deluxe", rent: "18 triá»‡u VND", status: "available", availableFrom: "2026-04-12", area: "48 m2", amenities: "Ná»™i tháº¥t Ä‘áº§y Ä‘á»§, mÃ¡y giáº·t riÃªng, ban cÃ´ng hÆ°á»›ng sÃ´ng" },
+    { id: "r2", buildingId: "b1", name: "A0902", region: "Thá»§ Äá»©c", image: FALLBACK_ROOM_IMAGE, type: "Studio Premium", rent: "14.5 triá»‡u VND", status: "occupied", availableFrom: "2026-08-01", area: "34 m2", amenities: "Lá»… tÃ¢n 24/7, gym, khu tiáº¿p khÃ¡ch" },
+    { id: "r3", buildingId: "b2", name: "B1508", region: "Quáº­n 7", image: FALLBACK_ROOM_IMAGE, type: "2PN Executive", rent: "26 triá»‡u VND", status: "upcoming", availableFrom: "2026-05-04", area: "72 m2", amenities: "Há»“ bÆ¡i, parking, ná»™i tháº¥t Ä‘á»“ng bá»™" },
+    { id: "r4", buildingId: "b2", name: "B1103", region: "Quáº­n 7", image: FALLBACK_ROOM_IMAGE, type: "1PN Signature", rent: "17 triá»‡u VND", status: "available", availableFrom: "2026-04-18", area: "45 m2", amenities: "Tháº» tá»«, báº£o trÃ¬ nhanh, táº§ng trung" },
+    { id: "r5", buildingId: "b3", name: "L0801", region: "BÃ¬nh Tháº¡nh", image: FALLBACK_ROOM_IMAGE, type: "Studio Flex", rent: "13 triá»‡u VND", status: "occupied", availableFrom: "2026-09-15", area: "32 m2", amenities: "Gáº§n trung tÃ¢m, dá»n dáº¹p hÃ ng tuáº§n, wifi tá»‘c Ä‘á»™ cao" },
   ],
 };
 
@@ -146,6 +160,9 @@ if (USE_CLOUDINARY) {
 }
 
 app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   if (/\.(html?)$/i.test(req.path) || req.path === "/") {
     res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
   }
@@ -159,7 +176,12 @@ app.use(
     secret: process.env.SESSION_SECRET || "bhome-session-secret",
     resave: false,
     saveUninitialized: false,
-    cookie: { httpOnly: true, sameSite: "lax" },
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: SESSION_TTL_MS,
+    },
   })
 );
 
@@ -171,6 +193,17 @@ const upload = multer({
       cb(null, `${Date.now()}-${Math.random().toString(16).slice(2, 8)}${ext}`);
     },
   }),
+  limits: {
+    fileSize: 8 * 1024 * 1024,
+    files: 10,
+  },
+  fileFilter: (_req, file, cb) => {
+    if (!String(file.mimetype || "").startsWith("image/")) {
+      cb(new Error("Chá»‰ cho phÃ©p táº£i áº£nh."));
+      return;
+    }
+    cb(null, true);
+  },
 });
 
 app.use("/uploads", express.static(UPLOAD_DIR));
@@ -180,20 +213,20 @@ function normalizeState(state) {
   const nextState = Object.assign({}, state);
   nextState.content = Object.assign({
     announcementEnabled: "true",
-    announcementText: "Chào mừng bạn đến với Bhome. Danh mục căn hộ đang được cập nhật liên tục.",
+    announcementText: "ChÃ o má»«ng báº¡n Ä‘áº¿n vá»›i Bhome. Danh má»¥c cÄƒn há»™ Ä‘ang Ä‘Æ°á»£c cáº­p nháº­t liÃªn tá»¥c.",
   }, nextState.content || {});
   nextState.customers = Array.isArray(nextState.customers) ? nextState.customers : [];
   nextState.customerConfig = Object.assign({
     platforms: ["Facebook", "Zalo", "Website", "TikTok"],
-    regions: ["Nha Trang", "Cam Ranh", "Diên Khánh"],
-    statuses: ["Mới", "Đang tư vấn", "Đã xem phòng", "Đã chốt", "Chưa phù hợp"],
+    regions: ["Nha Trang", "Cam Ranh", "DiÃªn KhÃ¡nh"],
+    statuses: ["Má»›i", "Äang tÆ° váº¥n", "ÄÃ£ xem phÃ²ng", "ÄÃ£ chá»‘t", "ChÆ°a phÃ¹ há»£p"],
   }, nextState.customerConfig || {});
   const legacyAdmin = nextState.admin || defaultState.admin;
   nextState.admins = Array.isArray(nextState.admins) && nextState.admins.length
     ? nextState.admins
     : [{
         id: "admin-root",
-        name: "Admin chính",
+        name: "Admin chÃ­nh",
         email: legacyAdmin.email,
         password: legacyAdmin.password,
         role: "admin",
@@ -214,36 +247,47 @@ function writeState(state) {
   fs.writeFileSync(STATE_FILE, JSON.stringify(normalizeState(state), null, 2));
 }
 
+function preserveBlankAdminPasswords(nextState, currentState) {
+  const currentById = new Map((currentState.admins || []).map((admin) => [admin.id, admin.password || ""]));
+  const currentByEmail = new Map((currentState.admins || []).map((admin) => [admin.email, admin.password || ""]));
+  nextState.admins = (nextState.admins || []).map((admin) => {
+    if (String(admin.password || "").trim()) return admin;
+    return Object.assign({}, admin, {
+      password: currentById.get(admin.id) || currentByEmail.get(admin.email) || "",
+    });
+  });
+  if (nextState.admins[0]) {
+    nextState.admin = {
+      email: nextState.admins[0].email,
+      password: nextState.admins[0].password,
+    };
+  }
+  return nextState;
+}
+
 async function initPersistence() {
   if (!USE_POSTGRES) return;
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS app_state (
-      id INTEGER PRIMARY KEY,
-      state JSONB NOT NULL
-    )
-  `);
-  const existing = await pool.query("SELECT id FROM app_state WHERE id = 1");
-  if (!existing.rowCount) {
-    await pool.query("INSERT INTO app_state (id, state) VALUES (1, $1::jsonb)", [JSON.stringify(defaultState)]);
+  await ensureSchema(pool, SCHEMA_FILE);
+  const seeded = await hasRelationalData(pool);
+  if (!seeded) {
+    const initialState = fs.existsSync(STATE_FILE) ? readState() : normalizeState(defaultState);
+    await writeStateToPostgres(pool, initialState);
   }
 }
 
 async function readStateAny() {
   if (!USE_POSTGRES) return readState();
-  const result = await pool.query("SELECT state FROM app_state WHERE id = 1");
-  return normalizeState(result.rows[0] ? result.rows[0].state : defaultState);
+  return normalizeState(await readStateFromPostgres(pool, defaultState));
 }
 
 async function writeStateAny(state) {
-  const normalized = normalizeState(state);
+  let normalized = normalizeState(state);
   if (!USE_POSTGRES) {
+    normalized = preserveBlankAdminPasswords(normalized, readState());
     writeState(normalized);
     return;
   }
-  await pool.query(
-    "INSERT INTO app_state (id, state) VALUES (1, $1::jsonb) ON CONFLICT (id) DO UPDATE SET state = EXCLUDED.state",
-    [JSON.stringify(normalized)]
-  );
+  await writeStateToPostgres(pool, normalized);
 }
 
 function requireAuth(req, res, next) {
@@ -260,7 +304,7 @@ function requireAdminRole(req, res, next) {
     return;
   }
   if (req.session.adminRole !== "admin") {
-    res.status(403).json({ error: "Bạn không có quyền thực hiện chức năng này." });
+    res.status(403).json({ error: "Báº¡n khÃ´ng cÃ³ quyá»n thá»±c hiá»‡n chá»©c nÄƒng nÃ y." });
     return;
   }
   next();
@@ -274,6 +318,35 @@ function parsePositiveInt(value, fallback, max = Infinity) {
 
 function normalizeKeyword(value) {
   return String(value || "").trim().toLowerCase();
+}
+
+function getLoginAttemptKey(req, email) {
+  return `${req.ip || "unknown"}:${String(email || "").trim().toLowerCase()}`;
+}
+
+function isLoginBlocked(req, email) {
+  const key = getLoginAttemptKey(req, email);
+  const current = loginAttempts.get(key);
+  if (!current) return false;
+  if (Date.now() > current.expiresAt) {
+    loginAttempts.delete(key);
+    return false;
+  }
+  return current.count >= MAX_LOGIN_ATTEMPTS;
+}
+
+function recordLoginFailure(req, email) {
+  const key = getLoginAttemptKey(req, email);
+  const current = loginAttempts.get(key);
+  const nextCount = current && Date.now() <= current.expiresAt ? current.count + 1 : 1;
+  loginAttempts.set(key, {
+    count: nextCount,
+    expiresAt: Date.now() + LOGIN_WINDOW_MS,
+  });
+}
+
+function clearLoginFailures(req, email) {
+  loginAttempts.delete(getLoginAttemptKey(req, email));
 }
 
 function buildRoomCountMap(rooms) {
@@ -408,7 +481,7 @@ function buildCustomerStats(state) {
     if (!byAdminMap[key]) {
       byAdminMap[key] = {
         adminEmail: customer.createdByEmail || "",
-        adminName: customer.createdByName || "Không xác định",
+        adminName: customer.createdByName || "KhÃ´ng xÃ¡c Ä‘á»‹nh",
         totalCustomers: 0,
         closedCustomers: 0,
       };
@@ -441,13 +514,13 @@ function sanitizeRoomInput(input, state, existingRoom) {
   const buildingId = String(input.buildingId || existingRoom?.buildingId || "").trim();
   const building = state.buildings.find((item) => item.id === buildingId);
   if (!building) {
-    throw new Error("Tòa nhà không hợp lệ.");
+    throw new Error("TÃ²a nhÃ  khÃ´ng há»£p lá»‡.");
   }
 
   const status = String(input.status || existingRoom?.status || "available").trim();
   const allowedStatuses = new Set(["available", "occupied", "upcoming"]);
   if (!allowedStatuses.has(status)) {
-    throw new Error("Trạng thái phòng không hợp lệ.");
+    throw new Error("Tráº¡ng thÃ¡i phÃ²ng khÃ´ng há»£p lá»‡.");
   }
 
   return {
@@ -471,7 +544,7 @@ function sanitizeRoomOccupancyInput(input, existingRoom) {
   const status = String(input.status || existingRoom?.status || "available").trim();
   const allowedStatuses = new Set(["available", "occupied", "upcoming"]);
   if (!allowedStatuses.has(status)) {
-    throw new Error("Trạng thái phòng không hợp lệ.");
+    throw new Error("Tráº¡ng thÃ¡i phÃ²ng khÃ´ng há»£p lá»‡.");
   }
 
   return {
@@ -483,9 +556,9 @@ function sanitizeRoomOccupancyInput(input, existingRoom) {
 
 function sanitizeCustomerInput(input, state, sessionInfo, existingCustomer) {
   const statuses = uniqueList((state.customerConfig && state.customerConfig.statuses) || []);
-  const status = String(input.status || existingCustomer?.status || statuses[0] || "Mới").trim();
+  const status = String(input.status || existingCustomer?.status || statuses[0] || "Má»›i").trim();
   if (!statuses.includes(status)) {
-    throw new Error("Tình trạng khách hàng không hợp lệ.");
+    throw new Error("TÃ¬nh tráº¡ng khÃ¡ch hÃ ng khÃ´ng há»£p lá»‡.");
   }
 
   const createdByEmail = existingCustomer?.createdByEmail || sessionInfo.adminEmail || "";
@@ -520,9 +593,14 @@ function mergeCustomerOptions(state, customer) {
 }
 
 function buildAdminBootstrap(state, sessionInfo = {}) {
+  const role = String(sessionInfo.adminRole || "admin").toLowerCase();
+  const scopedAdmins = role === "manager"
+    ? (state.admins || []).filter((admin) => admin.email === sessionInfo.adminEmail)
+    : state.admins;
   return Object.assign({}, state, {
     rooms: [],
     customers: [],
+    admins: scopedAdmins,
     meta: {
       roomCountsByBuilding: buildRoomCountMap(state.rooms || []),
       totalRooms: Array.isArray(state.rooms) ? state.rooms.length : 0,
@@ -533,9 +611,21 @@ function buildAdminBootstrap(state, sessionInfo = {}) {
   });
 }
 
+function buildPublicState(state) {
+  return {
+    content: state.content || {},
+    company: state.company || {},
+    investorStats: state.investorStats || [],
+    results: state.results || [],
+    buildings: state.buildings || [],
+    rooms: state.rooms || [],
+    news: state.news || [],
+  };
+}
+
 app.get("/api/state", async (_req, res, next) => {
   try {
-    res.json(await readStateAny());
+    res.json(buildPublicState(await readStateAny()));
   } catch (error) {
     next(error);
   }
@@ -584,11 +674,11 @@ app.get("/api/customers/:id", requireAuth, async (req, res, next) => {
     const state = await readStateAny();
     const item = (state.customers || []).find((customer) => customer.id === req.params.id);
     if (!item) {
-      res.status(404).json({ error: "Không tìm thấy khách hàng." });
+      res.status(404).json({ error: "KhÃ´ng tÃ¬m tháº¥y khÃ¡ch hÃ ng." });
       return;
     }
     if (!canManageCustomer(item, req.session)) {
-      res.status(403).json({ error: "Bạn không có quyền xem khách hàng này." });
+      res.status(403).json({ error: "Báº¡n khÃ´ng cÃ³ quyá»n xem khÃ¡ch hÃ ng nÃ y." });
       return;
     }
     res.json({ item });
@@ -605,14 +695,14 @@ app.get("/api/customers-export", requireAuth, async (req, res, next) => {
       .sort((left, right) => String(right.createdAt || "").localeCompare(String(left.createdAt || "")));
 
     const rows = [
-      ["Tên khách", "Số điện thoại", "Nền tảng", "Khu vực", "Tình trạng", "Chốt căn", "Nhu cầu", "Ghi chú", "Người nhập", "Email người nhập", "Thời gian tạo", "Cập nhật lần cuối"],
+      ["TÃªn khÃ¡ch", "Sá»‘ Ä‘iá»‡n thoáº¡i", "Ná»n táº£ng", "Khu vá»±c", "TÃ¬nh tráº¡ng", "Chá»‘t cÄƒn", "Nhu cáº§u", "Ghi chÃº", "NgÆ°á»i nháº­p", "Email ngÆ°á»i nháº­p", "Thá»i gian táº¡o", "Cáº­p nháº­t láº§n cuá»‘i"],
       ...filtered.map((customer) => [
         customer.name,
         customer.phone,
         customer.platform,
         customer.region,
         customer.status,
-        customer.closeStatus === "closed" ? "Đã chốt" : "Chưa chốt",
+        customer.closeStatus === "closed" ? "ÄÃ£ chá»‘t" : "ChÆ°a chá»‘t",
         customer.demand,
         customer.note,
         customer.createdByName,
@@ -650,7 +740,7 @@ app.get("/api/rooms/:id", requireAuth, async (req, res, next) => {
     const state = await readStateAny();
     const room = (state.rooms || []).find((item) => item.id === req.params.id);
     if (!room) {
-      res.status(404).json({ error: "Không tìm thấy phòng." });
+      res.status(404).json({ error: "KhÃ´ng tÃ¬m tháº¥y phÃ²ng." });
       return;
     }
     res.json({ item: serializeRoom(room, state.buildings || []) });
@@ -670,17 +760,38 @@ app.get("/api/admin/session", (req, res) => {
 
 app.post("/api/admin/login", async (req, res, next) => {
   try {
-    const state = await readStateAny();
     const { email, password } = req.body;
-    const admin = state.admins.find((item) => item.email === email && item.password === password);
-    if (admin) {
-      req.session.isAdmin = true;
-      req.session.adminEmail = admin.email;
-      req.session.adminRole = admin.role || "admin";
-      req.session.adminName = admin.name || "";
-      res.json({ ok: true });
+    if (isLoginBlocked(req, email)) {
+      res.status(429).json({ ok: false, error: "Bạn thử lại sau ít phút." });
       return;
     }
+
+    if (USE_POSTGRES) {
+      const admin = await findAdminForLogin(pool, email);
+      if (admin && admin.is_active && verifyPassword(password, admin.password_hash)) {
+        req.session.isAdmin = true;
+        req.session.adminEmail = admin.email;
+        req.session.adminRole = admin.role || "admin";
+        req.session.adminName = admin.name || "";
+        clearLoginFailures(req, email);
+        res.json({ ok: true });
+        return;
+      }
+    } else {
+      const state = await readStateAny();
+      const admin = state.admins.find((item) => item.email === email && item.password === password);
+      if (admin) {
+        req.session.isAdmin = true;
+        req.session.adminEmail = admin.email;
+        req.session.adminRole = admin.role || "admin";
+        req.session.adminName = admin.name || "";
+        clearLoginFailures(req, email);
+        res.json({ ok: true });
+        return;
+      }
+    }
+
+    recordLoginFailure(req, email);
     res.status(401).json({ ok: false, error: "Sai email hoặc mật khẩu." });
   } catch (error) {
     next(error);
@@ -703,6 +814,22 @@ app.put("/api/state", requireAdminRole, async (req, res, next) => {
   }
 });
 
+app.get("/api/admin/backup", requireAdminRole, async (_req, res, next) => {
+  try {
+    const snapshot = await readStateAny();
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename="bhome-backup-${stamp}.json"`);
+    res.json({
+      exportedAt: new Date().toISOString(),
+      source: USE_POSTGRES ? "postgresql" : "json-file",
+      state: snapshot,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post("/api/rooms", requireAdminRole, async (req, res, next) => {
   try {
     const state = await readStateAny();
@@ -720,7 +847,7 @@ app.put("/api/rooms/:id", requireAdminRole, async (req, res, next) => {
     const state = await readStateAny();
     const index = (state.rooms || []).findIndex((item) => item.id === req.params.id);
     if (index < 0) {
-      res.status(404).json({ error: "Không tìm thấy phòng." });
+      res.status(404).json({ error: "KhÃ´ng tÃ¬m tháº¥y phÃ²ng." });
       return;
     }
     const room = sanitizeRoomInput(Object.assign({}, req.body, { id: req.params.id }), state, state.rooms[index]);
@@ -737,7 +864,7 @@ app.patch("/api/rooms/:id/occupancy", requireAuth, async (req, res, next) => {
     const state = await readStateAny();
     const index = (state.rooms || []).findIndex((item) => item.id === req.params.id);
     if (index < 0) {
-      res.status(404).json({ error: "Không tìm thấy phòng." });
+      res.status(404).json({ error: "KhÃ´ng tÃ¬m tháº¥y phÃ²ng." });
       return;
     }
     const patch = sanitizeRoomOccupancyInput(req.body, state.rooms[index]);
@@ -754,7 +881,7 @@ app.delete("/api/rooms/:id", requireAdminRole, async (req, res, next) => {
     const state = await readStateAny();
     const existing = (state.rooms || []).find((item) => item.id === req.params.id);
     if (!existing) {
-      res.status(404).json({ error: "Không tìm thấy phòng." });
+      res.status(404).json({ error: "KhÃ´ng tÃ¬m tháº¥y phÃ²ng." });
       return;
     }
     state.rooms = state.rooms.filter((item) => item.id !== req.params.id);
@@ -783,11 +910,11 @@ app.put("/api/customers/:id", requireAuth, async (req, res, next) => {
     const state = await readStateAny();
     const index = (state.customers || []).findIndex((item) => item.id === req.params.id);
     if (index < 0) {
-      res.status(404).json({ error: "Không tìm thấy khách hàng." });
+      res.status(404).json({ error: "KhÃ´ng tÃ¬m tháº¥y khÃ¡ch hÃ ng." });
       return;
     }
     if (!canManageCustomer(state.customers[index], req.session)) {
-      res.status(403).json({ error: "Bạn không có quyền cập nhật khách hàng này." });
+      res.status(403).json({ error: "Báº¡n khÃ´ng cÃ³ quyá»n cáº­p nháº­t khÃ¡ch hÃ ng nÃ y." });
       return;
     }
     const customer = sanitizeCustomerInput(
@@ -810,11 +937,11 @@ app.delete("/api/customers/:id", requireAuth, async (req, res, next) => {
     const state = await readStateAny();
     const existing = (state.customers || []).find((item) => item.id === req.params.id);
     if (!existing) {
-      res.status(404).json({ error: "Không tìm thấy khách hàng." });
+      res.status(404).json({ error: "KhÃ´ng tÃ¬m tháº¥y khÃ¡ch hÃ ng." });
       return;
     }
     if (!canManageCustomer(existing, req.session)) {
-      res.status(403).json({ error: "Bạn không có quyền xóa khách hàng này." });
+      res.status(403).json({ error: "Báº¡n khÃ´ng cÃ³ quyá»n xÃ³a khÃ¡ch hÃ ng nÃ y." });
       return;
     }
     state.customers = state.customers.filter((item) => item.id !== req.params.id);
@@ -867,3 +994,4 @@ initPersistence()
     console.error("Failed to initialize persistence", error);
     process.exit(1);
   });
+

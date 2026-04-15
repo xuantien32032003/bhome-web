@@ -44,6 +44,28 @@ Sau khi deploy, mo:
 - Trang public: `/`
 - Admin login: `/admin-login.html`
 
+## PostgreSQL that
+
+- Runtime se uu tien PostgreSQL bang schema quan he trong [database/schema.sql](C:\Users\Admin\Documents\New folder\database\schema.sql) khi co `DATABASE_URL`
+- Neu database chua co du lieu, server se tu import du lieu tu `data/state.json` vao PostgreSQL o lan khoi dong dau tien
+- De tao data test lon cho PostgreSQL:
+
+```powershell
+npm run seed:postgres
+```
+
+Script seed hien tai tao:
+- 30 toa nha
+- 1000 phong
+- 36 bai viet
+- 240 khach hang
+
+## Backup
+
+- Admin co nut `Tai backup` trong dashboard
+- Backup hien tai tra ve file JSON day du cua he thong
+- Khach hang van co the xuat CSV/Excel tu trang khach hang
+
 ## Luu y production
 
 - Production nen dat:

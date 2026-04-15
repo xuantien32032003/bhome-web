@@ -89,11 +89,16 @@ CREATE TABLE IF NOT EXISTS rooms (
   rent_text TEXT NOT NULL DEFAULT '',
   status TEXT NOT NULL CHECK (status IN ('available', 'occupied', 'upcoming')),
   available_from DATE,
+  check_in_date DATE,
+  check_out_date DATE,
   area_text TEXT NOT NULL DEFAULT '',
   amenities TEXT NOT NULL DEFAULT '',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE rooms ADD COLUMN IF NOT EXISTS check_in_date DATE;
+ALTER TABLE rooms ADD COLUMN IF NOT EXISTS check_out_date DATE;
 
 CREATE TABLE IF NOT EXISTS news_posts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

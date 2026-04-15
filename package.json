@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "seed:postgres": "node database/seed-postgres.js"
   },
   "dependencies": {
     "cloudinary": "^2.9.0",

@@ -6,6 +6,7 @@
     deleteRoom,
     FALLBACK_BUILDING_IMAGE,
     FALLBACK_ROOM_IMAGE,
+    downloadAdminBackup,
     formatDate,
     formatDateTime,
     isAdminLoggedIn,
@@ -87,6 +88,7 @@
       const customerForm = document.getElementById("customerForm");
       const roomOccupancyForm = document.getElementById("roomOccupancyForm");
       const adminAccountForm = document.getElementById("adminAccountForm");
+      const backupButton = document.getElementById("backupButton");
       const buildingTableBody = document.getElementById("buildingTableBody");
       const adminRoomGrid = document.getElementById("adminRoomGrid");
       const adminNewsGrid = document.getElementById("adminNewsGrid");
@@ -132,6 +134,9 @@
         await logoutAdmin();
         window.location.href = "admin-login.html";
       });
+      if (backupButton) {
+        backupButton.addEventListener("click", () => downloadAdminBackup());
+      }
       document.getElementById("buildingResetButton").addEventListener("click", () => resetBuildingForm(true));
       document.getElementById("roomResetButton").addEventListener("click", () => resetRoomForm(true));
       document.getElementById("newsResetButton").addEventListener("click", () => resetNewsForm(true));
@@ -393,11 +398,14 @@
             password: clean(data.get("password")),
             role: clean(data.get("role")) || "admin",
           };
+          if (!clean(data.get("id")) && !payload.password) {
+            throw new Error("Tài khoản mới phải có mật khẩu.");
+          }
           if (state.admins.some((admin) => admin.email === payload.email && admin.id !== id)) {
             throw new Error("Email admin đã tồn tại.");
           }
           const index = state.admins.findIndex((admin) => admin.id === id);
-          if (index >= 0) state.admins[index] = payload;
+          if (index >= 0) state.admins[index] = Object.assign({}, state.admins[index], payload);
           else state.admins.push(payload);
           resetAdminAccountForm(false);
           await persistMutation((fullState) => {
@@ -1021,7 +1029,7 @@
               adminAccountForm.elements.id.value = admin.id;
               adminAccountForm.elements.name.value = admin.name;
               adminAccountForm.elements.email.value = admin.email;
-              adminAccountForm.elements.password.value = admin.password;
+              adminAccountForm.elements.password.value = "";
               adminAccountForm.elements.role.value = admin.role || "admin";
               activateTab("admins");
               scrollToForm(adminAccountForm, "name");

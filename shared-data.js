@@ -152,6 +152,10 @@
     return api("/api/admin/session");
   }
 
+  function downloadAdminBackup() {
+    window.location.href = "/api/admin/backup";
+  }
+
   function uploadFiles(files) {
     if (!files || !files.length) return Promise.resolve([]);
     const formData = new FormData();
@@ -218,6 +222,7 @@
     logoutAdmin,
     isAdminLoggedIn,
     loadAdminSession,
+    downloadAdminBackup,
     uploadFiles,
     safeImage,
     statusLabel,
