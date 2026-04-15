@@ -91,6 +91,42 @@ function repairUtf8Deep(value) {
   );
 }
 
+function hasBrokenReplacementChar(value) {
+  return typeof value === "string" && value.includes("�");
+}
+
+function mergeCorruptedWithFallback(current, fallback) {
+  if (Array.isArray(current)) {
+    const fallbackArray = Array.isArray(fallback) ? fallback : [];
+    return current.map((item, index) => mergeCorruptedWithFallback(item, fallbackArray[index]));
+  }
+
+  if (!current || typeof current !== "object") {
+    if (hasBrokenReplacementChar(current) && typeof fallback === "string" && fallback) {
+      return fallback;
+    }
+    return current;
+  }
+
+  const result = {};
+  const keys = new Set([
+    ...Object.keys(fallback && typeof fallback === "object" ? fallback : {}),
+    ...Object.keys(current),
+  ]);
+
+  keys.forEach((key) => {
+    const currentValue = key in current ? current[key] : undefined;
+    const fallbackValue = fallback && typeof fallback === "object" ? fallback[key] : undefined;
+    if (currentValue === undefined) {
+      result[key] = fallbackValue;
+      return;
+    }
+    result[key] = mergeCorruptedWithFallback(currentValue, fallbackValue);
+  });
+
+  return result;
+}
+
 const defaultState = {
   content: {
     brandEyebrow: "Ná»n táº£ng Ä‘áº§u tÆ° cÄƒn há»™",
@@ -241,13 +277,13 @@ app.use(express.static(ROOT));
 
 function normalizeState(state) {
   const defaults = repairUtf8Deep(defaultState);
-  const nextState = Object.assign({}, repairUtf8Deep(state));
-  nextState.content = Object.assign({
+  const nextState = mergeCorruptedWithFallback(repairUtf8Deep(state || {}), defaults);
+  nextState.content = Object.assign({}, defaults.content, {
     announcementEnabled: "true",
     announcementText: "Chào mừng bạn đến với Bhome. Danh mục căn hộ đang được cập nhật liên tục.",
   }, nextState.content || {});
   nextState.customers = Array.isArray(nextState.customers) ? nextState.customers : [];
-  nextState.customerConfig = Object.assign({
+  nextState.customerConfig = Object.assign({}, {
     platforms: ["Facebook", "Zalo", "Website", "TikTok"],
     regions: ["Nha Trang", "Cam Ranh", "DiÃªn KhÃ¡nh"],
     statuses: ["Má»›i", "Äang tÆ° váº¥n", "ÄÃ£ xem phÃ²ng", "ÄÃ£ chá»‘t", "ChÆ°a phÃ¹ há»£p"],
