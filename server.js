@@ -61,6 +61,36 @@ function makeBuilding(id, name, region, address, floors, occupancy, averageRent,
   };
 }
 
+function shouldAttemptUtf8Repair(value) {
+  return /Ã.|Ä.|á»|áº|Æ°|Æ¡|Â|Ð|�/.test(String(value || ""));
+}
+
+function repairUtf8String(value) {
+  const text = String(value ?? "");
+  if (!text || !shouldAttemptUtf8Repair(text)) return text;
+  try {
+    const repaired = Buffer.from(text, "latin1").toString("utf8");
+    if (repaired && repaired !== text) {
+      return repaired;
+    }
+  } catch (_error) {
+    return text;
+  }
+  return text;
+}
+
+function repairUtf8Deep(value) {
+  if (Array.isArray(value)) {
+    return value.map(repairUtf8Deep);
+  }
+  if (!value || typeof value !== "object") {
+    return typeof value === "string" ? repairUtf8String(value) : value;
+  }
+  return Object.fromEntries(
+    Object.entries(value).map(([key, entry]) => [key, repairUtf8Deep(entry)])
+  );
+}
+
 const defaultState = {
   content: {
     brandEyebrow: "Ná»n táº£ng Ä‘áº§u tÆ° cÄƒn há»™",
@@ -210,10 +240,11 @@ app.use("/uploads", express.static(UPLOAD_DIR));
 app.use(express.static(ROOT));
 
 function normalizeState(state) {
-  const nextState = Object.assign({}, state);
+  const defaults = repairUtf8Deep(defaultState);
+  const nextState = Object.assign({}, repairUtf8Deep(state));
   nextState.content = Object.assign({
     announcementEnabled: "true",
-    announcementText: "ChÃ o má»«ng báº¡n Ä‘áº¿n vá»›i Bhome. Danh má»¥c cÄƒn há»™ Ä‘ang Ä‘Æ°á»£c cáº­p nháº­t liÃªn tá»¥c.",
+    announcementText: "Chào mừng bạn đến với Bhome. Danh mục căn hộ đang được cập nhật liên tục.",
   }, nextState.content || {});
   nextState.customers = Array.isArray(nextState.customers) ? nextState.customers : [];
   nextState.customerConfig = Object.assign({
@@ -221,7 +252,8 @@ function normalizeState(state) {
     regions: ["Nha Trang", "Cam Ranh", "DiÃªn KhÃ¡nh"],
     statuses: ["Má»›i", "Äang tÆ° váº¥n", "ÄÃ£ xem phÃ²ng", "ÄÃ£ chá»‘t", "ChÆ°a phÃ¹ há»£p"],
   }, nextState.customerConfig || {});
-  const legacyAdmin = nextState.admin || defaultState.admin;
+  nextState.customerConfig = repairUtf8Deep(nextState.customerConfig);
+  const legacyAdmin = nextState.admin || defaults.admin;
   nextState.admins = Array.isArray(nextState.admins) && nextState.admins.length
     ? nextState.admins
     : [{
