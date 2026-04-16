@@ -128,6 +128,33 @@ function mergeCorruptedWithFallback(current, fallback) {
   return result;
 }
 
+function sanitizePublicNode(current, fallback) {
+  if (Array.isArray(current)) {
+    const fallbackArray = Array.isArray(fallback) ? fallback : [];
+    return current.map((item, index) => sanitizePublicNode(item, fallbackArray[index]));
+  }
+
+  if (!current || typeof current !== "object") {
+    if (typeof current !== "string") return current;
+    const repaired = repairUtf8String(current);
+    if (hasBrokenReplacementChar(repaired) && typeof fallback === "string" && fallback) {
+      return fallback;
+    }
+    if (shouldAttemptUtf8Repair(repaired) && typeof fallback === "string" && fallback) {
+      return fallback;
+    }
+    return repaired;
+  }
+
+  const result = {};
+  const fallbackObject = fallback && typeof fallback === "object" ? fallback : {};
+  const keys = new Set([...Object.keys(fallbackObject), ...Object.keys(current)]);
+  keys.forEach((key) => {
+    result[key] = sanitizePublicNode(current[key], fallbackObject[key]);
+  });
+  return result;
+}
+
 const defaultState = {
   content: {
     brandEyebrow: "Nền tảng đầu tư căn hộ",
@@ -279,10 +306,10 @@ app.use(express.static(ROOT));
 function normalizeState(state) {
   const defaults = repairUtf8Deep(defaultState);
   const nextState = mergeCorruptedWithFallback(repairUtf8Deep(state || {}), defaults);
-  nextState.content = Object.assign({}, defaults.content, {
+  nextState.content = Object.assign({}, defaults.content, nextState.content || {}, {
     announcementEnabled: "true",
     announcementText: "Chào mừng bạn đến với Bhome. Danh mục căn hộ đang được cập nhật liên tục.",
-  }, nextState.content || {});
+  });
   nextState.customers = Array.isArray(nextState.customers) ? nextState.customers : [];
   nextState.customerConfig = Object.assign({}, {
     platforms: ["Facebook", "Zalo", "Website", "TikTok"],
@@ -681,14 +708,15 @@ function buildAdminBootstrap(state, sessionInfo = {}) {
 }
 
 function buildPublicState(state) {
+  const defaults = repairUtf8Deep(defaultState);
   return {
-    content: state.content || {},
-    company: state.company || {},
-    investorStats: state.investorStats || [],
-    results: state.results || [],
-    buildings: state.buildings || [],
-    rooms: state.rooms || [],
-    news: state.news || [],
+    content: sanitizePublicNode(state.content || {}, defaults.content || {}),
+    company: sanitizePublicNode(state.company || {}, defaults.company || {}),
+    investorStats: sanitizePublicNode(state.investorStats || [], defaults.investorStats || []),
+    results: sanitizePublicNode(state.results || [], defaults.results || []),
+    buildings: sanitizePublicNode(state.buildings || [], defaults.buildings || []),
+    rooms: sanitizePublicNode(state.rooms || [], defaults.rooms || []),
+    news: sanitizePublicNode(state.news || [], defaults.news || []),
   };
 }
 

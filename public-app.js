@@ -23,6 +23,137 @@
   const ROOMS_PER_PAGE = 10;
   const HOME_NEWS_LIMIT = 3;
 
+  const TEXT_FIXES = [
+    ["Ch�o m?ng b?n", "Chào mừng bạn"],
+    ["Chào mừng bạn � đến với Bhome.", "Chào mừng bạn đến với Bhome."],
+    ["Danh m?c c?n h? � ang � ��c c?p nh?t li?n t?c.", "Danh mục căn hộ đang được cập nhật liên tục."],
+    ["NỀN TẢNG ĐẦU TƯ CĂN HỘ", "Nền tảng đầu tư căn hộ"],
+    ["NỀN TẢNG ĐẦU TƯ CĂN HỘ".toLowerCase(), "nền tảng đầu tư căn hộ"],
+    ["Giá»›i Thiá»‡u", "Giới Thiệu"],
+    ["TÃ¬m PhÃ²ng", "Tìm Phòng"],
+    ["Tin tá»©c", "Tin tức"],
+    ["ÄÄƒng nháº­p", "Đăng nhập"],
+    ["ÄÄƒng xuáº¥t", "Đăng xuất"],
+    ["Ná»n táº£ng", "Nền tảng"],
+    ["gi?i", "giới"],
+    ["thi?u", "thiệu"],
+    ["tài s?n", "tài sản"],
+    ["các nhà � ầu tư", "các nhà đầu tư"],
+    ["cÄƒn há»™", "căn hộ"],
+    ["thuê hướng", "thuê hướng"],
+    ["Khu vá»±c", "Khu vực"],
+    ["Sá»‘ phÃ²ng", "Số phòng"],
+    ["Láº¥p Ä‘áº§y", "Lấp đầy"],
+    ["Xem chi tiáº¿t", "Xem chi tiết"],
+    ["Cáº­p nháº­t má»›i nháº¥t tá»« Bhome", "Cập nhật mới nhất từ Bhome"],
+    ["ChÆ°a cÃ³ bÃ i viáº¿t nÃ o Ä‘Æ°á»£c Ä‘Äƒng.", "Chưa có bài viết nào được đăng."],
+    ["ThÃ´ng bÃ¡o", "Thông báo"],
+    ["Tuyá»ƒn dá»¥ng", "Tuyển dụng"],
+    ["KhÃ´ng tÃ¬m tháº¥y tÃ²a nhÃ ", "Không tìm thấy tòa nhà"],
+    ["Dá»¯ liá»‡u tÃ²a nhÃ  khÃ´ng tá»“n táº¡i hoáº·c Ä‘Ã£ bá»‹ xÃ³a.", "Dữ liệu tòa nhà không tồn tại hoặc đã bị xóa."],
+    ["KhÃ´ng cÃ³ ná»™i dung Ä‘á»ƒ hiá»ƒn thá»‹.", "Không có nội dung để hiển thị."],
+    ["Chi tiáº¿t tÃ²a nhÃ ", "Chi tiết tòa nhà"],
+    ["ThÃ´ng tin váº­n hÃ nh", "Thông tin vận hành"],
+    ["Äá»‹a chá»‰", "Địa chỉ"],
+    ["Sá»‘ táº§ng", "Số tầng"],
+    ["GiÃ¡ trung bÃ¬nh", "Giá trung bình"],
+    ["GÃ³c nhÃ¬n Ä‘áº§u tÆ°", "Góc nhìn đầu tư"],
+    ["Tá»· lá»‡ láº¥p Ä‘áº§y", "Tỷ lệ lấp đầy"],
+    ["Äiá»ƒm nháº¥n", "Điểm nhấn"],
+    ["Tá»•ng phÃ²ng", "Tổng phòng"],
+    ["PhÃ²ng Ä‘ang trá»‘ng", "Phòng đang trống"],
+    ["Táº¥t cáº£ khu vá»±c", "Tất cả khu vực"],
+    ["Táº¥t cáº£ tÃ²a nhÃ ", "Tất cả tòa nhà"],
+    ["Táº¥t cáº£ tráº¡ng thÃ¡i", "Tất cả trạng thái"],
+    ["Äang trá»‘ng", "Đang trống"],
+    ["ÄÃ£ cÃ³ khÃ¡ch", "Đã có khách"],
+    ["Sáº¯p trá»‘ng", "Sắp trống"],
+    ["KhÃ´ng cÃ³ phÃ²ng phÃ¹ há»£p vá»›i bá»™ lá»c hiá»‡n táº¡i.", "Không có phòng phù hợp với bộ lọc hiện tại."],
+    ["KhÃ´ng xÃ¡c Ä‘á»‹nh", "Không xác định"],
+    ["KhÃ´ng tÃ¬m tháº¥y phÃ²ng", "Không tìm thấy phòng"],
+    ["PhÃ²ng khÃ´ng tá»“n táº¡i hoáº·c Ä‘Ã£ bá»‹ xÃ³a.", "Phòng không tồn tại hoặc đã bị xóa."],
+    ["Chi tiáº¿t phÃ²ng", "Chi tiết phòng"],
+    ["ThÃ´ng tin cÆ¡ báº£n", "Thông tin cơ bản"],
+    ["TÃ²a nhÃ ", "Tòa nhà"],
+    ["Loáº¡i phÃ²ng", "Loại phòng"],
+    ["Tráº¡ng thÃ¡i", "Trạng thái"],
+    ["ThÃ´ng tin cho thuÃª", "Thông tin cho thuê"],
+    ["GiÃ¡ thuÃª", "Giá thuê"],
+    ["NgÃ y trá»‘ng", "Ngày trống"],
+    ["Diá»‡n tÃ­ch", "Diện tích"],
+    ["Tiá»‡n Ã­ch", "Tiện ích"],
+    ["KhÃ´ng tÃ¬m tháº¥y bÃ i viáº¿t", "Không tìm thấy bài viết"],
+    ["BÃ i viáº¿t khÃ´ng tá»“n táº¡i hoáº·c Ä‘Ã£ bá»‹ xÃ³a.", "Bài viết không tồn tại hoặc đã bị xóa."],
+    ["Tin tá»©c Bhome", "Tin tức Bhome"],
+    ["Chuyá»ƒn Ä‘áº¿n áº£nh", "Chuyển đến ảnh"],
+    ["Äá»c bÃ i viáº¿t", "Đọc bài viết"],
+    ["Táº¥t cáº£ ná»n táº£ng", "Tất cả nền tảng"],
+    ["Táº¥t cáº£ tÃ¬nh tráº¡ng", "Tất cả tình trạng"],
+    ["Tá»•ng khÃ¡ch hÃ ng", "Tổng khách hàng"],
+    ["KhÃ¡ch Ä‘Ã£ chá»‘t", "Khách đã chốt"],
+    ["Tá»· lá»‡ chá»‘t", "Tỷ lệ chốt"],
+    ["TÃ i khoáº£n xem", "Tài khoản xem"],
+    ["Cáº­p nháº­t:", "Cập nhật:"],
+    ["KhÃ´ng cÃ³ ghi chÃº", "Không có ghi chú"],
+    ["ChÆ°a cáº­p nháº­t", "Chưa cập nhật"],
+    ["DiÃªn KhÃ¡nh", "Diên Khánh"],
+    ["KhÃ¡nh HÃ²a", "Khánh Hòa"],
+  ];
+
+  function cleanText(value) {
+    let text = String(value ?? "");
+    for (const [from, to] of TEXT_FIXES) {
+      if (text.includes(from)) text = text.split(from).join(to);
+    }
+    return text;
+  }
+
+  function cleanDeep(value) {
+    if (Array.isArray(value)) return value.map(cleanDeep);
+    if (!value || typeof value !== "object") return typeof value === "string" ? cleanText(value) : value;
+    return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, cleanDeep(entry)]));
+  }
+
+  function repairDomText(root) {
+    if (!root) return;
+    document.title = cleanText(document.title);
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let node = walker.nextNode();
+    while (node) {
+      const fixed = cleanText(node.nodeValue);
+      if (fixed !== node.nodeValue) node.nodeValue = fixed;
+      node = walker.nextNode();
+    }
+    root.querySelectorAll("*").forEach((element) => {
+      ["placeholder", "title", "alt", "aria-label"].forEach((attr) => {
+        if (element.hasAttribute && element.hasAttribute(attr)) {
+          const fixed = cleanText(element.getAttribute(attr));
+          if (fixed !== element.getAttribute(attr)) element.setAttribute(attr, fixed);
+        }
+      });
+    });
+  }
+
+  let domRepairObserverAttached = false;
+  function attachDomRepairObserver() {
+    if (domRepairObserverAttached) return;
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
+            repairDomText(node.parentElement);
+            return;
+          }
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            repairDomText(node);
+          }
+        });
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    domRepairObserverAttached = true;
+  }
+
   init();
 
   async function init() {
@@ -33,7 +164,7 @@
         return;
       }
 
-      const state = await loadState();
+      const state = cleanDeep(await loadState());
       setupCommon(state, session);
       if (page === "home") renderHome(state);
       if (page === "building-detail") renderBuildingDetailPage(state);
@@ -52,6 +183,8 @@
     setupAnnouncement(state.content);
     setupSessionNavigation(session);
     setupMobileMenu();
+    attachDomRepairObserver();
+    repairDomText(document.body);
 
     const companyName = document.getElementById("companyName");
     if (companyName) companyName.textContent = state.company.name;
@@ -158,7 +291,7 @@
       .slice(0, HOME_NEWS_LIMIT);
 
     if (!items.length) {
-      grid.innerHTML = '<div class="empty-state-card">ChÆ°a cÃ³ bÃ i viáº¿t nÃ o Ä‘Æ°á»£c Ä‘Äƒng.</div>';
+      grid.innerHTML = '<div class="empty-state-card">Chưa có bài viết nào được đăng.</div>';
       return;
     }
 
@@ -191,11 +324,11 @@
             <h3>${building.name}</h3>
             <p>${building.description}</p>
             <div class="building-overview-meta">
-              <div><strong>Khu vá»±c:</strong> ${building.region}</div>
-              <div><strong>Sá»‘ phÃ²ng:</strong> ${roomCount}</div>
-              <div><strong>Láº¥p Ä‘áº§y:</strong> ${building.occupancy}%</div>
+              <div><strong>Khu vực:</strong> ${building.region}</div>
+              <div><strong>Số phòng:</strong> ${roomCount}</div>
+              <div><strong>Lấp đầy:</strong> ${building.occupancy}%</div>
             </div>
-            <a class="primary-button button-inline" href="${buildingDetailLink(building.id)}">Xem chi tiáº¿t</a>
+            <a class="primary-button button-inline" href="${buildingDetailLink(building.id)}">Xem chi tiết</a>
           </div>
         `;
         buildingGrid.appendChild(card);
@@ -228,14 +361,14 @@
     const building = getBuildingById(state, params.get("id"));
 
     if (!building) {
-      document.getElementById("detailPageTitle").textContent = "KhÃ´ng tÃ¬m tháº¥y tÃ²a nhÃ ";
-      document.getElementById("detailPageSummary").textContent = "Dá»¯ liá»‡u tÃ²a nhÃ  khÃ´ng tá»“n táº¡i hoáº·c Ä‘Ã£ bá»‹ xÃ³a.";
+      document.getElementById("detailPageTitle").textContent = "Không tìm thấy tòa nhà";
+      document.getElementById("detailPageSummary").textContent = "Dữ liệu tòa nhà không tồn tại hoặc đã bị xóa.";
       document.getElementById("detailContentGrid").innerHTML =
-        '<div class="empty-state-card">KhÃ´ng cÃ³ ná»™i dung Ä‘á»ƒ hiá»ƒn thá»‹.</div>';
+        '<div class="empty-state-card">Không có nội dung để hiển thị.</div>';
       return;
     }
 
-    document.title = `${building.name} | Chi tiáº¿t tÃ²a nhÃ `;
+    document.title = `${building.name} | Chi tiết tòa nhà`;
     document.getElementById("detailPageTitle").textContent = building.name;
     document.getElementById("detailPageSummary").textContent = building.description;
 
@@ -254,28 +387,28 @@
     const rooms = getRoomsByBuilding(state, building.id);
     document.getElementById("detailContentGrid").innerHTML = `
       <article class="detail-info-card">
-        <h3>ThÃ´ng tin váº­n hÃ nh</h3>
+        <h3>Thông tin vận hành</h3>
         <ul class="detail-list">
-          <li><span>Khu vá»±c</span><strong>${building.region}</strong></li>
-          <li><span>Äá»‹a chá»‰</span><strong>${building.address}</strong></li>
-          <li><span>Sá»‘ táº§ng</span><strong>${building.floors}</strong></li>
-          <li><span>GiÃ¡ trung bÃ¬nh</span><strong>${building.averageRent}</strong></li>
+          <li><span>Khu vực</span><strong>${building.region}</strong></li>
+          <li><span>Địa chỉ</span><strong>${building.address}</strong></li>
+          <li><span>Số tầng</span><strong>${building.floors}</strong></li>
+          <li><span>Giá trung bình</span><strong>${building.averageRent}</strong></li>
         </ul>
       </article>
       <article class="detail-info-card">
-        <h3>GÃ³c nhÃ¬n Ä‘áº§u tÆ°</h3>
+        <h3>Góc nhìn đầu tư</h3>
         <ul class="detail-list">
-          <li><span>Tá»· lá»‡ láº¥p Ä‘áº§y</span><strong>${building.occupancy}%</strong></li>
-          <li><span>Äiá»ƒm nháº¥n</span><strong>${building.investmentHighlight}</strong></li>
-          <li><span>Tá»•ng phÃ²ng</span><strong>${rooms.length}</strong></li>
-          <li><span>PhÃ²ng Ä‘ang trá»‘ng</span><strong>${rooms.filter((room) => room.status === "available").length}</strong></li>
+          <li><span>Tỷ lệ lấp đầy</span><strong>${building.occupancy}%</strong></li>
+          <li><span>Điểm nhấn</span><strong>${building.investmentHighlight}</strong></li>
+          <li><span>Tổng phòng</span><strong>${rooms.length}</strong></li>
+          <li><span>Phòng đang trống</span><strong>${rooms.filter((room) => room.status === "available").length}</strong></li>
         </ul>
       </article>
     `;
 
     const grid = document.getElementById("detailRoomsGrid");
     if (!rooms.length) {
-      grid.innerHTML = '<div class="empty-state-card">ChÆ°a cÃ³ phÃ²ng nÃ o Ä‘Æ°á»£c cáº­p nháº­t.</div>';
+      grid.innerHTML = '<div class="empty-state-card">Chưa có phòng nào được cập nhật.</div>';
       return;
     }
 
@@ -292,9 +425,9 @@
     const nextButton = document.getElementById("roomsNextButton");
     const numbers = document.getElementById("roomsPaginationNumbers");
 
-    fillSelect(regionFilter, ["Táº¥t cáº£ khu vá»±c"].concat(unique(state.rooms.map((room) => room.region))));
-    fillSelect(buildingFilter, ["Táº¥t cáº£ tÃ²a nhÃ "].concat(state.buildings.map((building) => building.name)));
-    fillSelect(statusFilter, ["Táº¥t cáº£ tráº¡ng thÃ¡i", "Äang trá»‘ng", "ÄÃ£ cÃ³ khÃ¡ch", "Sáº¯p trá»‘ng"]);
+    fillSelect(regionFilter, ["Tất cả khu vực"].concat(unique(state.rooms.map((room) => room.region))));
+    fillSelect(buildingFilter, ["Tất cả tòa nhà"].concat(state.buildings.map((building) => building.name)));
+    fillSelect(statusFilter, ["Tất cả trạng thái", "Đang trống", "Đã có khách", "Sắp trống"]);
 
     let currentPage = 1;
 
@@ -326,9 +459,9 @@
     function getFilteredRooms() {
       return state.rooms.filter((room) => {
         const building = getBuildingById(state, room.buildingId);
-        const regionMatch = regionFilter.value === "Táº¥t cáº£ khu vá»±c" || room.region === regionFilter.value;
-        const buildingMatch = buildingFilter.value === "Táº¥t cáº£ tÃ²a nhÃ " || (building && building.name === buildingFilter.value);
-        const statusMatch = statusFilter.value === "Táº¥t cáº£ tráº¡ng thÃ¡i" || statusLabel(room.status) === statusFilter.value;
+        const regionMatch = regionFilter.value === "Tất cả khu vực" || room.region === regionFilter.value;
+        const buildingMatch = buildingFilter.value === "Tất cả tòa nhà" || (building && building.name === buildingFilter.value);
+        const statusMatch = statusFilter.value === "Tất cả trạng thái" || statusLabel(room.status) === statusFilter.value;
         return regionMatch && buildingMatch && statusMatch;
       });
     }
@@ -357,7 +490,7 @@
       currentPage = Math.min(currentPage, totalPages);
 
       if (!filtered.length) {
-        grid.innerHTML = '<div class="empty-state-card">KhÃ´ng cÃ³ phÃ²ng phÃ¹ há»£p vá»›i bá»™ lá»c hiá»‡n táº¡i.</div>';
+        grid.innerHTML = '<div class="empty-state-card">Không có phòng phù hợp với bộ lọc hiện tại.</div>';
         numbers.innerHTML = "";
         prevButton.disabled = true;
         nextButton.disabled = true;
@@ -367,7 +500,7 @@
       const start = (currentPage - 1) * ROOMS_PER_PAGE;
       filtered.slice(start, start + ROOMS_PER_PAGE).forEach((room) => {
         const building = getBuildingById(state, room.buildingId);
-        grid.appendChild(roomCard(room, building ? building.name : "KhÃ´ng xÃ¡c Ä‘á»‹nh"));
+        grid.appendChild(roomCard(room, building ? building.name : "Không xác định"));
       });
 
       renderPagination(totalPages);
@@ -436,7 +569,7 @@
 
     async function refresh() {
       try {
-        tableBody.innerHTML = '<tr><td colspan="8"><div class="empty-state-inline">Äang táº£i dá»¯ liá»‡u khÃ¡ch hÃ ng...</div></td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="8"><div class="empty-state-inline">Đang tải dữ liệu khách hàng...</div></td></tr>';
         const response = await loadCustomersPage({
           ...buildCustomerQuery(),
           page: paging.page,
@@ -447,15 +580,15 @@
         paging.totalItems = response.totalItems || 0;
 
         fillSelect(platformFilter, [
-          { value: "", label: "Táº¥t cáº£ ná»n táº£ng" },
+          { value: "", label: "Tất cả nền tảng" },
           ...(response.filters?.platforms || []).map((value) => ({ value, label: value })),
         ]);
         fillSelect(regionFilter, [
-          { value: "", label: "Táº¥t cáº£ khu vá»±c" },
+          { value: "", label: "Tất cả khu vực" },
           ...(response.filters?.regions || []).map((value) => ({ value, label: value })),
         ]);
         fillSelect(statusFilter, [
-          { value: "", label: "Táº¥t cáº£ tÃ¬nh tráº¡ng" },
+          { value: "", label: "Tất cả tình trạng" },
           ...(response.filters?.statuses || []).map((value) => ({ value, label: value })),
         ]);
 
@@ -467,7 +600,7 @@
           window.location.href = "admin-login.html";
           return;
         }
-        tableBody.innerHTML = `<tr><td colspan="8"><div class="empty-state-inline">${error.message || "KhÃ´ng thá»ƒ táº£i dá»¯ liá»‡u khÃ¡ch hÃ ng."}</div></td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="8"><div class="empty-state-inline">${error.message || "Không thể tải dữ liệu khách hàng."}</div></td></tr>`;
       }
     }
 
@@ -476,10 +609,10 @@
         ? `${Math.round((Number(stats.totalClosedCustomers || 0) / Number(stats.totalCustomers || 1)) * 100)}%`
         : "0%";
       const cards = [
-        { label: "Tá»•ng khÃ¡ch hÃ ng", value: stats.totalCustomers || 0, note: "ToÃ n bá»™ data khÃ¡ch hÃ ng Ä‘ang Ä‘Æ°á»£c quáº£n lÃ½" },
-        { label: "KhÃ¡ch Ä‘Ã£ chá»‘t", value: stats.totalClosedCustomers || 0, note: "KhÃ¡ch Ä‘Ã£ chuyá»ƒn sang tráº¡ng thÃ¡i chá»‘t" },
-        { label: "Tá»· lá»‡ chá»‘t", value: closeRate, note: "Tá»· lá»‡ chuyá»ƒn Ä‘á»•i hiá»‡n táº¡i trÃªn toÃ n bá»™ danh sÃ¡ch" },
-        { label: "TÃ i khoáº£n xem", value: currentSession.adminName || currentSession.adminEmail || "Admin", note: "PhiÃªn Ä‘Äƒng nháº­p hiá»‡n táº¡i" },
+        { label: "Tổng khách hàng", value: stats.totalCustomers || 0, note: "Toàn bộ data khách hàng đang được quản lý" },
+        { label: "Khách đã chốt", value: stats.totalClosedCustomers || 0, note: "Khách đã chuyển sang trạng thái chốt" },
+        { label: "Tỷ lệ chốt", value: closeRate, note: "Tỷ lệ chuyển đổi hiện tại trên toàn bộ danh sách" },
+        { label: "Tài khoản xem", value: currentSession.adminName || currentSession.adminEmail || "Admin", note: "Phiên đăng nhập hiện tại" },
       ];
       statsGrid.innerHTML = cards.map((item) => `
         <article class="admin-stat-card">
@@ -492,7 +625,7 @@
 
     function renderCustomerPublicRows(items) {
       if (!items.length) {
-        tableBody.innerHTML = '<tr><td colspan="8"><div class="empty-state-inline">KhÃ´ng cÃ³ khÃ¡ch hÃ ng phÃ¹ há»£p vá»›i bá»™ lá»c hiá»‡n táº¡i.</div></td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="8"><div class="empty-state-inline">Không có khách hàng phù hợp với bộ lọc hiện tại.</div></td></tr>';
         return;
       }
 
@@ -504,9 +637,9 @@
           <td>${customer.platform}</td>
           <td>${customer.region}</td>
           <td>${customer.status}</td>
-          <td>${formatDateTime(customer.createdAt)}<br><small>Cáº­p nháº­t: ${formatDateTime(customer.updatedAt)}</small></td>
-          <td>${customer.demand || "ChÆ°a cáº­p nháº­t"}</td>
-          <td>${customer.note || "KhÃ´ng cÃ³ ghi chÃº"}</td>
+          <td>${formatDateTime(customer.createdAt)}<br><small>Cập nhật: ${formatDateTime(customer.updatedAt)}</small></td>
+          <td>${customer.demand || "Chưa cập nhật"}</td>
+          <td>${customer.note || "Không có ghi chú"}</td>
           <td>${customer.createdByName || "Admin"}<br><small>${customer.createdByEmail || ""}</small></td>
         `;
         tableBody.appendChild(row);
@@ -549,18 +682,18 @@
     const room = getRoomById(state, params.get("id"));
 
     if (!room) {
-      document.getElementById("roomDetailTitle").textContent = "KhÃ´ng tÃ¬m tháº¥y phÃ²ng";
-      document.getElementById("roomDetailSummary").textContent = "PhÃ²ng khÃ´ng tá»“n táº¡i hoáº·c Ä‘Ã£ bá»‹ xÃ³a.";
+      document.getElementById("roomDetailTitle").textContent = "Không tìm thấy phòng";
+      document.getElementById("roomDetailSummary").textContent = "Phòng không tồn tại hoặc đã bị xóa.";
       document.getElementById("roomDetailContent").innerHTML =
-        '<div class="empty-state-card">KhÃ´ng cÃ³ ná»™i dung Ä‘á»ƒ hiá»ƒn thá»‹.</div>';
+        '<div class="empty-state-card">Không có nội dung để hiển thị.</div>';
       return;
     }
 
     const building = getBuildingById(state, room.buildingId);
-    document.title = `${room.name} | Chi tiáº¿t phÃ²ng`;
+    document.title = `${room.name} | Chi tiết phòng`;
     document.getElementById("roomDetailTitle").textContent = room.name;
     document.getElementById("roomDetailSummary").textContent =
-      `${building ? building.name : "KhÃ´ng xÃ¡c Ä‘á»‹nh"} | ${room.type} | ${statusLabel(room.status)}`;
+      `${building ? building.name : "Không xác định"} | ${room.type} | ${statusLabel(room.status)}`;
 
     setupImageGallery(
       [room.image],
@@ -575,21 +708,21 @@
 
     document.getElementById("roomDetailContent").innerHTML = `
       <article class="detail-info-card">
-        <h3>ThÃ´ng tin cÆ¡ báº£n</h3>
+        <h3>Thông tin cơ bản</h3>
         <ul class="detail-list">
-          <li><span>TÃ²a nhÃ </span><strong>${building ? building.name : "KhÃ´ng xÃ¡c Ä‘á»‹nh"}</strong></li>
-          <li><span>Khu vá»±c</span><strong>${room.region}</strong></li>
-          <li><span>Loáº¡i phÃ²ng</span><strong>${room.type}</strong></li>
-          <li><span>Tráº¡ng thÃ¡i</span><strong>${statusLabel(room.status)}</strong></li>
+          <li><span>Tòa nhà</span><strong>${building ? building.name : "Không xác định"}</strong></li>
+          <li><span>Khu vực</span><strong>${room.region}</strong></li>
+          <li><span>Loại phòng</span><strong>${room.type}</strong></li>
+          <li><span>Trạng thái</span><strong>${statusLabel(room.status)}</strong></li>
         </ul>
       </article>
       <article class="detail-info-card">
-        <h3>ThÃ´ng tin cho thuÃª</h3>
+        <h3>Thông tin cho thuê</h3>
         <ul class="detail-list">
-          <li><span>GiÃ¡ thuÃª</span><strong>${room.rent}</strong></li>
-          <li><span>NgÃ y trá»‘ng</span><strong>${formatDate(room.availableFrom)}</strong></li>
-          <li><span>Diá»‡n tÃ­ch</span><strong>${room.area}</strong></li>
-          <li><span>Tiá»‡n Ã­ch</span><strong>${room.amenities}</strong></li>
+          <li><span>Giá thuê</span><strong>${room.rent}</strong></li>
+          <li><span>Ngày trống</span><strong>${formatDate(room.availableFrom)}</strong></li>
+          <li><span>Diện tích</span><strong>${room.area}</strong></li>
+          <li><span>Tiện ích</span><strong>${room.amenities}</strong></li>
         </ul>
       </article>
     `;
@@ -602,7 +735,7 @@
       .sort((a, b) => String(b.publishedAt || "").localeCompare(String(a.publishedAt || "")));
 
     if (!items.length) {
-      grid.innerHTML = '<div class="empty-state-card">ChÆ°a cÃ³ bÃ i viáº¿t nÃ o Ä‘Æ°á»£c Ä‘Äƒng.</div>';
+      grid.innerHTML = '<div class="empty-state-card">Chưa có bài viết nào được đăng.</div>';
       return;
     }
 
@@ -615,13 +748,13 @@
     const item = (state.news || []).find((entry) => entry.id === params.get("id") && entry.status !== "draft");
 
     if (!item) {
-      document.getElementById("newsDetailTitle").textContent = "KhÃ´ng tÃ¬m tháº¥y bÃ i viáº¿t";
-      document.getElementById("newsDetailMeta").textContent = "BÃ i viáº¿t khÃ´ng tá»“n táº¡i hoáº·c Ä‘Ã£ bá»‹ xÃ³a.";
-      document.getElementById("newsDetailBody").innerHTML = '<div class="empty-state-card">KhÃ´ng cÃ³ ná»™i dung Ä‘á»ƒ hiá»ƒn thá»‹.</div>';
+      document.getElementById("newsDetailTitle").textContent = "Không tìm thấy bài viết";
+      document.getElementById("newsDetailMeta").textContent = "Bài viết không tồn tại hoặc đã bị xóa.";
+      document.getElementById("newsDetailBody").innerHTML = '<div class="empty-state-card">Không có nội dung để hiển thị.</div>';
       return;
     }
 
-    document.title = `${item.title} | Tin tá»©c Bhome`;
+    document.title = `${item.title} | Tin tức Bhome`;
     document.getElementById("newsDetailTitle").textContent = item.title;
     document.getElementById("newsDetailMeta").textContent = `${item.category} | ${formatDate(item.publishedAt)}`;
     document.getElementById("newsDetailImage").src = safeImage(item.image, FALLBACK_BUILDING_IMAGE);
@@ -648,7 +781,7 @@
         const dot = document.createElement("button");
         dot.type = "button";
         dot.className = "gallery-dot";
-        dot.setAttribute("aria-label", `Chuyá»ƒn Ä‘áº¿n áº£nh ${index + 1}`);
+        dot.setAttribute("aria-label", `Chuyển đến ảnh ${index + 1}`);
         dot.addEventListener("click", () => {
           currentIndex = index;
           renderImage();
@@ -762,11 +895,11 @@
       <h3>${room.name}</h3>
       <p>${buildingName} | ${room.type}</p>
       <div class="room-meta">
-        <div><strong>Khu vá»±c:</strong> ${room.region}</div>
-        <div><strong>GiÃ¡ thuÃª:</strong> ${room.rent}</div>
-        <div><strong>NgÃ y trá»‘ng:</strong> ${formatDate(room.availableFrom)}</div>
+        <div><strong>Khu vực:</strong> ${room.region}</div>
+        <div><strong>Giá thuê:</strong> ${room.rent}</div>
+        <div><strong>Ngày trống:</strong> ${formatDate(room.availableFrom)}</div>
       </div>
-      <a class="secondary-button button-inline room-detail-button" href="${roomDetailLink(room.id)}">Xem chi tiáº¿t</a>
+      <a class="secondary-button button-inline room-detail-button" href="${roomDetailLink(room.id)}">Xem chi tiết</a>
     `;
     return card;
   }
@@ -785,7 +918,7 @@
         <h3>${item.title}</h3>
         <p class="news-card-date">${formatDate(item.publishedAt)}</p>
         <p>${item.excerpt}</p>
-        <a class="secondary-button button-inline" href="${newsDetailLink(item.id)}">Äá»c bÃ i viáº¿t</a>
+        <a class="secondary-button button-inline" href="${newsDetailLink(item.id)}">Đọc bài viết</a>
       </div>
     `;
     return card;
@@ -796,7 +929,7 @@
     setText("navAboutLabel", content.navAbout);
     setText("navRoomsLabel", content.navRooms);
     setText("navNewsLabel", content.navNews);
-    setText("navAdminLabel", !content.navAdmin || content.navAdmin === "Admin" ? "ÄÄƒng nháº­p" : content.navAdmin);
+    setText("navAdminLabel", !content.navAdmin || content.navAdmin === "Admin" ? "Đăng nhập" : content.navAdmin);
     setText("heroKicker", content.heroKicker);
     setText("heroPrimaryButton", content.heroPrimaryButton);
     setText("heroSecondaryButton", content.heroSecondaryButton);
