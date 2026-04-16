@@ -30,6 +30,144 @@
   const page = document.body.dataset.page;
   const ROOM_PAGE_LIMIT = 12;
 
+  const TEXT_FIXES = [
+    ["ÄÄƒng nháº­p", "Đăng nhập"],
+    ["ÄÄƒng xuáº¥t", "Đăng xuất"],
+    ["Äang Ä‘Äƒng nháº­p...", "Đang đăng nhập..."],
+    ["Quáº£n lÃ½", "Quản lý"],
+    ["KhÃ¡ch hÃ ng", "Khách hàng"],
+    ["TÃ²a nhÃ ", "Tòa nhà"],
+    ["PhÃ²ng", "Phòng"],
+    ["Káº¿t quáº£", "Kết quả"],
+    ["Tin tá»©c", "Tin tức"],
+    ["Ná»™i dung", "Nội dung"],
+    ["Tá»•ng quan", "Tổng quan"],
+    ["Táº¥t cáº£", "Tất cả"],
+    ["Táº¡o má»›i", "Tạo mới"],
+    ["Táº£i", "Tải"],
+    ["TÃ¬m", "Tìm"],
+    ["TiÃªu Ä‘á»", "Tiêu đề"],
+    ["MÃ´ táº£", "Mô tả"],
+    ["LiÃªn há»‡", "Liên hệ"],
+    ["LÆ°u", "Lưu"],
+    ["Sá»‘", "Số"],
+    ["Thá»i gian", "Thời gian"],
+    ["Ghi chÃº", "Ghi chú"],
+    ["Nhu cáº§u", "Nhu cầu"],
+    ["Tá»· lá»‡", "Tỷ lệ"],
+    ["ÄÃ£ chá»‘t", "Đã chốt"],
+    ["ChÆ°a chá»‘t", "Chưa chốt"],
+    ["ÄÃ£ cÃ³ khÃ¡ch", "Đã có khách"],
+    ["Äang trá»‘ng", "Đang trống"],
+    ["Sáº¯p trá»‘ng", "Sắp trống"],
+    ["ÄÃ£ xem phÃ²ng", "Đã xem phòng"],
+    ["Äang tÆ° váº¥n", "Đang tư vấn"],
+    ["ChÆ°a phÃ¹ há»£p", "Chưa phù hợp"],
+    ["Má»›i", "Mới"],
+    ["Khu vá»±c", "Khu vực"],
+    ["Äá»‹a chá»‰", "Địa chỉ"],
+    ["GiÃ¡ thuÃª", "Giá thuê"],
+    ["NgÃ y trá»‘ng", "Ngày trống"],
+    ["Diá»‡n tÃ­ch", "Diện tích"],
+    ["Tiá»‡n Ã­ch", "Tiện ích"],
+    ["LÄ©nh vá»±c", "Lĩnh vực"],
+    ["CÃ´ng ty", "Công ty"],
+    ["Trang chá»§", "Trang chủ"],
+    ["Trang trÆ°á»›c", "Trang trước"],
+    ["Lá»—i táº£i dá»¯ liá»‡u", "Lỗi tải dữ liệu"],
+    ["KhÃ´ng thá»ƒ", "Không thể"],
+    ["KhÃ´ng cÃ³", "Không có"],
+    ["KhÃ´ng xÃ¡c Ä‘á»‹nh", "Không xác định"],
+    ["Cáº­p nháº­t", "Cập nhật"],
+    ["Sá»­a", "Sửa"],
+    ["XÃ³a", "Xóa"],
+    ["Thao tÃ¡c", "Thao tác"],
+    ["Vai trÃ²", "Vai trò"],
+    ["Email Ä‘Äƒng nháº­p", "Email đăng nhập"],
+    ["Máº­t kháº©u", "Mật khẩu"],
+    ["Khu quáº£n trá»‹ riÃªng", "Khu quản trị riêng"],
+    ["Khu vá»±c quáº£n trá»‹", "Khu vực quản trị"],
+    ["Báº£ng Ä‘iá»u khiá»ƒn quáº£n trá»‹", "Bảng điều khiển quản trị"],
+    ["Ná»n táº£ng Ä‘áº§u tÆ° cÄƒn há»™", "Nền tảng đầu tư căn hộ"],
+    ["Logo cÃ´ng ty", "Logo công ty"],
+    ["TÃ i khoáº£n admin", "Tài khoản admin"],
+    ["Admin chÃ­nh", "Admin chính"],
+    ["DiÃªn KhÃ¡nh", "Diên Khánh"],
+    ["TÃªn", "Tên"],
+    ["TÃªn cÃ´ng ty", "Tên công ty"],
+    ["TÃªn tÃ²a nhÃ ", "Tên tòa nhà"],
+    ["TÃªn phÃ²ng", "Tên phòng"],
+    ["TÃªn khÃ¡ch", "Tên khách"],
+    ["Sá»‘ Ä‘iá»‡n thoáº¡i", "Số điện thoại"],
+    ["áº¢nh", "Ảnh"],
+    ["Láº¥p Ä‘áº§y", "Lấp đầy"],
+    ["Sá»‘ táº§ng", "Số tầng"],
+    ["GiÃ¡ trung bÃ¬nh", "Giá trung bình"],
+    ["Äiá»ƒm nháº¥n", "Điểm nhấn"],
+    ["ThÃ´ng tin", "Thông tin"],
+    ["NÃºt", "Nút"],
+    ["Báº­t", "Bật"],
+    ["Táº¯t", "Tắt"],
+    ["Hiá»ƒn thá»‹", "Hiển thị"],
+    ["chá»‰nh", "chỉnh"],
+    ["Ä‘áº¿n", "đến"],
+    ["vá»", "về"],
+    ["váº­n hÃ nh", "vận hành"],
+    ["thÆ°Æ¡ng hiá»‡u", "thương hiệu"],
+    ["hoáº·c", "hoặc"],
+    ["Ä‘Æ°á»ng dáº«n", "đường dẫn"],
+    ["quáº£n trá»‹", "quản trị"],
+    ["dá»¯ liá»‡u", "dữ liệu"],
+  ];
+
+  function cleanText(value) {
+    let text = String(value ?? "");
+    for (const [from, to] of TEXT_FIXES) {
+      if (text.includes(from)) text = text.split(from).join(to);
+    }
+    return text;
+  }
+
+  function repairDomText(root) {
+    if (!root) return;
+    document.title = cleanText(document.title);
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let node = walker.nextNode();
+    while (node) {
+      const fixed = cleanText(node.nodeValue);
+      if (fixed !== node.nodeValue) node.nodeValue = fixed;
+      node = walker.nextNode();
+    }
+    root.querySelectorAll("*").forEach((element) => {
+      ["placeholder", "title", "alt", "aria-label"].forEach((attr) => {
+        if (element.hasAttribute && element.hasAttribute(attr)) {
+          const fixed = cleanText(element.getAttribute(attr));
+          if (fixed !== element.getAttribute(attr)) element.setAttribute(attr, fixed);
+        }
+      });
+    });
+  }
+
+  let domRepairObserverAttached = false;
+  function attachDomRepairObserver() {
+    if (domRepairObserverAttached) return;
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
+            repairDomText(node.parentElement);
+            return;
+          }
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            repairDomText(node);
+          }
+        });
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    domRepairObserverAttached = true;
+  }
+
   if (page === "admin-login") initLoginPage();
   if (page === "admin-dashboard") initDashboard();
 
@@ -38,6 +176,8 @@
       const state = await loadState();
       applyManagedText(state.content || {});
       applyBrand(state.company || {}, state.content || {});
+      attachDomRepairObserver();
+      repairDomText(document.body);
 
       if (await isAdminLoggedIn()) {
         window.location.href = "admin-dashboard.html";
@@ -49,14 +189,14 @@
 
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
-        hint.textContent = "Äang Ä‘Äƒng nháº­p...";
+        hint.textContent = cleanText("Äang Ä‘Äƒng nháº­p...");
 
         try {
           const data = new FormData(form);
           await loginAdmin(data.get("email"), data.get("password"));
           window.location.href = "admin-dashboard.html";
         } catch (error) {
-          hint.textContent = error.message || "Sai email hoáº·c máº­t kháº©u.";
+          hint.textContent = cleanText(error.message || "Sai email hoáº·c máº­t kháº©u.");
         }
       });
     } finally {
@@ -126,8 +266,9 @@
       setupTabs();
       setupMainTabs(currentRole);
       applyAccessControl(currentRole);
+      attachDomRepairObserver();
       if (adminRoleBadge) {
-        adminRoleBadge.textContent = currentRole === "manager" ? `Quáº£n lÃ½${currentAdminName ? ` â€¢ ${currentAdminName}` : ""}` : `Admin${currentAdminName ? ` â€¢ ${currentAdminName}` : ""}`;
+        adminRoleBadge.textContent = cleanText(currentRole === "manager" ? `Quáº£n lÃ½${currentAdminName ? ` â€¢ ${currentAdminName}` : ""}` : `Admin${currentAdminName ? ` â€¢ ${currentAdminName}` : ""}`);
       }
 
       document.getElementById("logoutButton").addEventListener("click", async () => {
@@ -471,6 +612,7 @@
       });
 
       renderStatic();
+      repairDomText(document.body);
       await refreshRooms();
       await refreshCustomers();
 
@@ -1109,8 +1251,9 @@
       }
 
       function showNotice(message, tone) {
-        notice.textContent = message;
+        notice.textContent = cleanText(message);
         notice.className = `admin-notice admin-notice-${tone}`;
+        repairDomText(notice.closest(".content-section") || document.body);
       }
     } finally {
       document.body.classList.remove("app-loading");
