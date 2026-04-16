@@ -17,6 +17,7 @@ require("dotenv").config();
 
 const app = express();
 app.disable("x-powered-by");
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, "data");
@@ -198,16 +199,16 @@ const defaultState = {
       },
     ],
   buildings: [
-    makeBuilding("b1", "Riverfront Residence", "Thá»§ Äá»©c", "12 Nguyá»…n VÄƒn BÃ¡, Thá»§ Äá»©c", 12, 94, "14 - 22 triá»‡u VND", "Gáº§n khu cÃ´ng nghá»‡ cao vÃ  tuyáº¿n metro", "TÃ i sáº£n hÆ°á»›ng sÃ´ng, tá»‡p khÃ¡ch chuyÃªn gia dÃ i háº¡n, cÃ´ng suáº¥t láº¥p Ä‘áº§y á»•n Ä‘á»‹nh quanh nÄƒm."),
-    makeBuilding("b2", "Central Square Apartments", "Quáº­n 7", "88 Nguyá»…n Thá»‹ Tháº­p, Quáº­n 7", 16, 89, "16 - 27 triá»‡u VND", "Táº­p trung nguá»“n cáº§u tá»« khÃ¡ch doanh nghiá»‡p", "TÃ²a nhÃ  cÃ³ há»‡ thá»‘ng dá»‹ch vá»¥ váº­n hÃ nh vÃ  chuá»—i cÄƒn há»™ studio Ä‘áº¿n 2PN."),
-    makeBuilding("b3", "Lotus Business Stay", "BÃ¬nh Tháº¡nh", "135 Äiá»‡n BiÃªn Phá»§, BÃ¬nh Tháº¡nh", 10, 92, "12 - 19 triá»‡u VND", "Tá»· lá»‡ quay vÃ²ng tháº¥p, khÃ¡ch thuÃª bá»n vá»¯ng", "Danh má»¥c cÄƒn há»™ phá»¥c vá»¥ khÃ¡ch lÃ m viá»‡c gáº§n trung tÃ¢m thÃ nh phá»‘."),
+    makeBuilding("b1", "Riverfront Residence", "Thủ Đức", "12 Nguyễn Văn Bá, Thủ Đức", 12, 94, "14 - 22 triệu VND", "Gần khu công nghệ cao và tuyến metro", "Tài sản hướng sông, tệp khách chuyên gia dài hạn, công suất lấp đầy ổn định quanh năm."),
+    makeBuilding("b2", "Central Square Apartments", "Quận 7", "88 Nguyễn Thị Thập, Quận 7", 16, 89, "16 - 27 triệu VND", "Tập trung nguồn cầu từ khách doanh nghiệp", "Tòa nhà có hệ thống dịch vụ vận hành và chuỗi căn hộ studio đến 2PN."),
+    makeBuilding("b3", "Lotus Business Stay", "Bình Thạnh", "135 Điện Biên Phủ, Bình Thạnh", 10, 92, "12 - 19 triệu VND", "Tỷ lệ quay vòng thấp, khách thuê bền vững", "Danh mục căn hộ phục vụ khách làm việc gần trung tâm thành phố."),
   ],
   rooms: [
-    { id: "r1", buildingId: "b1", name: "A1205", region: "Thá»§ Äá»©c", image: FALLBACK_ROOM_IMAGE, type: "1PN Deluxe", rent: "18 triá»‡u VND", status: "available", availableFrom: "2026-04-12", area: "48 m2", amenities: "Ná»™i tháº¥t Ä‘áº§y Ä‘á»§, mÃ¡y giáº·t riÃªng, ban cÃ´ng hÆ°á»›ng sÃ´ng" },
-    { id: "r2", buildingId: "b1", name: "A0902", region: "Thá»§ Äá»©c", image: FALLBACK_ROOM_IMAGE, type: "Studio Premium", rent: "14.5 triá»‡u VND", status: "occupied", availableFrom: "2026-08-01", area: "34 m2", amenities: "Lá»… tÃ¢n 24/7, gym, khu tiáº¿p khÃ¡ch" },
-    { id: "r3", buildingId: "b2", name: "B1508", region: "Quáº­n 7", image: FALLBACK_ROOM_IMAGE, type: "2PN Executive", rent: "26 triá»‡u VND", status: "upcoming", availableFrom: "2026-05-04", area: "72 m2", amenities: "Há»“ bÆ¡i, parking, ná»™i tháº¥t Ä‘á»“ng bá»™" },
-    { id: "r4", buildingId: "b2", name: "B1103", region: "Quáº­n 7", image: FALLBACK_ROOM_IMAGE, type: "1PN Signature", rent: "17 triá»‡u VND", status: "available", availableFrom: "2026-04-18", area: "45 m2", amenities: "Tháº» tá»«, báº£o trÃ¬ nhanh, táº§ng trung" },
-    { id: "r5", buildingId: "b3", name: "L0801", region: "BÃ¬nh Tháº¡nh", image: FALLBACK_ROOM_IMAGE, type: "Studio Flex", rent: "13 triá»‡u VND", status: "occupied", availableFrom: "2026-09-15", area: "32 m2", amenities: "Gáº§n trung tÃ¢m, dá»n dáº¹p hÃ ng tuáº§n, wifi tá»‘c Ä‘á»™ cao" },
+    { id: "r1", buildingId: "b1", name: "A1205", region: "Thủ Đức", image: FALLBACK_ROOM_IMAGE, type: "1PN Deluxe", rent: "18 triệu VND", status: "available", availableFrom: "2026-04-12", area: "48 m2", amenities: "Nội thất đầy đủ, máy giặt riêng, ban công hướng sông" },
+    { id: "r2", buildingId: "b1", name: "A0902", region: "Thủ Đức", image: FALLBACK_ROOM_IMAGE, type: "Studio Premium", rent: "14.5 triệu VND", status: "occupied", availableFrom: "2026-08-01", area: "34 m2", amenities: "Lễ tân 24/7, gym, khu tiếp khách" },
+    { id: "r3", buildingId: "b2", name: "B1508", region: "Quận 7", image: FALLBACK_ROOM_IMAGE, type: "2PN Executive", rent: "26 triệu VND", status: "upcoming", availableFrom: "2026-05-04", area: "72 m2", amenities: "Hồ bơi, parking, nội thất đồng bộ" },
+    { id: "r4", buildingId: "b2", name: "B1103", region: "Quận 7", image: FALLBACK_ROOM_IMAGE, type: "1PN Signature", rent: "17 triệu VND", status: "available", availableFrom: "2026-04-18", area: "45 m2", amenities: "Thẻ từ, bảo trì nhanh, tầng trung" },
+    { id: "r5", buildingId: "b3", name: "L0801", region: "Bình Thạnh", image: FALLBACK_ROOM_IMAGE, type: "Studio Flex", rent: "13 triệu VND", status: "occupied", availableFrom: "2026-09-15", area: "32 m2", amenities: "Gần trung tâm, dọn dẹp hàng tuần, wifi tốc độ cao" },
   ],
 };
 
@@ -826,6 +827,20 @@ app.get("/api/admin/session", (req, res) => {
   });
 });
 
+function finalizeLoginSession(req, res, admin) {
+  req.session.isAdmin = true;
+  req.session.adminEmail = admin.email;
+  req.session.adminRole = admin.role || "admin";
+  req.session.adminName = admin.name || "";
+  req.session.save((error) => {
+    if (error) {
+      res.status(500).json({ ok: false, error: "Không thể khởi tạo phiên đăng nhập." });
+      return;
+    }
+    res.json({ ok: true });
+  });
+}
+
 app.post("/api/admin/login", async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -837,24 +852,16 @@ app.post("/api/admin/login", async (req, res, next) => {
     if (USE_POSTGRES) {
       const admin = await findAdminForLogin(pool, email);
       if (admin && admin.is_active && verifyPassword(password, admin.password_hash)) {
-        req.session.isAdmin = true;
-        req.session.adminEmail = admin.email;
-        req.session.adminRole = admin.role || "admin";
-        req.session.adminName = admin.name || "";
         clearLoginFailures(req, email);
-        res.json({ ok: true });
+        finalizeLoginSession(req, res, admin);
         return;
       }
     } else {
       const state = await readStateAny();
       const admin = state.admins.find((item) => item.email === email && item.password === password);
       if (admin) {
-        req.session.isAdmin = true;
-        req.session.adminEmail = admin.email;
-        req.session.adminRole = admin.role || "admin";
-        req.session.adminName = admin.name || "";
         clearLoginFailures(req, email);
-        res.json({ ok: true });
+        finalizeLoginSession(req, res, admin);
         return;
       }
     }
