@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Báº£ng Ä‘iá»u khiá»ƒn quáº£n trá»‹</title>
+  <title>Bảng điều khiển quản trị</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Prata&display=swap" rel="stylesheet">
@@ -14,9 +14,9 @@
     <nav class="main-nav">
       <a class="brand-lockup" href="admin-dashboard.html">
         <span class="brand-mark" id="brandMarkText">BH</span>
-        <img class="brand-logo-image hidden" id="brandLogoImage" alt="Logo cÃ´ng ty">
+        <img class="brand-logo-image hidden" id="brandLogoImage" alt="Logo công ty">
         <div>
-          <p class="eyebrow" id="brandEyebrow">Khu vá»±c quáº£n trá»‹</p>
+          <p class="eyebrow" id="brandEyebrow">Khu vực quản trị</p>
           <h1 id="adminCompanyName">Bhome</h1>
         </div>
       </a>
@@ -24,7 +24,7 @@
         <span class="page-chip" id="adminRoleBadge">Admin</span>
         <a href="index.html" target="_blank" rel="noreferrer">Xem website</a>
         <button class="ghost-button button-inline" id="backupButton" type="button" data-role="admin">Tải backup</button>
-        <button class="ghost-button button-inline" id="logoutButton" type="button">ÄÄƒng xuáº¥t</button>
+        <button class="ghost-button button-inline" id="logoutButton" type="button">Đăng xuất</button>
       </div>
     </nav>
 
@@ -32,105 +32,105 @@
       <section class="content-section">
         <div class="section-header">
           <div>
-            <p class="section-kicker">Tá»•ng quan</p>
-            <h2>Quáº£n trá»‹ ná»™i dung vÃ  danh má»¥c</h2>
+            <p class="section-kicker">Tổng quan</p>
+            <h2>Quản trị nội dung và danh mục</h2>
           </div>
         </div>
-        <p id="adminNotice" class="admin-notice admin-notice-info">Sáºµn sÃ ng cáº­p nháº­t dá»¯ liá»‡u.</p>
+        <p id="adminNotice" class="admin-notice admin-notice-info">Sẵn sàng cập nhật dữ liệu.</p>
         <div class="admin-main-tabbar">
-          <button class="admin-main-tab active" type="button" data-main-tab="info" data-role="admin">Quáº£n lÃ½ thÃ´ng tin</button>
-          <button class="admin-main-tab" type="button" data-main-tab="customers" data-role="admin,manager">KhÃ¡ch hÃ ng</button>
+          <button class="admin-main-tab active" type="button" data-main-tab="info" data-role="admin">Quản lý thông tin</button>
+          <button class="admin-main-tab" type="button" data-main-tab="customers" data-role="admin,manager">Khách hàng</button>
         </div>
         <div class="admin-tabbar">
           <button class="admin-tab active" type="button" data-tab="intro" data-role="admin">Website</button>
-          <button class="admin-tab" type="button" data-tab="metrics" data-role="admin">Káº¿t quáº£</button>
-          <button class="admin-tab" type="button" data-tab="buildings" data-role="admin">TÃ²a nhÃ </button>
-          <button class="admin-tab" type="button" data-tab="rooms" data-role="admin">PhÃ²ng</button>
-          <button class="admin-tab" type="button" data-tab="news" data-role="admin">Tin tá»©c</button>
-          <button class="admin-tab" type="button" data-tab="admins" data-role="admin">TÃ i khoáº£n admin</button>
+          <button class="admin-tab" type="button" data-tab="metrics" data-role="admin">Kết quả</button>
+          <button class="admin-tab" type="button" data-tab="buildings" data-role="admin">Tòa nhà</button>
+          <button class="admin-tab" type="button" data-tab="rooms" data-role="admin">Phòng</button>
+          <button class="admin-tab" type="button" data-tab="news" data-role="admin">Tin tức</button>
+          <button class="admin-tab" type="button" data-tab="admins" data-role="admin">Tài khoản admin</button>
         </div>
       </section>
 
       <section class="content-section admin-panel active" data-panel="intro" data-role="admin">
         <div class="section-header">
           <div>
-            <p class="section-kicker">Ná»™i dung website</p>
-            <h2>Chá»‰nh website vÃ  ná»™i dung chÃ­nh</h2>
+            <p class="section-kicker">Nội dung website</p>
+            <h2>Chỉnh website và nội dung chính</h2>
           </div>
         </div>
         <form id="contentForm" class="form-grid">
-          <label>DÃ²ng chá»¯ trÃªn cÃ¹ng<input name="brandEyebrow" required></label>
-          <label>Menu - Giá»›i thiá»‡u<input name="navAbout" required></label>
-          <label>Menu - TÃ¬m phÃ²ng<input name="navRooms" required></label>
-          <label>Menu - Tin tá»©c<input name="navNews" required></label>
-          <label>Menu - ÄÄƒng nháº­p<input name="navAdmin" required></label>
+          <label>Dòng chữ trên cùng<input name="brandEyebrow" required></label>
+          <label>Menu - Giới thiệu<input name="navAbout" required></label>
+          <label>Menu - Tìm phòng<input name="navRooms" required></label>
+          <label>Menu - Tin tức<input name="navNews" required></label>
+          <label>Menu - Đăng nhập<input name="navAdmin" required></label>
           <label>Hero - Kicker<input name="heroKicker" required></label>
-          <label>Hero - NÃºt chÃ­nh<input name="heroPrimaryButton" required></label>
-          <label>Hero - NÃºt phá»¥<input name="heroSecondaryButton" required></label>
-          <label>Khá»‘i cÃ´ng ty - Kicker<input name="companySectionKicker" required></label>
-          <label>Khá»‘i cÃ´ng ty - TiÃªu Ä‘á»<input name="companySectionTitle" required></label>
-          <label>Khá»‘i danh má»¥c - Kicker<input name="portfolioSectionKicker" required></label>
-          <label>Khá»‘i danh má»¥c - TiÃªu Ä‘á»<input name="portfolioSectionTitle" required></label>
-          <label>Khá»‘i káº¿t quáº£ - Kicker<input name="resultsSectionKicker" required></label>
-          <label>Khá»‘i káº¿t quáº£ - TiÃªu Ä‘á»<input name="resultsSectionTitle" required></label>
-          <label>Khá»‘i tÃ²a nhÃ  - Kicker<input name="buildingsSectionKicker" required></label>
-          <label>Khá»‘i tÃ²a nhÃ  - TiÃªu Ä‘á»<input name="buildingsSectionTitle" required></label>
-          <label>Trang chi tiáº¿t - Kicker<input name="detailPageKicker" required></label>
-          <label>Trang chi tiáº¿t - Kicker phÃ²ng<input name="detailRoomsSectionKicker" required></label>
-          <label>Trang chi tiáº¿t - TiÃªu Ä‘á» phÃ²ng<input name="detailRoomsSectionTitle" required></label>
-          <label>Trang chi tiáº¿t - NÃºt tÃ¬m phÃ²ng<input name="detailRoomsButton" required></label>
-          <label>Trang tÃ¬m phÃ²ng - Kicker<input name="roomsPageKicker" required></label>
-          <label>Trang tÃ¬m phÃ²ng - TiÃªu Ä‘á»<input name="roomsPageTitle" required></label>
-          <label>Trang tÃ¬m phÃ²ng - MÃ´ táº£<textarea name="roomsPageDescription" rows="3" required></textarea></label>
-          <label>Trang tin tá»©c - Kicker<input name="newsPageKicker" required></label>
-          <label>Trang tin tá»©c - TiÃªu Ä‘á»<input name="newsPageTitle" required></label>
-          <label class="full-span">Trang tin tá»©c - MÃ´ táº£<textarea name="newsPageDescription" rows="3" required></textarea></label>
-          <label>Khá»‘i tin tá»©c - Kicker<input name="newsSectionKicker" required></label>
-          <label>Khá»‘i tin tá»©c - TiÃªu Ä‘á»<input name="newsSectionTitle" required></label>
-          <label>Khá»‘i tin tá»©c - NÃºt xem táº¥t cáº£<input name="newsSectionButton" required></label>
-          <label>LiÃªn há»‡ - NhÃ£n nÃºt<input name="contactToggle" required></label>
-          <label>LiÃªn há»‡ - TiÃªu Ä‘á»<input name="contactTitle" required></label>
-          <label>LiÃªn há»‡ - NhÃ£n Ä‘iá»‡n thoáº¡i<input name="contactPhoneLabel" required></label>
-          <label>LiÃªn há»‡ - NhÃ£n Zalo<input name="contactZaloLabel" required></label>
-          <label>LiÃªn há»‡ - NhÃ£n Facebook<input name="contactFacebookLabel" required></label>
-          <label>Thanh thÃ´ng bÃ¡o - Hiá»ƒn thá»‹
+          <label>Hero - Nút chính<input name="heroPrimaryButton" required></label>
+          <label>Hero - Nút phụ<input name="heroSecondaryButton" required></label>
+          <label>Khối công ty - Kicker<input name="companySectionKicker" required></label>
+          <label>Khối công ty - Tiêu đề<input name="companySectionTitle" required></label>
+          <label>Khối danh mục - Kicker<input name="portfolioSectionKicker" required></label>
+          <label>Khối danh mục - Tiêu đề<input name="portfolioSectionTitle" required></label>
+          <label>Khối kết quả - Kicker<input name="resultsSectionKicker" required></label>
+          <label>Khối kết quả - Tiêu đề<input name="resultsSectionTitle" required></label>
+          <label>Khối tòa nhà - Kicker<input name="buildingsSectionKicker" required></label>
+          <label>Khối tòa nhà - Tiêu đề<input name="buildingsSectionTitle" required></label>
+          <label>Trang chi tiết - Kicker<input name="detailPageKicker" required></label>
+          <label>Trang chi tiết - Kicker phòng<input name="detailRoomsSectionKicker" required></label>
+          <label>Trang chi tiết - Tiêu đề phòng<input name="detailRoomsSectionTitle" required></label>
+          <label>Trang chi tiết - Nút tìm phòng<input name="detailRoomsButton" required></label>
+          <label>Trang tìm phòng - Kicker<input name="roomsPageKicker" required></label>
+          <label>Trang tìm phòng - Tiêu đề<input name="roomsPageTitle" required></label>
+          <label>Trang tìm phòng - Mô tả<textarea name="roomsPageDescription" rows="3" required></textarea></label>
+          <label>Trang tin tức - Kicker<input name="newsPageKicker" required></label>
+          <label>Trang tin tức - Tiêu đề<input name="newsPageTitle" required></label>
+          <label class="full-span">Trang tin tức - Mô tả<textarea name="newsPageDescription" rows="3" required></textarea></label>
+          <label>Khối tin tức - Kicker<input name="newsSectionKicker" required></label>
+          <label>Khối tin tức - Tiêu đề<input name="newsSectionTitle" required></label>
+          <label>Khối tin tức - Nút xem tất cả<input name="newsSectionButton" required></label>
+          <label>Liên hệ - Nhãn nút<input name="contactToggle" required></label>
+          <label>Liên hệ - Tiêu đề<input name="contactTitle" required></label>
+          <label>Liên hệ - Nhãn điện thoại<input name="contactPhoneLabel" required></label>
+          <label>Liên hệ - Nhãn Zalo<input name="contactZaloLabel" required></label>
+          <label>Liên hệ - Nhãn Facebook<input name="contactFacebookLabel" required></label>
+          <label>Thanh thông báo - Hiển thị
             <select name="announcementEnabled" required>
-              <option value="true">Báº­t</option>
-              <option value="false">Táº¯t</option>
+              <option value="true">Bật</option>
+              <option value="false">Tắt</option>
             </select>
           </label>
-          <label class="full-span">Thanh thÃ´ng bÃ¡o - Ná»™i dung cháº¡y ngang<textarea name="announcementText" rows="3" required></textarea></label>
-          <label>ÄÄƒng nháº­p admin - TiÃªu Ä‘á»<input name="adminLoginTitle" required></label>
-          <label>ÄÄƒng nháº­p admin - MÃ´ táº£<textarea name="adminLoginDescription" rows="3" required></textarea></label>
-          <label>ÄÄƒng nháº­p admin - NÃºt Ä‘Äƒng nháº­p<input name="adminLoginButton" required></label>
+          <label class="full-span">Thanh thông báo - Nội dung chạy ngang<textarea name="announcementText" rows="3" required></textarea></label>
+          <label>Đăng nhập admin - Tiêu đề<input name="adminLoginTitle" required></label>
+          <label>Đăng nhập admin - Mô tả<textarea name="adminLoginDescription" rows="3" required></textarea></label>
+          <label>Đăng nhập admin - Nút đăng nhập<input name="adminLoginButton" required></label>
           <div class="form-actions">
-            <button class="primary-button button-inline" type="submit">LÆ°u ná»™i dung website</button>
+            <button class="primary-button button-inline" type="submit">Lưu nội dung website</button>
           </div>
         </form>
 
         <div class="section-header admin-subheader">
           <div>
-            <p class="section-kicker">CÃ´ng ty</p>
-            <h2>ThÃ´ng tin thÆ°Æ¡ng hiá»‡u vÃ  liÃªn há»‡</h2>
+            <p class="section-kicker">Công ty</p>
+            <h2>Thông tin thương hiệu và liên hệ</h2>
           </div>
         </div>
         <form id="companyForm" class="form-grid">
-          <label>TÃªn cÃ´ng ty<input name="name" required></label>
-          <label>Logo cÃ´ng ty (URL hoáº·c Ä‘Æ°á»ng dáº«n áº£nh)<input name="logo"></label>
-          <label>Táº£i logo tá»« mÃ¡y<input name="logoFile" type="file" accept="image/*"></label>
-          <label>TiÃªu Ä‘á» hero<input name="headline" required></label>
-          <label>MÃ´ táº£ hero<textarea name="description" rows="3" required></textarea></label>
-          <label>CÃ¢u chuyá»‡n cÃ´ng ty<textarea name="story" rows="4" required></textarea></label>
-          <label>áº¢nh hero (URL hoáº·c Ä‘Æ°á»ng dáº«n áº£nh)<input name="heroImage"></label>
-          <label>Táº£i áº£nh hero tá»« mÃ¡y<input name="heroImageFile" type="file" accept="image/*"></label>
-          <label>LÄ©nh vá»±c<input name="industry" required></label>
-          <label>Äá»‹a chá»‰<input name="address" required></label>
+          <label>Tên công ty<input name="name" required></label>
+          <label>Logo công ty (URL hoặc đường dẫn ảnh)<input name="logo"></label>
+          <label>Tải logo từ máy<input name="logoFile" type="file" accept="image/*"></label>
+          <label>Tiêu đề hero<input name="headline" required></label>
+          <label>Mô tả hero<textarea name="description" rows="3" required></textarea></label>
+          <label>Câu chuyện công ty<textarea name="story" rows="4" required></textarea></label>
+          <label>Ảnh hero (URL hoặc đường dẫn ảnh)<input name="heroImage"></label>
+          <label>Tải ảnh hero từ máy<input name="heroImageFile" type="file" accept="image/*"></label>
+          <label>Lĩnh vực<input name="industry" required></label>
+          <label>Địa chỉ<input name="address" required></label>
           <label>Email<input name="email" type="email" required></label>
-          <label>Sá»‘ Ä‘iá»‡n thoáº¡i<input name="phone" required></label>
+          <label>Số điện thoại<input name="phone" required></label>
           <label>Link Zalo<input name="zalo" required></label>
           <label>Link Facebook<input name="facebook" required></label>
           <div class="form-actions">
-            <button class="primary-button button-inline" type="submit">LÆ°u thÃ´ng tin cÃ´ng ty</button>
+            <button class="primary-button button-inline" type="submit">Lưu thông tin công ty</button>
           </div>
         </form>
       </section>
@@ -138,31 +138,31 @@
       <section class="content-section admin-panel" data-panel="metrics" data-role="admin">
         <div class="section-header">
           <div>
-            <p class="section-kicker">Káº¿t quáº£</p>
-            <h2>Chá»‰nh sá»‘ liá»‡u vÃ  ná»™i dung káº¿t quáº£</h2>
+            <p class="section-kicker">Kết quả</p>
+            <h2>Chỉnh số liệu và nội dung kết quả</h2>
           </div>
         </div>
         <form id="statsForm" class="form-grid">
-          <label>Chá»‰ sá»‘ 1 - TÃªn<input name="statLabel1" required></label>
-          <label>Chá»‰ sá»‘ 1 - GiÃ¡ trá»‹<input name="statValue1" required></label>
-          <label>Chá»‰ sá»‘ 1 - Ghi chÃº<input name="statNote1" required></label>
-          <label>Chá»‰ sá»‘ 2 - TÃªn<input name="statLabel2" required></label>
-          <label>Chá»‰ sá»‘ 2 - GiÃ¡ trá»‹<input name="statValue2" required></label>
-          <label>Chá»‰ sá»‘ 2 - Ghi chÃº<input name="statNote2" required></label>
-          <label>Chá»‰ sá»‘ 3 - TÃªn<input name="statLabel3" required></label>
-          <label>Chá»‰ sá»‘ 3 - GiÃ¡ trá»‹<input name="statValue3" required></label>
-          <label>Chá»‰ sá»‘ 3 - Ghi chÃº<input name="statNote3" required></label>
-          <label>Chá»‰ sá»‘ 4 - TÃªn<input name="statLabel4" required></label>
-          <label>Chá»‰ sá»‘ 4 - GiÃ¡ trá»‹<input name="statValue4" required></label>
-          <label>Chá»‰ sá»‘ 4 - Ghi chÃº<input name="statNote4" required></label>
-          <label>Káº¿t quáº£ 1 - TiÃªu Ä‘á»<input name="resultTitle1" required></label>
-          <label class="full-span">Káº¿t quáº£ 1 - MÃ´ táº£<textarea name="resultDescription1" rows="3" required></textarea></label>
-          <label>Káº¿t quáº£ 2 - TiÃªu Ä‘á»<input name="resultTitle2" required></label>
-          <label class="full-span">Káº¿t quáº£ 2 - MÃ´ táº£<textarea name="resultDescription2" rows="3" required></textarea></label>
-          <label>Káº¿t quáº£ 3 - TiÃªu Ä‘á»<input name="resultTitle3" required></label>
-          <label class="full-span">Káº¿t quáº£ 3 - MÃ´ táº£<textarea name="resultDescription3" rows="3" required></textarea></label>
+          <label>Chỉ số 1 - Tên<input name="statLabel1" required></label>
+          <label>Chỉ số 1 - Giá trị<input name="statValue1" required></label>
+          <label>Chỉ số 1 - Ghi chú<input name="statNote1" required></label>
+          <label>Chỉ số 2 - Tên<input name="statLabel2" required></label>
+          <label>Chỉ số 2 - Giá trị<input name="statValue2" required></label>
+          <label>Chỉ số 2 - Ghi chú<input name="statNote2" required></label>
+          <label>Chỉ số 3 - Tên<input name="statLabel3" required></label>
+          <label>Chỉ số 3 - Giá trị<input name="statValue3" required></label>
+          <label>Chỉ số 3 - Ghi chú<input name="statNote3" required></label>
+          <label>Chỉ số 4 - Tên<input name="statLabel4" required></label>
+          <label>Chỉ số 4 - Giá trị<input name="statValue4" required></label>
+          <label>Chỉ số 4 - Ghi chú<input name="statNote4" required></label>
+          <label>Kết quả 1 - Tiêu đề<input name="resultTitle1" required></label>
+          <label class="full-span">Kết quả 1 - Mô tả<textarea name="resultDescription1" rows="3" required></textarea></label>
+          <label>Kết quả 2 - Tiêu đề<input name="resultTitle2" required></label>
+          <label class="full-span">Kết quả 2 - Mô tả<textarea name="resultDescription2" rows="3" required></textarea></label>
+          <label>Kết quả 3 - Tiêu đề<input name="resultTitle3" required></label>
+          <label class="full-span">Kết quả 3 - Mô tả<textarea name="resultDescription3" rows="3" required></textarea></label>
           <div class="form-actions">
-            <button class="primary-button button-inline" type="submit">LÆ°u chá»‰ sá»‘ vÃ  ná»™i dung</button>
+            <button class="primary-button button-inline" type="submit">Lưu chỉ số và nội dung</button>
           </div>
         </form>
       </section>
@@ -170,42 +170,42 @@
       <section class="content-section admin-panel" data-panel="buildings" data-role="admin">
         <div class="section-header">
           <div>
-            <p class="section-kicker">TÃ²a nhÃ </p>
-            <h2>Quáº£n lÃ½ tÃ²a nhÃ  Ä‘ang váº­n hÃ nh</h2>
+            <p class="section-kicker">Tòa nhà</p>
+            <h2>Quản lý tòa nhà đang vận hành</h2>
           </div>
         </div>
         <div class="admin-toolbar">
-          <input id="buildingSearch" type="search" placeholder="TÃ¬m theo tÃªn, khu vá»±c, Ä‘á»‹a chá»‰">
+          <input id="buildingSearch" type="search" placeholder="Tìm theo tên, khu vực, địa chỉ">
         </div>
         <form id="buildingForm" class="form-grid">
           <input type="hidden" name="id">
-          <label>TÃªn tÃ²a nhÃ <input name="name" required></label>
-          <label>Khu vá»±c<input name="region" required></label>
-          <label>Äá»‹a chá»‰<input name="address" required></label>
-          <label>áº¢nh chÃ­nh (URL hoáº·c Ä‘Æ°á»ng dáº«n áº£nh)<input name="image"></label>
-          <label>Táº£i áº£nh chÃ­nh tá»« mÃ¡y<input name="imageFile" type="file" accept="image/*"></label>
-          <label>Bá»™ áº£nh (má»—i áº£nh má»™t dÃ²ng)<textarea name="gallery" rows="4"></textarea></label>
-          <label>Táº£i bá»™ áº£nh tá»« mÃ¡y<input name="galleryFiles" type="file" accept="image/*" multiple></label>
-          <label>Sá»‘ táº§ng<input name="floors" type="number" min="1" required></label>
-          <label>Tá»· lá»‡ láº¥p Ä‘áº§y<input name="occupancy" type="number" min="0" max="100" required></label>
-          <label>GiÃ¡ trung bÃ¬nh<input name="averageRent" required></label>
-          <label>Äiá»ƒm nháº¥n Ä‘áº§u tÆ°<input name="investmentHighlight" required></label>
-          <label>MÃ´ táº£ chi tiáº¿t<textarea name="description" rows="4" required></textarea></label>
+          <label>Tên tòa nhà<input name="name" required></label>
+          <label>Khu vực<input name="region" required></label>
+          <label>Địa chỉ<input name="address" required></label>
+          <label>Ảnh chính (URL hoặc đường dẫn ảnh)<input name="image"></label>
+          <label>Tải ảnh chính từ máy<input name="imageFile" type="file" accept="image/*"></label>
+          <label>Bộ ảnh (mỗi ảnh một dòng)<textarea name="gallery" rows="4"></textarea></label>
+          <label>Tải bộ ảnh từ máy<input name="galleryFiles" type="file" accept="image/*" multiple></label>
+          <label>Số tầng<input name="floors" type="number" min="1" required></label>
+          <label>Tỷ lệ lấp đầy<input name="occupancy" type="number" min="0" max="100" required></label>
+          <label>Giá trung bình<input name="averageRent" required></label>
+          <label>Điểm nhấn đầu tư<input name="investmentHighlight" required></label>
+          <label>Mô tả chi tiết<textarea name="description" rows="4" required></textarea></label>
           <div class="form-actions">
-            <button class="secondary-button button-inline" type="button" id="buildingResetButton">Táº¡o má»›i</button>
-            <button class="primary-button button-inline" type="submit">LÆ°u tÃ²a nhÃ </button>
+            <button class="secondary-button button-inline" type="button" id="buildingResetButton">Tạo mới</button>
+            <button class="primary-button button-inline" type="submit">Lưu tòa nhà</button>
           </div>
         </form>
         <div class="table-wrap admin-table-spacing customer-admin-table-wrap">
           <table>
             <thead>
               <tr>
-                <th>áº¢nh</th>
-                <th>TÃ²a nhÃ </th>
-                <th>Khu vá»±c</th>
-                <th>Sá»‘ phÃ²ng</th>
-                <th>Láº¥p Ä‘áº§y</th>
-                <th>Thao tÃ¡c</th>
+                <th>Ảnh</th>
+                <th>Tòa nhà</th>
+                <th>Khu vực</th>
+                <th>Số phòng</th>
+                <th>Lấp đầy</th>
+                <th>Thao tác</th>
               </tr>
             </thead>
             <tbody id="buildingTableBody"></tbody>
@@ -216,49 +216,49 @@
       <section class="content-section admin-panel" data-panel="rooms" data-role="admin">
         <div class="section-header">
           <div>
-            <p class="section-kicker">PhÃ²ng</p>
-            <h2>Quáº£n lÃ½ danh má»¥c phÃ²ng</h2>
+            <p class="section-kicker">Phòng</p>
+            <h2>Quản lý danh mục phòng</h2>
           </div>
         </div>
         <div class="admin-toolbar admin-toolbar-split">
-          <input id="roomSearch" type="search" placeholder="TÃ¬m theo tÃªn phÃ²ng, khu vá»±c, loáº¡i phÃ²ng">
+          <input id="roomSearch" type="search" placeholder="Tìm theo tên phòng, khu vực, loại phòng">
           <select id="roomBuildingFilter">
-            <option value="">Táº¥t cáº£ tÃ²a nhÃ </option>
+            <option value="">Tất cả tòa nhà</option>
           </select>
           <select id="roomStatusFilter">
-            <option value="">Táº¥t cáº£ tráº¡ng thÃ¡i</option>
-            <option value="available">Äang trá»‘ng</option>
-            <option value="occupied">ÄÃ£ cÃ³ khÃ¡ch</option>
-            <option value="upcoming">Sáº¯p trá»‘ng</option>
+            <option value="">Tất cả trạng thái</option>
+            <option value="available">Đang trống</option>
+            <option value="occupied">Đã có khách</option>
+            <option value="upcoming">Sắp trống</option>
           </select>
         </div>
         <form id="roomForm" class="form-grid">
           <input type="hidden" name="id">
-          <label>TÃªn phÃ²ng<input name="name" required></label>
-          <label>TÃ²a nhÃ <select name="buildingId" required></select></label>
-          <label>Khu vá»±c<input name="region" required></label>
-          <label>áº¢nh phÃ²ng (URL hoáº·c Ä‘Æ°á»ng dáº«n áº£nh)<input name="image"></label>
-          <label>Táº£i áº£nh phÃ²ng tá»« mÃ¡y<input name="imageFile" type="file" accept="image/*"></label>
-          <label>Loáº¡i phÃ²ng<input name="type" required></label>
-          <label>GiÃ¡ thuÃª<input name="rent" required></label>
-          <label>Tráº¡ng thÃ¡i
+          <label>Tên phòng<input name="name" required></label>
+          <label>Tòa nhà<select name="buildingId" required></select></label>
+          <label>Khu vực<input name="region" required></label>
+          <label>Ảnh phòng (URL hoặc đường dẫn ảnh)<input name="image"></label>
+          <label>Tải ảnh phòng từ máy<input name="imageFile" type="file" accept="image/*"></label>
+          <label>Loại phòng<input name="type" required></label>
+          <label>Giá thuê<input name="rent" required></label>
+          <label>Trạng thái
             <select name="status" required>
-              <option value="available">Äang trá»‘ng</option>
-              <option value="occupied">ÄÃ£ cÃ³ khÃ¡ch</option>
-              <option value="upcoming">Sáº¯p trá»‘ng</option>
+              <option value="available">Đang trống</option>
+              <option value="occupied">Đã có khách</option>
+              <option value="upcoming">Sắp trống</option>
             </select>
           </label>
-          <label>NgÃ y trá»‘ng<input name="availableFrom" type="date" required></label>
-          <label>Diá»‡n tÃ­ch<input name="area" required></label>
-          <label>Tiá»‡n Ã­ch<textarea name="amenities" rows="3" required></textarea></label>
+          <label>Ngày trống<input name="availableFrom" type="date" required></label>
+          <label>Diện tích<input name="area" required></label>
+          <label>Tiện ích<textarea name="amenities" rows="3" required></textarea></label>
           <div class="form-actions">
-            <button class="secondary-button button-inline" type="button" id="roomResetButton">Táº¡o má»›i</button>
-            <button class="primary-button button-inline" type="submit">LÆ°u phÃ²ng</button>
+            <button class="secondary-button button-inline" type="button" id="roomResetButton">Tạo mới</button>
+            <button class="primary-button button-inline" type="submit">Lưu phòng</button>
           </div>
         </form>
         <div class="admin-room-grid admin-table-spacing" id="adminRoomGrid"></div>
         <div class="pagination-bar admin-table-spacing">
-          <button class="secondary-button button-inline" type="button" id="adminRoomsPrevButton">Trang trÆ°á»›c</button>
+          <button class="secondary-button button-inline" type="button" id="adminRoomsPrevButton">Trang trước</button>
           <div class="pagination-numbers" id="adminRoomsPagination"></div>
           <button class="secondary-button button-inline" type="button" id="adminRoomsNextButton">Trang sau</button>
         </div>
@@ -267,48 +267,48 @@
       <section class="content-section admin-panel" data-panel="news" data-role="admin">
         <div class="section-header">
           <div>
-            <p class="section-kicker">Tin tá»©c</p>
-            <h2>ÄÄƒng bÃ i viáº¿t vÃ  thÃ´ng bÃ¡o</h2>
+            <p class="section-kicker">Tin tức</p>
+            <h2>Đăng bài viết và thông báo</h2>
           </div>
         </div>
         <div class="admin-toolbar admin-toolbar-split">
-          <input id="newsSearch" type="search" placeholder="TÃ¬m theo tiÃªu Ä‘á», loáº¡i bÃ i, tÃ³m táº¯t">
+          <input id="newsSearch" type="search" placeholder="Tìm theo tiêu đề, loại bài, tóm tắt">
           <select id="newsCategoryFilter">
-            <option value="">Táº¥t cáº£ loáº¡i bÃ i</option>
-            <option value="Tin tá»©c">Tin tá»©c</option>
-            <option value="Tuyá»ƒn dá»¥ng">Tuyá»ƒn dá»¥ng</option>
-            <option value="ThÃ´ng bÃ¡o">ThÃ´ng bÃ¡o</option>
+            <option value="">Tất cả loại bài</option>
+            <option value="Tin tức">Tin tức</option>
+            <option value="Tuyển dụng">Tuyển dụng</option>
+            <option value="Thông báo">Thông báo</option>
           </select>
         </div>
         <form id="newsForm" class="form-grid">
           <input type="hidden" name="id">
-          <label>TiÃªu Ä‘á» bÃ i viáº¿t<input name="title" required></label>
-          <label>Loáº¡i bÃ i
+          <label>Tiêu đề bài viết<input name="title" required></label>
+          <label>Loại bài
             <select name="category" required>
-              <option value="Tin tá»©c">Tin tá»©c</option>
-              <option value="Tuyá»ƒn dá»¥ng">Tuyá»ƒn dá»¥ng</option>
-              <option value="ThÃ´ng bÃ¡o">ThÃ´ng bÃ¡o</option>
+              <option value="Tin tức">Tin tức</option>
+              <option value="Tuyển dụng">Tuyển dụng</option>
+              <option value="Thông báo">Thông báo</option>
             </select>
           </label>
-          <label>Tráº¡ng thÃ¡i
+          <label>Trạng thái
             <select name="status" required>
-              <option value="published">ÄÃ£ Ä‘Äƒng</option>
-              <option value="draft">NhÃ¡p</option>
+              <option value="published">Đã đăng</option>
+              <option value="draft">Nháp</option>
             </select>
           </label>
-          <label>NgÃ y Ä‘Äƒng<input name="publishedAt" type="date" required></label>
-          <label>áº¢nh Ä‘áº¡i diá»‡n (URL hoáº·c Ä‘Æ°á»ng dáº«n áº£nh)<input name="image"></label>
-          <label>Táº£i áº£nh Ä‘áº¡i diá»‡n tá»« mÃ¡y<input name="imageFile" type="file" accept="image/*"></label>
-          <label class="full-span">TÃ³m táº¯t ngáº¯n<textarea name="excerpt" rows="3" required></textarea></label>
+          <label>Ngày đăng<input name="publishedAt" type="date" required></label>
+          <label>Ảnh đại diện (URL hoặc đường dẫn ảnh)<input name="image"></label>
+          <label>Tải ảnh đại diện từ máy<input name="imageFile" type="file" accept="image/*"></label>
+          <label class="full-span">Tóm tắt ngắn<textarea name="excerpt" rows="3" required></textarea></label>
           <div class="editor-toolbar full-span">
-            <button type="button" class="ghost-button button-inline editor-action" data-editor-target="body" data-editor-insert="## TiÃªu Ä‘á» phá»¥&#10;">TiÃªu Ä‘á» phá»¥</button>
-            <button type="button" class="ghost-button button-inline editor-action" data-editor-target="body" data-editor-insert="- Ã 1&#10;- Ã 2&#10;">Danh sÃ¡ch</button>
-            <button type="button" class="ghost-button button-inline editor-action" data-editor-target="body" data-editor-insert="LiÃªn há»‡: 0900 xxx xxx&#10;">ThÃ´ng tin liÃªn há»‡</button>
+            <button type="button" class="ghost-button button-inline editor-action" data-editor-target="body" data-editor-insert="## Tiêu đề phụ&#10;">Tiêu đề phụ</button>
+            <button type="button" class="ghost-button button-inline editor-action" data-editor-target="body" data-editor-insert="- Ý 1&#10;- Ý 2&#10;">Danh sách</button>
+            <button type="button" class="ghost-button button-inline editor-action" data-editor-target="body" data-editor-insert="Liên hệ: 0900 xxx xxx&#10;">Thông tin liên hệ</button>
           </div>
-          <label class="full-span">Ná»™i dung bÃ i viáº¿t<textarea name="body" rows="10" required></textarea></label>
+          <label class="full-span">Nội dung bài viết<textarea name="body" rows="10" required></textarea></label>
           <div class="form-actions">
-            <button class="secondary-button button-inline" type="button" id="newsResetButton">Táº¡o má»›i</button>
-            <button class="primary-button button-inline" type="submit">LÆ°u bÃ i viáº¿t</button>
+            <button class="secondary-button button-inline" type="button" id="newsResetButton">Tạo mới</button>
+            <button class="primary-button button-inline" type="submit">Lưu bài viết</button>
           </div>
         </form>
         <div class="news-grid admin-table-spacing" id="adminNewsGrid"></div>
@@ -317,103 +317,103 @@
       <section class="content-section admin-panel" data-panel="customers" data-role="admin,manager">
         <div class="section-header">
           <div>
-            <p class="section-kicker">KhÃ¡ch hÃ ng</p>
-            <h2>Quáº£n lÃ½ data khÃ¡ch vÃ  thá»‘ng kÃª theo admin</h2>
+            <p class="section-kicker">Khách hàng</p>
+            <h2>Quản lý data khách và thống kê theo admin</h2>
           </div>
         </div>
         <div class="admin-stats-grid admin-table-spacing" id="customerStatsGrid"></div>
         <div class="admin-toolbar admin-toolbar-split admin-table-spacing">
-          <input id="customerSearch" type="search" placeholder="TÃ¬m theo tÃªn, sá»‘ Ä‘iá»‡n thoáº¡i, nhu cáº§u, ghi chÃº">
+          <input id="customerSearch" type="search" placeholder="Tìm theo tên, số điện thoại, nhu cầu, ghi chú">
           <select id="customerPageSize">
-            <option value="10">10 khÃ¡ch / trang</option>
-            <option value="20">20 khÃ¡ch / trang</option>
-            <option value="50">50 khÃ¡ch / trang</option>
+            <option value="10">10 khách / trang</option>
+            <option value="20">20 khách / trang</option>
+            <option value="50">50 khách / trang</option>
           </select>
           <select id="customerPlatformFilter">
-            <option value="">Táº¥t cáº£ ná»n táº£ng</option>
+            <option value="">Tất cả nền tảng</option>
           </select>
           <select id="customerRegionFilter">
-            <option value="">Táº¥t cáº£ khu vá»±c</option>
+            <option value="">Tất cả khu vực</option>
           </select>
           <select id="customerStatusFilter">
-            <option value="">Táº¥t cáº£ tÃ¬nh tráº¡ng</option>
+            <option value="">Tất cả tình trạng</option>
           </select>
         </div>
         <form id="customerForm" class="form-grid">
           <input type="hidden" name="id">
-          <label>TÃªn khÃ¡ch<input name="name" required></label>
-          <label>Sá»‘ Ä‘iá»‡n thoáº¡i<input name="phone" required></label>
-          <label>Ná»n táº£ng tiáº¿p cáº­n
+          <label>Tên khách<input name="name" required></label>
+          <label>Số điện thoại<input name="phone" required></label>
+          <label>Nền tảng tiếp cận
             <div class="inline-field-group">
               <select name="platform" id="customerPlatformInput" required></select>
-              <button class="ghost-button button-inline" type="button" id="addCustomerPlatformButton">ThÃªm</button>
+              <button class="ghost-button button-inline" type="button" id="addCustomerPlatformButton">Thêm</button>
             </div>
           </label>
-          <label>Khu vá»±c tiáº¿p cáº­n
+          <label>Khu vực tiếp cận
             <div class="inline-field-group">
               <select name="region" id="customerRegionInput" required></select>
-              <button class="ghost-button button-inline" type="button" id="addCustomerRegionButton">ThÃªm</button>
+              <button class="ghost-button button-inline" type="button" id="addCustomerRegionButton">Thêm</button>
             </div>
           </label>
-          <label>TÃ¬nh tráº¡ng
+          <label>Tình trạng
             <select name="status" id="customerStatusInput" required></select>
           </label>
-          <label>Chá»‘t cÄƒn
+          <label>Chốt căn
             <select name="closeStatus" required>
-              <option value="open">ChÆ°a chá»‘t</option>
-              <option value="closed">ÄÃ£ chá»‘t</option>
+              <option value="open">Chưa chốt</option>
+              <option value="closed">Đã chốt</option>
             </select>
           </label>
-          <label class="full-span">Nhu cáº§u cá»§a khÃ¡ch<textarea name="demand" rows="3" required></textarea></label>
-          <label class="full-span">Ghi chÃº<textarea name="note" rows="4"></textarea></label>
+          <label class="full-span">Nhu cầu của khách<textarea name="demand" rows="3" required></textarea></label>
+          <label class="full-span">Ghi chú<textarea name="note" rows="4"></textarea></label>
           <div class="form-actions">
-            <button class="secondary-button button-inline" type="button" id="customerResetButton">Táº¡o má»›i</button>
-            <button class="primary-button button-inline" type="submit">LÆ°u khÃ¡ch hÃ ng</button>
+            <button class="secondary-button button-inline" type="button" id="customerResetButton">Tạo mới</button>
+            <button class="primary-button button-inline" type="submit">Lưu khách hàng</button>
           </div>
         </form>
         <div class="table-wrap admin-table-spacing">
           <table>
             <thead>
               <tr>
-                <th>KhÃ¡ch</th>
-                <th>Ná»n táº£ng</th>
-                <th>Khu vá»±c</th>
-                <th>TÃ¬nh tráº¡ng</th>
-                <th>Thá»i gian</th>
-                <th>Phá»¥ trÃ¡ch</th>
-                <th>Thao tÃ¡c</th>
+                <th>Khách</th>
+                <th>Nền tảng</th>
+                <th>Khu vực</th>
+                <th>Tình trạng</th>
+                <th>Thời gian</th>
+                <th>Phụ trách</th>
+                <th>Thao tác</th>
               </tr>
             </thead>
             <tbody id="customerTableBody"></tbody>
           </table>
         </div>
         <div class="pagination-bar admin-table-spacing">
-          <button class="secondary-button button-inline" type="button" id="customersPrevButton">Trang trÆ°á»›c</button>
+          <button class="secondary-button button-inline" type="button" id="customersPrevButton">Trang trước</button>
           <div class="pagination-numbers" id="customersPagination"></div>
           <button class="secondary-button button-inline" type="button" id="customersNextButton">Trang sau</button>
         </div>
         <div class="section-header admin-subheader" data-role="admin,manager">
           <div>
-            <p class="section-kicker">Váº­n hÃ nh phÃ²ng</p>
-            <h2>Cáº­p nháº­t tráº¡ng thÃ¡i phÃ²ng, ngÃ y vÃ o vÃ  ngÃ y ra</h2>
+            <p class="section-kicker">Vận hành phòng</p>
+            <h2>Cập nhật trạng thái phòng, ngày vào và ngày ra</h2>
           </div>
         </div>
         <form id="roomOccupancyForm" class="form-grid" data-role="admin,manager">
-          <label>PhÃ²ng
+          <label>Phòng
             <select name="roomId" id="roomOccupancyRoomId" required></select>
           </label>
-          <label>Tráº¡ng thÃ¡i
+          <label>Trạng thái
             <select name="status" id="roomOccupancyStatus" required>
-              <option value="available">Äang trá»‘ng</option>
-              <option value="occupied">ÄÃ£ cÃ³ khÃ¡ch</option>
-              <option value="upcoming">Sáº¯p trá»‘ng</option>
+              <option value="available">Đang trống</option>
+              <option value="occupied">Đã có khách</option>
+              <option value="upcoming">Sắp trống</option>
             </select>
           </label>
-          <label>NgÃ y vÃ o<input name="checkInDate" id="roomOccupancyCheckInDate" type="date"></label>
-          <label>NgÃ y ra<input name="checkOutDate" id="roomOccupancyCheckOutDate" type="date"></label>
+          <label>Ngày vào<input name="checkInDate" id="roomOccupancyCheckInDate" type="date"></label>
+          <label>Ngày ra<input name="checkOutDate" id="roomOccupancyCheckOutDate" type="date"></label>
           <div class="form-actions">
-            <button class="secondary-button button-inline" type="button" id="roomOccupancyResetButton">LÃ m má»›i</button>
-            <button class="primary-button button-inline" type="submit">LÆ°u váº­n hÃ nh phÃ²ng</button>
+            <button class="secondary-button button-inline" type="button" id="roomOccupancyResetButton">Làm mới</button>
+            <button class="primary-button button-inline" type="submit">Lưu vận hành phòng</button>
           </div>
         </form>
       </section>
@@ -421,37 +421,37 @@
       <section class="content-section admin-panel" data-panel="admins">
         <div class="section-header">
           <div>
-            <p class="section-kicker">TÃ i khoáº£n admin</p>
-            <h2>Táº¡o thÃªm tÃ i khoáº£n quáº£n trá»‹</h2>
+            <p class="section-kicker">Tài khoản admin</p>
+            <h2>Tạo thêm tài khoản quản trị</h2>
           </div>
         </div>
         <div class="admin-toolbar">
-          <input id="adminSearch" type="search" placeholder="TÃ¬m theo tÃªn hoáº·c email">
+          <input id="adminSearch" type="search" placeholder="Tìm theo tên hoặc email">
         </div>
         <form id="adminAccountForm" class="form-grid">
           <input type="hidden" name="id">
-          <label>TÃªn hiá»ƒn thá»‹<input name="name" required></label>
-          <label>Email Ä‘Äƒng nháº­p<input name="email" type="email" required></label>
-          <label>Máº­t kháº©u<input name="password" type="password" placeholder="Để trống nếu không đổi mật khẩu"></label>
-          <label>Vai trÃ²
+          <label>Tên hiển thị<input name="name" required></label>
+          <label>Email đăng nhập<input name="email" type="email" required></label>
+          <label>Mật khẩu<input name="password" type="password" placeholder="Để trống nếu không đổi mật khẩu"></label>
+          <label>Vai trò
             <select name="role" required>
               <option value="admin">Admin</option>
-              <option value="manager">Quáº£n lÃ½</option>
+              <option value="manager">Quản lý</option>
             </select>
           </label>
           <div class="form-actions">
-            <button class="secondary-button button-inline" type="button" id="adminAccountResetButton">Táº¡o má»›i</button>
-            <button class="primary-button button-inline" type="submit">LÆ°u tÃ i khoáº£n admin</button>
+            <button class="secondary-button button-inline" type="button" id="adminAccountResetButton">Tạo mới</button>
+            <button class="primary-button button-inline" type="submit">Lưu tài khoản admin</button>
           </div>
         </form>
         <div class="table-wrap admin-table-spacing">
           <table>
             <thead>
               <tr>
-                <th>TÃªn</th>
+                <th>Tên</th>
                 <th>Email</th>
-                <th>Vai trÃ²</th>
-                <th>Thao tÃ¡c</th>
+                <th>Vai trò</th>
+                <th>Thao tác</th>
               </tr>
             </thead>
             <tbody id="adminAccountTableBody"></tbody>
@@ -465,4 +465,3 @@
   <script src="admin-app.js"></script>
 </body>
 </html>
-
